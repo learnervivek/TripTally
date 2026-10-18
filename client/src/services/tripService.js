@@ -155,6 +155,46 @@ export const tripService = {
     const response = await api.post(`/invitations/${id}/decline`);
     return response.data;
   },
+
+  /**
+   * Get all daily itinerary items for a trip
+   */
+  async getItinerary(tripId) {
+    const response = await api.get(`/trips/${tripId}/itinerary`);
+    return response.data;
+  },
+
+  /**
+   * Create a new itinerary activity
+   */
+  async createItineraryItem(tripId, itemData) {
+    const response = await api.post(`/trips/${tripId}/itinerary`, itemData);
+    return response.data;
+  },
+
+  /**
+   * Update an existing itinerary activity
+   */
+  async updateItineraryItem(tripId, itemId, itemData) {
+    const response = await api.put(`/trips/${tripId}/itinerary/${itemId}`, itemData);
+    return response.data;
+  },
+
+  /**
+   * Delete an itinerary activity
+   */
+  async deleteItineraryItem(tripId, itemId) {
+    const response = await api.delete(`/trips/${tripId}/itinerary/${itemId}`);
+    return response.data;
+  },
+
+  /**
+   * Reorder itinerary items
+   */
+  async reorderItineraryItems(tripId, items) {
+    const response = await api.patch(`/trips/${tripId}/itinerary/reorder`, { items });
+    return response.data;
+  },
 };
 
 export default tripService;

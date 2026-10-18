@@ -16,6 +16,13 @@ import {
   removeMember,
   updateMemberRole,
 } from '../controllers/invitationController.js';
+import {
+  getItinerary,
+  createItineraryItem,
+  updateItineraryItem,
+  deleteItineraryItem,
+  reorderItineraryItems,
+} from '../controllers/itineraryController.js';
 import { protect } from '../middleware/auth.js';
 
 const router = Router();
@@ -38,5 +45,12 @@ router.get('/:id/invitations', getTripInvitations);
 router.delete('/:id/invitations/:invitationId', revokeInvitation);
 router.delete('/:id/members/:userId', removeMember);
 router.patch('/:id/members/:userId/role', updateMemberRole);
+
+// Daily Itinerary Planner Endpoints
+router.get('/:tripId/itinerary', getItinerary);
+router.post('/:tripId/itinerary', createItineraryItem);
+router.patch('/:tripId/itinerary/reorder', reorderItineraryItems);
+router.put('/:tripId/itinerary/:itemId', updateItineraryItem);
+router.delete('/:tripId/itinerary/:itemId', deleteItineraryItem);
 
 export default router;
