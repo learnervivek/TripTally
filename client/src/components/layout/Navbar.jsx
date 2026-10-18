@@ -144,6 +144,15 @@ export function Navbar() {
                       </div>
 
                       <Link
+                        to="/dashboard"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-charcoal-800 hover:bg-forest-50 hover:text-forest-800 transition-colors"
+                      >
+                        <Compass className="w-4 h-4 text-forest-600" />
+                        <span>Go to Dashboard</span>
+                      </Link>
+
+                      <Link
                         to="/profile"
                         onClick={() => setUserMenuOpen(false)}
                         className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium text-charcoal-700 hover:bg-ivory-100 hover:text-forest-800 transition-colors"

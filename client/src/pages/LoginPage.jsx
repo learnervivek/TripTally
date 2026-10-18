@@ -20,7 +20,7 @@ export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
-  const from = location.state?.from?.pathname || '/profile';
+  const from = location.state?.from?.pathname || '/dashboard';
 
   const {
     register,

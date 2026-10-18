@@ -43,7 +43,7 @@ export function RegisterPage() {
     const result = await registerAuth(data);
     setLoading(false);
     if (result.success) {
-      navigate('/profile', { replace: true });
+      navigate('/dashboard', { replace: true });
     }
   };
 
