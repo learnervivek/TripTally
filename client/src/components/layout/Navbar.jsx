@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Compass, Menu, X, ArrowRight, User, Sparkles } from 'lucide-react';
+import { Compass, Menu, X, ArrowRight, User, Sparkles, LogOut, Settings } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 import AuthModal from '../auth/AuthModal';
+import { useAuth } from '../../context/AuthContext';
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState('signin');
-  const [currentUser, setCurrentUser] = useState(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
+  const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -34,6 +36,15 @@ export function Navbar() {
     setAuthModalOpen(true);
     setMobileMenuOpen(false);
   };
+
+  const initials = user?.name
+    ? user.name
+        .split(' ')
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase()
+    : 'U';
 
   return (
     <>
@@ -103,18 +114,67 @@ export function Navbar() {
 
             {/* Desktop Action Buttons */}
             <div className="hidden md:flex items-center gap-3">
-              {currentUser ? (
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-semibold text-charcoal-800 bg-white border border-ivory-300 px-3 py-1.5 rounded-xl shadow-soft-sm">
-                    {currentUser.name}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setCurrentUser(null)}
+              {isAuthenticated && user ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="flex items-center gap-2.5 p-1.5 pl-3 rounded-2xl bg-white border border-ivory-300 hover:border-forest-600 shadow-soft-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600"
                   >
-                    Sign Out
-                  </Button>
+                    <span className="text-xs font-bold text-charcoal-900 max-w-[120px] truncate">
+                      {user.name}
+                    </span>
+                    <div className="w-8 h-8 rounded-xl bg-forest-600 text-white flex items-center justify-center font-bold text-xs overflow-hidden">
+                      {user.avatar ? (
+                        <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span>{initials}</span>
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {userMenuOpen && (
+                    <div
+                      className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-soft-xl border border-ivory-300 py-2 z-50 animate-fadeIn"
+                      onMouseLeave={() => setUserMenuOpen(false)}
+                    >
+                      <div className="px-4 py-2 border-b border-ivory-200">
+                        <p className="text-xs font-bold text-charcoal-900 truncate">{user.name}</p>
+                        <p className="text-[11px] text-charcoal-400 font-mono truncate">{user.email}</p>
+                      </div>
+
+                      <Link
+                        to="/profile"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium text-charcoal-700 hover:bg-ivory-100 hover:text-forest-800 transition-colors"
+                      >
+                        <User className="w-4 h-4 text-forest-600" />
+                        <span>Profile & Settings</span>
+                      </Link>
+
+                      <Link
+                        to="/design-system"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium text-charcoal-700 hover:bg-ivory-100 hover:text-forest-800 transition-colors"
+                      >
+                        <Settings className="w-4 h-4 text-charcoal-400" />
+                        <span>Design System Tokens</span>
+                      </Link>
+
+                      <div className="border-t border-ivory-200 mt-1 pt-1">
+                        <button
+                          onClick={() => {
+                            setUserMenuOpen(false);
+                            logout();
+                          }}
+                          className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span>Sign Out</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <>
@@ -153,6 +213,31 @@ export function Navbar() {
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden border-b border-ivory-300 bg-white/95 backdrop-blur-xl px-4 pt-3 pb-6 space-y-3 animate-fadeIn">
+            {isAuthenticated && user && (
+              <div className="p-3 rounded-2xl bg-forest-50 border border-forest-200 flex items-center justify-between mb-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-forest-600 text-white font-bold text-xs flex items-center justify-center overflow-hidden">
+                    {user.avatar ? (
+                      <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span>{initials}</span>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-charcoal-900">{user.name}</p>
+                    <p className="text-[10px] text-charcoal-500 font-mono truncate">{user.email}</p>
+                  </div>
+                </div>
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-xs font-bold text-forest-700 bg-white px-2.5 py-1.5 rounded-lg border border-forest-200 shadow-soft-sm"
+                >
+                  Profile
+                </Link>
+              </div>
+            )}
+
             <div className="flex flex-col space-y-1">
               <a
                 href="#features"
@@ -193,23 +278,40 @@ export function Navbar() {
             </div>
 
             <div className="pt-3 border-t border-ivory-200 flex flex-col gap-2">
-              <Button
-                variant="secondary"
-                size="md"
-                className="w-full justify-center"
-                onClick={() => openAuth('signin')}
-              >
-                Sign In
-              </Button>
-              <Button
-                variant="primary"
-                size="md"
-                className="w-full justify-center"
-                onClick={() => openAuth('signup')}
-                rightIcon={<ArrowRight className="w-4 h-4" />}
-              >
-                Get Started Free
-              </Button>
+              {isAuthenticated ? (
+                <Button
+                  variant="outline"
+                  size="md"
+                  className="w-full justify-center text-rose-600 border-rose-200 hover:bg-rose-50"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    logout();
+                  }}
+                  leftIcon={<LogOut className="w-4 h-4" />}
+                >
+                  Sign Out
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    className="w-full justify-center"
+                    onClick={() => openAuth('signin')}
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="md"
+                    className="w-full justify-center"
+                    onClick={() => openAuth('signup')}
+                    rightIcon={<ArrowRight className="w-4 h-4" />}
+                  >
+                    Get Started Free
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -220,7 +322,6 @@ export function Navbar() {
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         initialMode={authMode}
-        onAuthSuccess={(user) => setCurrentUser(user)}
       />
     </>
   );

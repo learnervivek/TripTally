@@ -1,29 +1,34 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Mail, Lock, User, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Sparkles } from 'lucide-react';
 import Dialog from '../ui/Dialog';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
-import Badge from '../ui/Badge';
-import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
 
 const signinSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().trim().email('Please enter a valid email address'),
+  password: z.string().min(1, 'Password is required'),
 });
 
 const signupSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email address'),
+  name: z.string().trim().min(2, 'Name must be at least 2 characters'),
+  email: z.string().trim().email('Please enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+  confirmPassword: z.string().min(6, 'Please confirm your password'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword'],
 });
 
 export function AuthModal({ isOpen, onClose, initialMode = 'signin', onAuthSuccess }) {
   const [mode, setMode] = useState(initialMode);
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
+  const { login, register: registerAuth } = useAuth();
+  const navigate = useNavigate();
 
   const isSignIn = mode === 'signin';
   const currentSchema = isSignIn ? signinSchema : signupSchema;
@@ -40,34 +45,52 @@ export function AuthModal({ isOpen, onClose, initialMode = 'signin', onAuthSucce
       name: '',
       email: '',
       password: '',
+      confirmPassword: '',
     },
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      const username = data.name || data.email.split('@')[0];
-      toast.success(
-        isSignIn ? 'Welcome Back!' : 'Account Created!',
-        `Logged in successfully as ${username}. You're ready to plan trips.`
-      );
+    let result;
+    if (isSignIn) {
+      result = await login({ email: data.email, password: data.password });
+    } else {
+      result = await registerAuth(data);
+    }
+    setLoading(false);
+
+    if (result.success) {
       reset();
       onClose();
-      if (onAuthSuccess) onAuthSuccess(data);
-    }, 900);
+      if (onAuthSuccess) onAuthSuccess(result.user);
+    }
   };
 
-  const handleDemoLogin = () => {
+  const handleDemoLogin = async () => {
     setValue('email', 'alex.traveler@example.com');
-    setValue('password', 'adventure2026');
+    setValue('password', 'Password123!');
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      toast.success('Signed in as Guest', 'Logged into demo traveler account. Ready to explore!');
+
+    let res = await login({ email: 'alex.traveler@example.com', password: 'Password123!' });
+    if (!res.success) {
+      await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'Alex Rivera',
+          email: 'alex.traveler@example.com',
+          password: 'Password123!',
+          confirmPassword: 'Password123!',
+        }),
+      });
+      res = await login({ email: 'alex.traveler@example.com', password: 'Password123!' });
+    }
+
+    setLoading(false);
+    if (res.success) {
       onClose();
-      if (onAuthSuccess) onAuthSuccess({ email: 'alex.traveler@example.com', name: 'Alex Rivera' });
-    }, 600);
+      if (onAuthSuccess) onAuthSuccess(res.user);
+    }
   };
 
   return (
@@ -138,16 +161,43 @@ export function AuthModal({ isOpen, onClose, initialMode = 'signin', onAuthSucce
             {...register('email')}
           />
 
-          <Input
-            label="Password"
-            type="password"
-            placeholder="••••••••"
-            required
-            leftIcon={<Lock className="w-4 h-4" />}
-            helperText={isSignIn ? undefined : 'Minimum 6 characters'}
-            error={errors.password?.message}
-            {...register('password')}
-          />
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold uppercase tracking-wider text-charcoal-700">
+                Password <span className="text-terracotta-500">*</span>
+              </label>
+              {isSignIn && (
+                <Link
+                  to="/forgot-password"
+                  onClick={onClose}
+                  className="text-xs text-forest-700 hover:text-forest-900 font-medium transition-colors"
+                >
+                  Forgot password?
+                </Link>
+              )}
+            </div>
+            <Input
+              type="password"
+              placeholder="••••••••"
+              required
+              leftIcon={<Lock className="w-4 h-4" />}
+              helperText={isSignIn ? undefined : 'Minimum 6 characters'}
+              error={errors.password?.message}
+              {...register('password')}
+            />
+          </div>
+
+          {!isSignIn && (
+            <Input
+              label="Confirm Password"
+              type="password"
+              placeholder="••••••••"
+              required
+              leftIcon={<Lock className="w-4 h-4" />}
+              error={errors.confirmPassword?.message}
+              {...register('confirmPassword')}
+            />
+          )}
 
           <div className="pt-2">
             <Button
@@ -179,12 +229,13 @@ export function AuthModal({ isOpen, onClose, initialMode = 'signin', onAuthSucce
             size="md"
             className="w-full justify-center"
             onClick={handleDemoLogin}
+            disabled={loading}
             leftIcon={<Sparkles className="w-4 h-4 text-terracotta-500" />}
           >
             Instant Demo Sign-In (Guest)
           </Button>
           <p className="text-[11px] text-center text-charcoal-400">
-            No password required • Explores sample trips & real-time tallies
+            One-click sign-in • Real session with HTTP-only cookies
           </p>
         </div>
       </div>
