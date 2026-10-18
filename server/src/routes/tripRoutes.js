@@ -9,6 +9,13 @@ import {
   deleteTrip,
   joinTrip,
 } from '../controllers/tripController.js';
+import {
+  inviteMember,
+  getTripInvitations,
+  revokeInvitation,
+  removeMember,
+  updateMemberRole,
+} from '../controllers/invitationController.js';
 import { protect } from '../middleware/auth.js';
 
 const router = Router();
@@ -24,5 +31,12 @@ router.put('/:id', updateTrip);
 router.patch('/:id/archive', archiveTrip);
 router.delete('/:id', deleteTrip);
 router.post('/join/:inviteCode', joinTrip);
+
+// Trip Invitations & Members
+router.post('/:id/invitations', inviteMember);
+router.get('/:id/invitations', getTripInvitations);
+router.delete('/:id/invitations/:invitationId', revokeInvitation);
+router.delete('/:id/members/:userId', removeMember);
+router.patch('/:id/members/:userId/role', updateMemberRole);
 
 export default router;

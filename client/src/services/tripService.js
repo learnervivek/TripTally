@@ -67,6 +67,94 @@ export const tripService = {
     const response = await api.post(`/trips/join/${inviteCode}`);
     return response.data;
   },
+
+  /**
+   * Send an invitation by email to a companion
+   */
+  async inviteMember(tripId, { email, role }) {
+    const response = await api.post(`/trips/${tripId}/invitations`, { email, role });
+    return response.data;
+  },
+
+  /**
+   * Get all invitations for a trip
+   */
+  async getTripInvitations(tripId) {
+    const response = await api.get(`/trips/${tripId}/invitations`);
+    return response.data;
+  },
+
+  /**
+   * Revoke a pending trip invitation
+   */
+  async revokeInvitation(tripId, invitationId) {
+    const response = await api.delete(`/trips/${tripId}/invitations/${invitationId}`);
+    return response.data;
+  },
+
+  /**
+   * Remove a member from a trip
+   */
+  async removeMember(tripId, userId) {
+    const response = await api.delete(`/trips/${tripId}/members/${userId}`);
+    return response.data;
+  },
+
+  /**
+   * Update a member's role on a trip
+   */
+  async updateMemberRole(tripId, userId, role) {
+    const response = await api.patch(`/trips/${tripId}/members/${userId}/role`, { role });
+    return response.data;
+  },
+
+  /**
+   * Fetch current user's received pending invitations
+   */
+  async getMyInvitations() {
+    const response = await api.get('/invitations/me');
+    return response.data;
+  },
+
+  /**
+   * Verify an invitation token
+   */
+  async getInvitationByToken(token) {
+    const response = await api.get(`/invitations/token/${token}`);
+    return response.data;
+  },
+
+  /**
+   * Accept an invitation using token
+   */
+  async acceptInvitationByToken(token) {
+    const response = await api.post(`/invitations/token/${token}/accept`);
+    return response.data;
+  },
+
+  /**
+   * Decline an invitation using token
+   */
+  async declineInvitationByToken(token) {
+    const response = await api.post(`/invitations/token/${token}/decline`);
+    return response.data;
+  },
+
+  /**
+   * Accept an invitation by ID
+   */
+  async acceptInvitationById(id) {
+    const response = await api.post(`/invitations/${id}/accept`);
+    return response.data;
+  },
+
+  /**
+   * Decline an invitation by ID
+   */
+  async declineInvitationById(id) {
+    const response = await api.post(`/invitations/${id}/decline`);
+    return response.data;
+  },
 };
 
 export default tripService;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import {
   Compass,
@@ -20,21 +20,35 @@ import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 import { useAuth } from '../../context/AuthContext';
 import CreateTripModal from '../trips/CreateTripModal';
+import tripService from '../../services/tripService';
 
 export function DashboardLayout({ children }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [createTripOpen, setCreateTripOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [invitationCount, setInvitationCount] = useState(0);
 
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (typeof tripService?.getMyInvitations === 'function') {
+      tripService.getMyInvitations()
+        .then((res) => {
+          if (res?.success && typeof res.count === 'number') {
+            setInvitationCount(res.count);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [location.pathname]);
+
   const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'My Trips', href: '/trips', icon: MapPin },
-    { name: 'Invitations', href: '/invitations', icon: Mail, badge: '2' },
+    { name: 'Invitations', href: '/invitations', icon: Mail, badge: invitationCount > 0 ? String(invitationCount) : null },
     { name: 'Notifications', href: '/notifications', icon: Bell, indicator: true },
     { name: 'Profile', href: '/profile', icon: User },
   ];

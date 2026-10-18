@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import healthRoutes from './routes/healthRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import tripRoutes from './routes/tripRoutes.js';
+import invitationRoutes from './routes/invitationRoutes.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 
 dotenv.config();
@@ -63,6 +64,7 @@ app.get('/', (req, res) => {
 app.use('/api', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/trips', tripRoutes);
+app.use('/api/invitations', invitationRoutes);
 
 // Error Handling Middleware
 app.use(notFound);

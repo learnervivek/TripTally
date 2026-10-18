@@ -17,13 +17,17 @@ import {
   Edit3,
   Archive,
   Trash2,
-  Lock
+  Lock,
+  UserPlus,
+  Clock,
+  X
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card, { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import Skeleton, { TripCardSkeleton } from '../components/ui/Skeleton';
 import EditTripModal from '../components/trips/EditTripModal';
+import InviteMemberModal from '../components/trips/InviteMemberModal';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import tripService from '../services/tripService';
 import { useToast } from '../context/ToastContext';
@@ -47,6 +51,10 @@ export function TripDetailsPage() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [memberToRemove, setMemberToRemove] = useState(null);
+  const [removeMemberDialogOpen, setRemoveMemberDialogOpen] = useState(false);
+  const [invitations, setInvitations] = useState([]);
   const [actionLoading, setActionLoading] = useState(false);
 
   const loadTrip = async () => {
@@ -59,6 +67,7 @@ export function TripDetailsPage() {
         setExpenses(res.expenses || []);
         setIsOwner(res.isOwner || false);
         setCanEdit(res.canEdit || false);
+        setInvitations(res.invitations || []);
       } else {
         setError('Trip details not available.');
       }
@@ -110,6 +119,56 @@ export function TripDetailsPage() {
       toast.error('Deletion Failed', err.message || 'Could not delete trip.');
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handleRemoveMemberConfirm = async () => {
+    if (!memberToRemove) return;
+    setActionLoading(true);
+    try {
+      const res = await tripService.removeMember(trip._id, memberToRemove._id);
+      if (res.success) {
+        toast.info('Member Removed', `${memberToRemove.name || 'Member'} has been removed.`);
+        setTrip((prev) => ({
+          ...prev,
+          members: prev.members.filter((m) => m.user?._id !== memberToRemove._id),
+        }));
+        setRemoveMemberDialogOpen(false);
+        setMemberToRemove(null);
+      }
+    } catch (err) {
+      toast.error('Could Not Remove', err.message || 'Failed to remove member.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleUpdateRole = async (userId, role) => {
+    try {
+      const res = await tripService.updateMemberRole(trip._id, userId, role);
+      if (res.success) {
+        toast.success('Role Updated', `Member role changed to ${role}.`);
+        setTrip((prev) => ({
+          ...prev,
+          members: prev.members.map((m) =>
+            m.user?._id === userId ? { ...m, role } : m
+          ),
+        }));
+      }
+    } catch (err) {
+      toast.error('Role Update Failed', err.message || 'Could not update role.');
+    }
+  };
+
+  const handleRevokeInvitation = async (invitationId) => {
+    try {
+      const res = await tripService.revokeInvitation(trip._id, invitationId);
+      if (res.success) {
+        toast.info('Invitation Revoked', 'The pending invite was revoked.');
+        setInvitations((prev) => prev.filter((i) => i._id !== invitationId));
+      }
+    } catch (err) {
+      toast.error('Revoke Failed', err.message || 'Could not revoke invitation.');
     }
   };
 
@@ -341,36 +400,123 @@ export function TripDetailsPage() {
 
           {/* Member Roster */}
           <Card variant="default" className="shadow-soft">
-            <CardHeader className="border-b border-ivory-200">
+            <CardHeader className="border-b border-ivory-200 flex flex-row items-center justify-between pb-3">
               <CardTitle className="text-base font-display">Travel Companions ({members.length})</CardTitle>
+              {canEdit && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInviteModalOpen(true)}
+                  leftIcon={<UserPlus className="w-3.5 h-3.5" />}
+                >
+                  Invite
+                </Button>
+              )}
             </CardHeader>
-            <CardContent className="p-4 space-y-3">
-              {members.map((m, idx) => {
-                const memUser = m.user || {};
-                const isMemberOwner = trip.owner && trip.owner._id === memUser._id;
-                const initials = memUser.name ? memUser.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase() : 'C';
+            <CardContent className="p-4 space-y-4">
+              
+              {/* Accepted Companions */}
+              <div className="space-y-2.5">
+                {members.map((m, idx) => {
+                  const memUser = m.user || {};
+                  const isMemberOwner = trip.owner && (trip.owner._id === memUser._id || trip.owner === memUser._id);
+                  const initials = memUser.name ? memUser.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase() : 'C';
 
-                return (
-                  <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-ivory-50/60 border border-ivory-200">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded-xl bg-forest-600 text-white font-bold text-xs flex items-center justify-center shrink-0 overflow-hidden">
-                        {memUser.avatar ? (
-                          <img src={memUser.avatar} alt={memUser.name} className="w-full h-full object-cover" />
+                  return (
+                    <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-ivory-50/70 border border-ivory-200 hover:border-ivory-300 transition-colors">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-8 h-8 rounded-xl bg-forest-600 text-white font-bold text-xs flex items-center justify-center shrink-0 overflow-hidden">
+                          {memUser.avatar ? (
+                            <img src={memUser.avatar} alt={memUser.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span>{initials}</span>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-charcoal-900 truncate">
+                            {memUser.name || 'Friend'} {user?._id === memUser._id && <span className="text-[10px] text-forest-700 font-semibold">(You)</span>}
+                          </p>
+                          <p className="text-[10px] text-charcoal-400 font-mono truncate">{memUser.email}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {isMemberOwner ? (
+                          <Badge variant="terracotta" size="sm">Owner</Badge>
+                        ) : isOwner ? (
+                          <div className="flex items-center gap-1">
+                            <select
+                              value={m.role || 'editor'}
+                              onChange={(e) => handleUpdateRole(memUser._id, e.target.value)}
+                              className="text-[11px] font-semibold bg-white border border-ivory-300 rounded-lg px-2 py-0.5 text-forest-900 outline-none hover:border-forest-500 capitalize"
+                            >
+                              <option value="organizer">Organizer</option>
+                              <option value="editor">Editor</option>
+                              <option value="viewer">Viewer</option>
+                            </select>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setMemberToRemove(memUser);
+                                setRemoveMemberDialogOpen(true);
+                              }}
+                              className="p-1 rounded-lg text-charcoal-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                              title="Remove Companion"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         ) : (
-                          <span>{initials}</span>
+                          <Badge variant="forest" size="sm" className="capitalize">
+                            {m.role || 'Member'}
+                          </Badge>
                         )}
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-charcoal-900 truncate">{memUser.name || 'Friend'}</p>
-                        <p className="text-[10px] text-charcoal-400 font-mono truncate">{memUser.email}</p>
-                      </div>
                     </div>
-                    <Badge variant={isMemberOwner ? 'terracotta' : 'forest'} size="sm">
-                      {isMemberOwner ? 'Owner' : m.role || 'Member'}
-                    </Badge>
+                  );
+                })}
+              </div>
+
+              {/* Pending Invitations Section (for editors/owners) */}
+              {canEdit && invitations.filter((inv) => inv.status === 'pending').length > 0 && (
+                <div className="pt-3 border-t border-ivory-200 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[11px] font-bold text-charcoal-500 uppercase tracking-wider flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-amber-600" />
+                      Pending Invitations ({invitations.filter((inv) => inv.status === 'pending').length})
+                    </p>
                   </div>
-                );
-              })}
+
+                  <div className="space-y-1.5">
+                    {invitations
+                      .filter((inv) => inv.status === 'pending')
+                      .map((inv) => (
+                        <div
+                          key={inv._id}
+                          className="flex items-center justify-between p-2 rounded-lg bg-amber-50/60 border border-amber-200 text-xs"
+                        >
+                          <div className="min-w-0 pr-2">
+                            <p className="font-semibold text-charcoal-900 truncate text-[11px]">{inv.email}</p>
+                            <p className="text-[10px] text-charcoal-500 capitalize">
+                              Role: {inv.role} • Expires {new Date(inv.expiresAt).toLocaleDateString()}
+                            </p>
+                          </div>
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 text-[10px] text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-2"
+                            onClick={() => handleRevokeInvitation(inv._id)}
+                          >
+                            Revoke
+                          </Button>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
             </CardContent>
           </Card>
 
@@ -389,6 +535,34 @@ export function TripDetailsPage() {
           }}
         />
       )}
+
+      {/* Invite Member Modal */}
+      {trip && (
+        <InviteMemberModal
+          isOpen={inviteModalOpen}
+          onClose={() => setInviteModalOpen(false)}
+          trip={trip}
+          onMemberInvited={(newInvitation) => {
+            setInvitations((prev) => [newInvitation, ...prev]);
+          }}
+        />
+      )}
+
+      {/* Remove Member Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={removeMemberDialogOpen}
+        onClose={() => {
+          setRemoveMemberDialogOpen(false);
+          setMemberToRemove(null);
+        }}
+        onConfirm={handleRemoveMemberConfirm}
+        isLoading={actionLoading}
+        title="Remove Companion?"
+        description={`Are you sure you want to remove ${memberToRemove?.name || 'this member'} from "${trip.title}"? They will lose access to the itinerary and group expenses.`}
+        confirmText="Yes, Remove"
+        variant="danger"
+        icon={X}
+      />
 
       {/* Archive Confirmation Dialog */}
       <ConfirmDialog

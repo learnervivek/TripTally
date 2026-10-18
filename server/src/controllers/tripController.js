@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import * as z from 'zod';
 import Trip from '../models/Trip.js';
 import Expense from '../models/Expense.js';
+import Invitation from '../models/Invitation.js';
 
 // Validation Schemas
 export const createTripSchema = z.object({
@@ -192,6 +193,13 @@ export async function getDashboardData(req, res, next) {
     const totalSpent = expensesAggregation[0]?.totalSpent || 0;
     const expenseCount = expensesAggregation[0]?.count || 0;
 
+    // Fetch active pending invitations count for current user
+    const pendingInvitationsCount = await Invitation.countDocuments({
+      email: req.user.email.toLowerCase(),
+      status: 'pending',
+      expiresAt: { $gt: now },
+    });
+
     const upcomingTrips = userTrips
       .filter((t) => t.status !== 'completed' && t.status !== 'archived')
       .slice(0, 6);
@@ -207,6 +215,7 @@ export async function getDashboardData(req, res, next) {
           totalSpent,
           expenseCount,
           pendingSettlementsCount: Math.max(0, expenseCount > 0 ? Math.ceil(expenseCount / 2) : 0),
+          pendingInvitationsCount,
         },
         upcomingTrips,
         recentExpenses,
@@ -313,6 +322,11 @@ export async function getTripById(req, res, next) {
       .populate('paidBy', 'name email avatar')
       .sort({ date: -1, createdAt: -1 });
 
+    // Fetch invitations for this trip
+    const invitations = await Invitation.find({ trip: id })
+      .populate('inviter', 'name email avatar')
+      .sort({ createdAt: -1 });
+
     return res.status(200).json({
       success: true,
       userRole: role,
@@ -320,6 +334,7 @@ export async function getTripById(req, res, next) {
       canEdit: ['owner', 'organizer', 'editor'].includes(role),
       trip,
       expenses,
+      invitations,
     });
   } catch (err) {
     next(err);

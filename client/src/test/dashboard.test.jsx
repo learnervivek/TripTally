@@ -16,6 +16,7 @@ vi.mock('../services/tripService', () => ({
     getTripById: vi.fn(),
     createTrip: vi.fn(),
     joinTrip: vi.fn(),
+    getMyInvitations: vi.fn().mockResolvedValue({ success: true, count: 2, invitations: [] }),
   },
 }));
 

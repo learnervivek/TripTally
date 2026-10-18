@@ -16,7 +16,8 @@ import {
   Search,
   Filter,
   CheckCircle2,
-  Clock
+  Clock,
+  Mail
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card, { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/Card';
@@ -235,7 +236,30 @@ export function DashboardPage() {
               {summary.expenseCount} receipts tallied
             </p>
           </Card>
+        </div>
+      )}
 
+      {/* Pending Invitations Status Banner */}
+      {!loading && summary.pendingInvitationsCount > 0 && (
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-forest-800 to-forest-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-soft">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-forest-700/80 border border-forest-600 flex items-center justify-center shrink-0">
+              <Mail className="w-5 h-5 text-terracotta-400" />
+            </div>
+            <div>
+              <p className="text-sm font-bold font-display">
+                You have {summary.pendingInvitationsCount} pending trip {summary.pendingInvitationsCount === 1 ? 'invitation' : 'invitations'}!
+              </p>
+              <p className="text-xs text-forest-200">
+                Your travel companions are waiting for your response.
+              </p>
+            </div>
+          </div>
+          <Link to="/invitations">
+            <Button variant="accent" size="sm" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
+              View Invitations
+            </Button>
+          </Link>
         </div>
       )}
 
