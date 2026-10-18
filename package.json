@@ -1,0 +1,17 @@
+{
+  "name": "triptally-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TripTally - Collaborative Trip Planning for Friends & Groups",
+  "scripts": {
+    "install:all": "npm install && npm --prefix server install && npm --prefix client install",
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"bgGreen.bold,bgBlue.bold\" \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "build:client": "npm --prefix client run build",
+    "test": "npm --prefix server test && npm --prefix client test"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
