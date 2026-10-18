@@ -13,43 +13,63 @@ import {
   Receipt,
   Plus,
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  Edit3,
+  Archive,
+  Trash2,
+  Lock
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card, { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
+import Skeleton, { TripCardSkeleton } from '../components/ui/Skeleton';
+import EditTripModal from '../components/trips/EditTripModal';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 import tripService from '../services/tripService';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 
 export function TripDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const [trip, setTrip] = useState(null);
   const [expenses, setExpenses] = useState([]);
+  const [isOwner, setIsOwner] = useState(false);
+  const [canEdit, setCanEdit] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    async function loadTrip() {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await tripService.getTripById(id);
-        if (res.success && res.trip) {
-          setTrip(res.trip);
-          setExpenses(res.expenses || []);
-        } else {
-          setError('Trip details not available.');
-        }
-      } catch (err) {
-        setError(err.message || 'Could not load trip details.');
-      } finally {
-        setLoading(false);
+  // Dialog states
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  const loadTrip = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await tripService.getTripById(id);
+      if (res.success && res.trip) {
+        setTrip(res.trip);
+        setExpenses(res.expenses || []);
+        setIsOwner(res.isOwner || false);
+        setCanEdit(res.canEdit || false);
+      } else {
+        setError('Trip details not available.');
       }
+    } catch (err) {
+      setError(err.message || 'Could not load trip details.');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadTrip();
   }, [id]);
 
@@ -59,6 +79,38 @@ export function TripDetailsPage() {
     setCopied(true);
     toast.success('Invite Code Copied!', `Share code "${trip.inviteCode}" with your travel companions.`);
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleArchiveConfirm = async () => {
+    setActionLoading(true);
+    try {
+      const res = await tripService.archiveTrip(trip._id);
+      if (res.success) {
+        toast.info(res.status === 'archived' ? 'Trip Archived' : 'Trip Restored', res.message);
+        setTrip((prev) => ({ ...prev, status: res.status }));
+        setArchiveDialogOpen(false);
+      }
+    } catch (err) {
+      toast.error('Action Failed', err.message || 'Could not archive trip.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    setActionLoading(true);
+    try {
+      const res = await tripService.deleteTrip(trip._id);
+      if (res.success) {
+        toast.success('Trip Deleted', `"${trip.title}" and its expenses were permanently deleted.`);
+        setDeleteDialogOpen(false);
+        navigate('/dashboard', { replace: true });
+      }
+    } catch (err) {
+      toast.error('Deletion Failed', err.message || 'Could not delete trip.');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   if (loading) {
@@ -90,17 +142,62 @@ export function TripDetailsPage() {
   const members = trip.members || [];
   const totalSpent = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
 
+  const statusVariants = {
+    planning: 'forest',
+    confirmed: 'success',
+    ongoing: 'terracotta',
+    completed: 'neutral',
+    archived: 'danger',
+  };
+
   return (
     <div className="space-y-8">
       
-      {/* Back link */}
-      <div>
+      {/* Top Header Navigation & Action Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <Link
           to="/dashboard"
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-charcoal-500 hover:text-forest-700 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
         </Link>
+
+        {/* Action Controls */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {canEdit && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEditModalOpen(true)}
+              leftIcon={<Edit3 className="w-3.5 h-3.5" />}
+            >
+              Edit Trip
+            </Button>
+          )}
+
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setArchiveDialogOpen(true)}
+              leftIcon={<Archive className="w-3.5 h-3.5 text-amber-600" />}
+            >
+              {trip.status === 'archived' ? 'Unarchive' : 'Archive'}
+            </Button>
+          )}
+
+          {isOwner && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+              onClick={() => setDeleteDialogOpen(true)}
+              leftIcon={<Trash2 className="w-3.5 h-3.5 text-rose-600" />}
+            >
+              Delete Trip
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Hero Banner */}
@@ -115,7 +212,7 @@ export function TripDetailsPage() {
 
           {/* Badges on top */}
           <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-            <Badge variant="forest" size="md" withDot>
+            <Badge variant={statusVariants[trip.status] || 'forest'} size="md" withDot>
               {trip.status.toUpperCase()}
             </Badge>
             <div className="flex items-center gap-2">
@@ -175,7 +272,7 @@ export function TripDetailsPage() {
                 <CardTitle className="text-lg font-display">Trip Expenses & Tally</CardTitle>
                 <CardDescription>Track receipts and calculate equal per-person shares.</CardDescription>
               </div>
-              <Button variant="accent" size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => toast.info('Log Expense', 'Expense logger modal ready for your receipts.')}>
+              <Button variant="accent" size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => toast.info('Log Expense', 'Expense logger ready.')}>
                 Log Expense
               </Button>
             </CardHeader>
@@ -250,7 +347,7 @@ export function TripDetailsPage() {
             <CardContent className="p-4 space-y-3">
               {members.map((m, idx) => {
                 const memUser = m.user || {};
-                const isOwner = trip.owner && trip.owner._id === memUser._id;
+                const isMemberOwner = trip.owner && trip.owner._id === memUser._id;
                 const initials = memUser.name ? memUser.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase() : 'C';
 
                 return (
@@ -268,8 +365,8 @@ export function TripDetailsPage() {
                         <p className="text-[10px] text-charcoal-400 font-mono truncate">{memUser.email}</p>
                       </div>
                     </div>
-                    <Badge variant={isOwner ? 'terracotta' : 'forest'} size="sm">
-                      {isOwner ? 'Organizer' : m.role || 'Member'}
+                    <Badge variant={isMemberOwner ? 'terracotta' : 'forest'} size="sm">
+                      {isMemberOwner ? 'Owner' : m.role || 'Member'}
                     </Badge>
                   </div>
                 );
@@ -280,6 +377,48 @@ export function TripDetailsPage() {
         </div>
 
       </div>
+
+      {/* Edit Trip Modal */}
+      {trip && (
+        <EditTripModal
+          isOpen={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          trip={trip}
+          onTripUpdated={(updatedTrip) => {
+            setTrip(updatedTrip);
+          }}
+        />
+      )}
+
+      {/* Archive Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={archiveDialogOpen}
+        onClose={() => setArchiveDialogOpen(false)}
+        onConfirm={handleArchiveConfirm}
+        isLoading={actionLoading}
+        title={trip.status === 'archived' ? 'Unarchive Trip' : 'Archive Trip'}
+        description={
+          trip.status === 'archived'
+            ? 'This trip will be restored to your active planning dashboard.'
+            : 'Archiving hides this trip from active views. You can restore it anytime.'
+        }
+        confirmText={trip.status === 'archived' ? 'Restore Trip' : 'Archive'}
+        variant="primary"
+        icon={Archive}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        isLoading={actionLoading}
+        title="Permanently Delete Trip?"
+        description={`Are you sure you want to delete "${trip.title}"? All logged receipts, tallies, and member records will be permanently removed. This action cannot be undone.`}
+        confirmText="Yes, Delete Trip"
+        variant="danger"
+        icon={Trash2}
+      />
 
     </div>
   );

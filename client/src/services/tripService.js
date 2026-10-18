@@ -13,7 +13,7 @@ export const tripService = {
   },
 
   /**
-   * Fetch authorized trips with optional status and search filtering
+   * Fetch authorized trips with optional status, search, and pagination
    */
   async getTrips(params = {}) {
     const response = await api.get('/trips', { params });
@@ -33,6 +33,30 @@ export const tripService = {
    */
   async createTrip(tripData) {
     const response = await api.post('/trips', tripData);
+    return response.data;
+  },
+
+  /**
+   * Update an existing trip
+   */
+  async updateTrip(id, updateData) {
+    const response = await api.put(`/trips/${id}`, updateData);
+    return response.data;
+  },
+
+  /**
+   * Toggle or set archive status for a trip
+   */
+  async archiveTrip(id) {
+    const response = await api.patch(`/trips/${id}/archive`);
+    return response.data;
+  },
+
+  /**
+   * Permanently delete a trip (owner only)
+   */
+  async deleteTrip(id) {
+    const response = await api.delete(`/trips/${id}`);
     return response.data;
   },
 

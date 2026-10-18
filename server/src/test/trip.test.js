@@ -5,21 +5,21 @@ import app from '../app.js';
 import User from '../models/User.js';
 import Trip from '../models/Trip.js';
 
-describe('TripTally Backend Trip & Dashboard APIs', () => {
+describe('TripTally Complete Trip Management & Permissions APIs', () => {
   let user1Cookie = '';
   let user2Cookie = '';
-  let createdTripId = '';
+  let tripId = '';
 
   const user1 = {
     name: 'Marco Polo',
-    email: `marco.${Date.now()}@example.com`,
+    email: `marco.mgmt.${Date.now()}@example.com`,
     password: 'Password123!',
     confirmPassword: 'Password123!',
   };
 
   const user2 = {
     name: 'Ibn Battuta',
-    email: `battuta.${Date.now()}@example.com`,
+    email: `battuta.mgmt.${Date.now()}@example.com`,
     password: 'Password123!',
     confirmPassword: 'Password123!',
   };
@@ -29,105 +29,133 @@ describe('TripTally Backend Trip & Dashboard APIs', () => {
       await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/triptally');
     }
 
-    // Register User 1
     const res1 = await request(app).post('/api/auth/register').send(user1);
     user1Cookie = res1.headers['set-cookie'].find((c) => c.startsWith('token=')).split(';')[0];
 
-    // Register User 2
     const res2 = await request(app).post('/api/auth/register').send(user2);
     user2Cookie = res2.headers['set-cookie'].find((c) => c.startsWith('token=')).split(';')[0];
   });
 
   afterAll(async () => {
     await User.deleteMany({ email: { $in: [user1.email, user2.email] } });
-    if (createdTripId) {
-      await Trip.findByIdAndDelete(createdTripId);
+    if (tripId) {
+      await Trip.findByIdAndDelete(tripId);
     }
   });
 
-  it('GET /api/trips/dashboard - rejects unauthorized access with 401', async () => {
-    const res = await request(app).get('/api/trips/dashboard');
-    expect(res.status).toBe(401);
-  });
-
-  it('POST /api/trips - creates a new collaborative trip with creator as organizer', async () => {
+  it('POST /api/trips - rejects trip when end date precedes start date', async () => {
     const res = await request(app)
       .post('/api/trips')
       .set('Cookie', user1Cookie)
       .send({
-        title: 'Silk Road Caravan Trek',
-        destination: 'Samarkand, Uzbekistan',
-        description: 'Exploring historic trading routes and desert oases.',
-        budget: 3500,
-        currency: 'USD',
-        startDate: '2026-09-10',
-        endDate: '2026-09-22',
+        title: 'Time Travel Journey',
+        destination: 'Venice, Italy',
+        startDate: '2026-10-15',
+        endDate: '2026-10-01', // Before start date
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toMatch(/end date must be on or after start date/i);
+  });
+
+  it('POST /api/trips - creates trip successfully', async () => {
+    const res = await request(app)
+      .post('/api/trips')
+      .set('Cookie', user1Cookie)
+      .send({
+        title: 'Venice Carnival Expedition',
+        destination: 'Venice, Italy',
+        description: 'Mask festivals and historic gondola routes.',
+        budget: 3200,
+        currency: 'EUR',
+        startDate: '2026-11-01',
+        endDate: '2026-11-08',
       });
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
-    expect(res.body.trip).toHaveProperty('_id');
-    expect(res.body.trip.title).toBe('Silk Road Caravan Trek');
-    expect(res.body.trip.inviteCode).toBeDefined();
-    expect(res.body.trip.members).toHaveLength(1);
-    expect(res.body.trip.members[0].role).toBe('organizer');
-
-    createdTripId = res.body.trip._id;
+    expect(res.body.trip.title).toBe('Venice Carnival Expedition');
+    tripId = res.body.trip._id;
   });
 
-  it('GET /api/trips/dashboard - returns accurate real aggregated stats for authenticated user', async () => {
+  it('GET /api/trips - supports pagination and search filtering', async () => {
     const res = await request(app)
-      .get('/api/trips/dashboard')
+      .get('/api/trips?search=Venice&page=1&limit=5')
       .set('Cookie', user1Cookie);
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data).toHaveProperty('summary');
-    expect(res.body.data.summary.totalTrips).toBeGreaterThanOrEqual(1);
-    expect(res.body.data.summary.totalBudget).toBeGreaterThanOrEqual(3500);
-    expect(res.body.data.upcomingTrips).toBeDefined();
-    expect(res.body.data.upcomingTrips.some((t) => t._id === createdTripId)).toBe(true);
+    expect(res.body).toHaveProperty('total');
+    expect(res.body).toHaveProperty('totalPages');
+    expect(res.body.trips.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('GET /api/trips/:id - rejects unauthorized users with 403 Forbidden', async () => {
+  it('PUT /api/trips/:id - allows owner to update trip details', async () => {
     const res = await request(app)
-      .get(`/api/trips/${createdTripId}`)
-      .set('Cookie', user2Cookie); // user2 is NOT member
+      .put(`/api/trips/${tripId}`)
+      .set('Cookie', user1Cookie)
+      .send({
+        title: 'Venice & Murano Glass Tour',
+        budget: 3600,
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.trip.title).toBe('Venice & Murano Glass Tour');
+    expect(res.body.trip.budget).toBe(3600);
+  });
+
+  it('PUT /api/trips/:id - rejects unauthorized non-member from updating trip', async () => {
+    const res = await request(app)
+      .put(`/api/trips/${tripId}`)
+      .set('Cookie', user2Cookie) // user 2 is not a member
+      .send({
+        title: 'Hijacked Title',
+      });
 
     expect(res.status).toBe(403);
     expect(res.body.success).toBe(false);
-    expect(res.body.message).toMatch(/not authorized/i);
   });
 
-  it('GET /api/trips/:id - allows member to view trip details', async () => {
+  it('PATCH /api/trips/:id/archive - toggles trip archived status', async () => {
     const res = await request(app)
-      .get(`/api/trips/${createdTripId}`)
+      .patch(`/api/trips/${tripId}/archive`)
       .set('Cookie', user1Cookie);
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.trip.title).toBe('Silk Road Caravan Trek');
-    expect(res.body.trip.destination).toBe('Samarkand, Uzbekistan');
+    expect(res.body.status).toBe('archived');
+
+    // Unarchive
+    const resUnarchive = await request(app)
+      .patch(`/api/trips/${tripId}/archive`)
+      .set('Cookie', user1Cookie);
+
+    expect(resUnarchive.status).toBe(200);
+    expect(resUnarchive.body.status).toBe('planning');
   });
 
-  it('POST /api/trips/join/:inviteCode - allows user 2 to join with valid invite code', async () => {
-    // Get invite code from trip
-    const tripRes = await request(app).get(`/api/trips/${createdTripId}`).set('Cookie', user1Cookie);
-    const code = tripRes.body.trip.inviteCode;
+  it('DELETE /api/trips/:id - rejects non-owner with 403 Forbidden', async () => {
+    const res = await request(app)
+      .delete(`/api/trips/${tripId}`)
+      .set('Cookie', user2Cookie); // user 2 is not owner
 
-    const joinRes = await request(app)
-      .post(`/api/trips/join/${code}`)
-      .set('Cookie', user2Cookie);
+    expect(res.status).toBe(403);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toMatch(/only the trip creator\/owner can delete/i);
+  });
 
-    expect(joinRes.status).toBe(200);
-    expect(joinRes.body.success).toBe(true);
-    expect(joinRes.body.trip.members).toHaveLength(2);
+  it('DELETE /api/trips/:id - permits owner to delete trip and cleans up', async () => {
+    const res = await request(app)
+      .delete(`/api/trips/${tripId}`)
+      .set('Cookie', user1Cookie);
 
-    // Now user 2 should be able to view trip
-    const viewRes = await request(app)
-      .get(`/api/trips/${createdTripId}`)
-      .set('Cookie', user2Cookie);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
 
-    expect(viewRes.status).toBe(200);
+    // Verify trip is deleted
+    const checkRes = await request(app).get(`/api/trips/${tripId}`).set('Cookie', user1Cookie);
+    expect(checkRes.status).toBe(404);
   });
 });

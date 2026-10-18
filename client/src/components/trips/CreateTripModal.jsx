@@ -26,6 +26,14 @@ const tripSchema = z.object({
   endDate: z.string().optional().or(z.literal('')),
   currency: z.string().default('USD'),
   budget: z.coerce.number().min(0, 'Budget must be zero or positive').default(0),
+}).refine((data) => {
+  if (data.startDate && data.endDate) {
+    return new Date(data.endDate) >= new Date(data.startDate);
+  }
+  return true;
+}, {
+  message: 'End date must be on or after start date',
+  path: ['endDate'],
 });
 
 const coverPresets = [

@@ -2,9 +2,8 @@ import crypto from 'crypto';
 import * as z from 'zod';
 import Trip from '../models/Trip.js';
 import Expense from '../models/Expense.js';
-import User from '../models/User.js';
 
-// Trip Validation Schema
+// Validation Schemas
 export const createTripSchema = z.object({
   title: z.string().trim().min(3, 'Trip title must be at least 3 characters').max(100, 'Title cannot exceed 100 characters'),
   destination: z.string().trim().min(2, 'Destination is required'),
@@ -13,8 +12,130 @@ export const createTripSchema = z.object({
   startDate: z.string().optional().or(z.literal('')),
   endDate: z.string().optional().or(z.literal('')),
   currency: z.string().default('USD'),
-  budget: z.coerce.number().min(0, 'Budget must be zero or a positive number').default(0),
+  budget: z.coerce.number().min(0, 'Budget must be zero or a positive amount').default(0),
+}).refine((data) => {
+  if (data.startDate && data.endDate) {
+    return new Date(data.endDate) >= new Date(data.startDate);
+  }
+  return true;
+}, {
+  message: 'End date must be on or after start date',
+  path: ['endDate'],
 });
+
+export const updateTripSchema = z.object({
+  title: z.string().trim().min(3, 'Trip title must be at least 3 characters').max(100, 'Title cannot exceed 100 characters').optional(),
+  destination: z.string().trim().min(2, 'Destination is required').optional(),
+  description: z.string().trim().max(500, 'Description cannot exceed 500 characters').optional().or(z.literal('')),
+  coverImage: z.string().optional().or(z.literal('')),
+  startDate: z.string().optional().or(z.literal('')),
+  endDate: z.string().optional().or(z.literal('')),
+  currency: z.string().optional(),
+  budget: z.coerce.number().min(0, 'Budget must be zero or a positive amount').optional(),
+  status: z.enum(['planning', 'confirmed', 'ongoing', 'completed', 'archived']).optional(),
+}).refine((data) => {
+  if (data.startDate && data.endDate) {
+    return new Date(data.endDate) >= new Date(data.startDate);
+  }
+  return true;
+}, {
+  message: 'End date must be on or after start date',
+  path: ['endDate'],
+});
+
+/**
+ * Helper to check user's role on a trip
+ */
+export function getUserRoleOnTrip(trip, userId) {
+  if (trip.owner.equals(userId) || (trip.owner._id && trip.owner._id.equals(userId))) {
+    return 'owner';
+  }
+  const member = trip.members.find(
+    (m) => m.user && (m.user.equals(userId) || (m.user._id && m.user._id.equals(userId)))
+  );
+  return member ? member.role : null;
+}
+
+/**
+ * @route   GET /api/trips
+ * @desc    Get authorized trips with pagination and filtering
+ * @access  Private
+ */
+export async function getTrips(req, res, next) {
+  try {
+    const userId = req.user._id;
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 9));
+    const skip = (page - 1) * limit;
+
+    const { search, status, sort } = req.query;
+
+    // Scoped strictly to trips where user is owner or member
+    const query = {
+      $or: [{ owner: userId }, { 'members.user': userId }],
+    };
+
+    const now = new Date();
+
+    if (status && status !== 'all') {
+      if (status === 'upcoming') {
+        query.$and = query.$and || [];
+        query.$and.push({
+          status: { $in: ['planning', 'confirmed'] },
+          $or: [{ startDate: { $exists: false } }, { startDate: { $gt: now } }],
+        });
+      } else if (status === 'ongoing') {
+        query.$and = query.$and || [];
+        query.$and.push({
+          $or: [
+            { status: 'ongoing' },
+            { startDate: { $lte: now }, endDate: { $gte: now } },
+          ],
+        });
+      } else {
+        query.status = status;
+      }
+    }
+
+    if (search && search.trim()) {
+      const searchRegex = new RegExp(search.trim(), 'i');
+      query.$and = query.$and || [];
+      query.$and.push({
+        $or: [
+          { title: searchRegex },
+          { destination: searchRegex },
+          { description: searchRegex },
+        ],
+      });
+    }
+
+    // Determine sort
+    let sortQuery = { createdAt: -1 };
+    if (sort === 'oldest') sortQuery = { createdAt: 1 };
+    if (sort === 'budget-high') sortQuery = { budget: -1 };
+    if (sort === 'budget-low') sortQuery = { budget: 1 };
+    if (sort === 'date') sortQuery = { startDate: 1 };
+
+    const total = await Trip.countDocuments(query);
+    const trips = await Trip.find(query)
+      .populate('owner', 'name email avatar')
+      .populate('members.user', 'name email avatar')
+      .sort(sortQuery)
+      .skip(skip)
+      .limit(limit);
+
+    return res.status(200).json({
+      success: true,
+      count: trips.length,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit) || 1,
+      trips,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
 
 /**
  * @route   GET /api/trips/dashboard
@@ -25,12 +146,9 @@ export async function getDashboardData(req, res, next) {
   try {
     const userId = req.user._id;
 
-    // Find all trips where current user is owner OR an accepted/invited member
+    // Find all trips where current user is owner OR an accepted member
     const userTrips = await Trip.find({
-      $or: [
-        { owner: userId },
-        { 'members.user': userId },
-      ],
+      $or: [{ owner: userId }, { 'members.user': userId }],
     })
       .populate('owner', 'name email avatar')
       .populate('members.user', 'name email avatar')
@@ -38,7 +156,6 @@ export async function getDashboardData(req, res, next) {
 
     const now = new Date();
 
-    // Categorize trips
     let upcomingCount = 0;
     let ongoingCount = 0;
     let totalBudget = 0;
@@ -56,7 +173,6 @@ export async function getDashboardData(req, res, next) {
       }
     });
 
-    // Get trip IDs
     const tripIds = userTrips.map((t) => t._id);
 
     // Fetch recent expenses across user's trips
@@ -68,7 +184,6 @@ export async function getDashboardData(req, res, next) {
       .sort({ createdAt: -1 })
       .limit(6);
 
-    // Calculate total spend across these trips
     const expensesAggregation = await Expense.aggregate([
       { $match: { trip: { $in: tripIds } } },
       { $group: { _id: null, totalSpent: { $sum: '$amount' }, count: { $sum: 1 } } },
@@ -77,8 +192,9 @@ export async function getDashboardData(req, res, next) {
     const totalSpent = expensesAggregation[0]?.totalSpent || 0;
     const expenseCount = expensesAggregation[0]?.count || 0;
 
-    // Upcoming trips preview (max 6)
-    const upcomingTrips = userTrips.filter((t) => t.status !== 'completed' && t.status !== 'archived').slice(0, 6);
+    const upcomingTrips = userTrips
+      .filter((t) => t.status !== 'completed' && t.status !== 'archived')
+      .slice(0, 6);
 
     return res.status(200).json({
       success: true,
@@ -95,52 +211,6 @@ export async function getDashboardData(req, res, next) {
         upcomingTrips,
         recentExpenses,
       },
-    });
-  } catch (err) {
-    next(err);
-  }
-}
-
-/**
- * @route   GET /api/trips
- * @desc    Get all trips user is authorized to access with optional query filtering
- * @access  Private
- */
-export async function getTrips(req, res, next) {
-  try {
-    const userId = req.user._id;
-    const { search, status } = req.query;
-
-    const query = {
-      $or: [{ owner: userId }, { 'members.user': userId }],
-    };
-
-    if (status && status !== 'all') {
-      query.status = status;
-    }
-
-    if (search && search.trim()) {
-      const searchRegex = new RegExp(search.trim(), 'i');
-      query.$and = [
-        {
-          $or: [
-            { title: searchRegex },
-            { destination: searchRegex },
-            { description: searchRegex },
-          ],
-        },
-      ];
-    }
-
-    const trips = await Trip.find(query)
-      .populate('owner', 'name email avatar')
-      .populate('members.user', 'name email avatar')
-      .sort({ createdAt: -1 });
-
-    return res.status(200).json({
-      success: true,
-      count: trips.length,
-      trips,
     });
   } catch (err) {
     next(err);
@@ -229,14 +299,12 @@ export async function getTripById(req, res, next) {
       return res.status(404).json({ success: false, message: 'Trip not found' });
     }
 
-    // Check authorization: must be owner or member
-    const isOwner = trip.owner._id.equals(userId);
-    const isMember = trip.members.some((m) => m.user && m.user._id.equals(userId));
-
-    if (!isOwner && !isMember) {
+    // Permission check: strictly owner or member
+    const role = getUserRoleOnTrip(trip, userId);
+    if (!role) {
       return res.status(403).json({
         success: false,
-        message: 'You are not authorized to view this trip.',
+        message: 'You are not authorized to access this private trip.',
       });
     }
 
@@ -247,8 +315,160 @@ export async function getTripById(req, res, next) {
 
     return res.status(200).json({
       success: true,
+      userRole: role,
+      isOwner: role === 'owner',
+      canEdit: ['owner', 'organizer', 'editor'].includes(role),
       trip,
       expenses,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * @route   PUT /api/trips/:id
+ * @desc    Update trip details (owner, organizer, or editor only)
+ * @access  Private
+ */
+export async function updateTrip(req, res, next) {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id;
+
+    const trip = await Trip.findById(id);
+    if (!trip) {
+      return res.status(404).json({ success: false, message: 'Trip not found' });
+    }
+
+    const role = getUserRoleOnTrip(trip, userId);
+    if (!role || !['owner', 'organizer', 'editor'].includes(role)) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to edit this trip.',
+      });
+    }
+
+    const parseResult = updateTripSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      const errorMsg = parseResult.error.errors[0]?.message || 'Invalid update parameters';
+      return res.status(400).json({ success: false, message: errorMsg, errors: parseResult.error.flatten().fieldErrors });
+    }
+
+    const data = parseResult.data;
+
+    // Validate date sequence against existing dates if only one date is changed
+    const targetStartDate = data.startDate !== undefined
+      ? (data.startDate ? new Date(data.startDate) : null)
+      : trip.startDate;
+
+    const targetEndDate = data.endDate !== undefined
+      ? (data.endDate ? new Date(data.endDate) : null)
+      : trip.endDate;
+
+    if (targetStartDate && targetEndDate && targetEndDate < targetStartDate) {
+      return res.status(400).json({
+        success: false,
+        message: 'End date must be on or after start date',
+      });
+    }
+
+    if (data.title !== undefined) trip.title = data.title;
+    if (data.destination !== undefined) trip.destination = data.destination;
+    if (data.description !== undefined) trip.description = data.description;
+    if (data.coverImage !== undefined && data.coverImage.trim()) trip.coverImage = data.coverImage.trim();
+    if (data.startDate !== undefined) trip.startDate = data.startDate ? new Date(data.startDate) : undefined;
+    if (data.endDate !== undefined) trip.endDate = data.endDate ? new Date(data.endDate) : undefined;
+    if (data.currency !== undefined) trip.currency = data.currency;
+    if (data.budget !== undefined) trip.budget = data.budget;
+    if (data.status !== undefined) trip.status = data.status;
+
+    await trip.save();
+
+    const updatedTrip = await Trip.findById(id)
+      .populate('owner', 'name email avatar')
+      .populate('members.user', 'name email avatar');
+
+    return res.status(200).json({
+      success: true,
+      message: 'Trip updated successfully!',
+      trip: updatedTrip,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * @route   PATCH /api/trips/:id/archive
+ * @desc    Toggle or set archived status (owner or organizer only)
+ * @access  Private
+ */
+export async function archiveTrip(req, res, next) {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id;
+
+    const trip = await Trip.findById(id);
+    if (!trip) {
+      return res.status(404).json({ success: false, message: 'Trip not found' });
+    }
+
+    const role = getUserRoleOnTrip(trip, userId);
+    if (!role || !['owner', 'organizer'].includes(role)) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only the trip owner or organizer can archive this trip.',
+      });
+    }
+
+    // Toggle between archived and planning
+    const newStatus = trip.status === 'archived' ? 'planning' : 'archived';
+    trip.status = newStatus;
+    await trip.save();
+
+    return res.status(200).json({
+      success: true,
+      message: newStatus === 'archived' ? 'Trip archived successfully.' : 'Trip unarchived and active.',
+      status: newStatus,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * @route   DELETE /api/trips/:id
+ * @desc    Permanently delete a trip and associated expenses (STRICTLY OWNER ONLY)
+ * @access  Private
+ */
+export async function deleteTrip(req, res, next) {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id;
+
+    const trip = await Trip.findById(id);
+    if (!trip) {
+      return res.status(404).json({ success: false, message: 'Trip not found' });
+    }
+
+    // Strictly owner only
+    if (!trip.owner.equals(userId)) {
+      return res.status(403).json({
+        success: false,
+        message: 'Forbidden. Only the trip creator/owner can delete this trip.',
+      });
+    }
+
+    // Delete associated expenses
+    await Expense.deleteMany({ trip: id });
+
+    // Delete trip
+    await Trip.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Trip and associated expenses permanently deleted.',
     });
   } catch (err) {
     next(err);
@@ -274,7 +494,7 @@ export async function joinTrip(req, res, next) {
       return res.status(404).json({ success: false, message: 'Invalid trip invite code.' });
     }
 
-    // Check if already a member
+    // Check if already a member or owner
     const isAlreadyMember = trip.members.some((m) => m.user.equals(userId)) || trip.owner.equals(userId);
     if (isAlreadyMember) {
       return res.status(200).json({

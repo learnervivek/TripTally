@@ -52,15 +52,25 @@ const tripSchema = new mongoose.Schema(
     },
     endDate: {
       type: Date,
+      validate: {
+        validator: function (val) {
+          if (!val || !this.startDate) return true;
+          return val >= this.startDate;
+        },
+        message: 'End date must be on or after start date',
+      },
     },
     currency: {
       type: String,
       default: 'USD',
       uppercase: true,
+      trim: true,
+      maxlength: [4, 'Currency code cannot exceed 4 characters'],
     },
     budget: {
       type: Number,
       default: 0,
+      min: [0, 'Budget must be zero or a positive amount'],
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
