@@ -23,10 +23,12 @@ import {
 import Button from '../components/ui/Button';
 import Card, { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
-import DotGlobe from '../components/ui/DotGlobe';
 import ProductPreview from '../components/landing/ProductPreview';
 import AuthModal from '../components/auth/AuthModal';
 import { useToast } from '../context/ToastContext';
+
+// Lazy-load DotGlobe component for optimal initial page performance
+const DotGlobe = lazy(() => import('../components/ui/DotGlobe'));
 
 // Curated high quality travel photography with proper Unsplash travel licenses
 const destinations = [
@@ -200,8 +202,18 @@ export function HomePage() {
                   </span>
                 </div>
 
-                {/* Responsive Globe with static fallback & reduced motion support */}
-                <DotGlobe size={380} />
+                {/* Responsive Globe with lazy-loading, static fallback & reduced motion support */}
+                <Suspense
+                  fallback={
+                    <div className="w-[340px] h-[340px] rounded-full bg-ivory-100 border border-ivory-300 flex flex-col items-center justify-center p-6 text-center animate-pulse">
+                      <Compass className="w-14 h-14 text-forest-600 mb-3 animate-spin" style={{ animationDuration: '6s' }} />
+                      <p className="text-sm font-bold text-charcoal-800">Initializing Coordinates...</p>
+                      <p className="text-xs text-charcoal-400 mt-1">Global destination radar</p>
+                    </div>
+                  }
+                >
+                  <DotGlobe size={380} />
+                </Suspense>
 
                 <div className="w-full mt-4 pt-4 border-t border-ivory-200/80 flex items-center justify-between text-xs text-charcoal-500">
                   <span className="font-semibold text-charcoal-800">
