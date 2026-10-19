@@ -410,7 +410,7 @@ export default function HomePage() {
               transition={{ duration: 0.9, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
               className="lg:col-span-7 relative flex items-center justify-center"
             >
-              <div className="w-full relative rounded-3xl bg-gradient-to-b from-forest-950/5 via-forest-900/10 to-transparent p-2 sm:p-4 border border-ivory-200/60 shadow-soft-xl">
+              <div className="w-full relative rounded-3xl shadow-soft-2xl">
                 <Suspense
                   fallback={
                     <div className="w-full h-[460px] sm:h-[540px] flex flex-col items-center justify-center text-center p-8 bg-forest-900/10 rounded-2xl animate-pulse">

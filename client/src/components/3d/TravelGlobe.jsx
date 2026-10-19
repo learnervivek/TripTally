@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import {
   MapPin,
@@ -6,12 +6,7 @@ import {
   ArrowRight,
   Compass,
   X,
-  Star,
-  IndianRupee,
-  Calendar,
-  RotateCw,
-  Eye,
-  Navigation
+  RotateCw
 } from 'lucide-react';
 import { DESTINATIONS } from './worldData';
 import GlobeScene from './GlobeScene';
@@ -36,11 +31,11 @@ function isWebGLAvailable() {
  */
 function WebGLFallback({ onSelectDestination, selectedDest }) {
   return (
-    <div className="relative w-full h-[460px] rounded-3xl bg-forest-900 border border-forest-800 p-6 flex flex-col items-center justify-center text-center overflow-hidden">
+    <div className="relative w-full h-[520px] rounded-3xl bg-[#03130E] border border-forest-800 p-6 flex flex-col items-center justify-center text-center overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(82,183,136,0.15)_0%,transparent_70%)] pointer-events-none" />
       
-      <div className="w-24 h-24 rounded-full bg-forest-800/80 border border-forest-700/60 flex items-center justify-center text-forest-300 mb-4 shadow-soft">
-        <Compass className="w-12 h-12 text-forest-400 animate-spin-slow" />
+      <div className="w-20 h-20 rounded-full bg-forest-900 border border-forest-700/60 flex items-center justify-center text-forest-300 mb-4 shadow-soft">
+        <Compass className="w-10 h-10 text-emerald-400 animate-spin-slow" />
       </div>
 
       <h3 className="font-serif text-xl font-medium text-ivory-100 mb-2">
@@ -59,7 +54,7 @@ function WebGLFallback({ onSelectDestination, selectedDest }) {
             className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
               selectedDest?.id === d.id
                 ? 'bg-terracotta-500 text-white shadow-soft'
-                : 'bg-forest-800/60 hover:bg-forest-750 text-forest-100 border border-forest-700/50'
+                : 'bg-forest-900/80 hover:bg-forest-800 text-forest-100 border border-forest-700/50'
             }`}
           >
             {d.name}, {d.region || d.country}
@@ -72,7 +67,7 @@ function WebGLFallback({ onSelectDestination, selectedDest }) {
 
 export function TravelGlobe({ onPlanTripClick }) {
   const [hasWebGL, setHasWebGL] = useState(true);
-  const [selectedDest, setSelectedDest] = useState(DESTINATIONS[0]);
+  const [selectedDest, setSelectedDest] = useState(null);
   const [hoveredDest, setHoveredDest] = useState(null);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -90,14 +85,68 @@ export function TravelGlobe({ onPlanTripClick }) {
 
   const activeDest = hoveredDest || selectedDest;
 
+  // Key quick-pick destinations for the top chips bar
+  const quickPicks = [
+    { id: 'manali', label: '🏔️ Manali' },
+    { id: 'goa', label: '🏖️ Goa' },
+    { id: 'kashmir', label: '❄️ Kashmir' },
+    { id: 'jaipur', label: '🏰 Jaipur' },
+    { id: 'kerala', label: '🌴 Kerala' },
+  ];
+
+  const handleQuickPick = (pickId) => {
+    const dest = DESTINATIONS.find((d) => d.id === pickId);
+    if (dest) {
+      setSelectedDest(dest);
+    }
+  };
+
   return (
-    <div className="relative w-full h-[480px] sm:h-[560px] lg:h-[620px] flex items-center justify-center select-none overflow-hidden rounded-3xl">
+    <div className="relative w-full h-[520px] sm:h-[580px] lg:h-[620px] flex items-center justify-center select-none overflow-hidden rounded-3xl bg-gradient-to-b from-[#04140D] via-[#020A06] to-[#030E08] border border-emerald-500/25 shadow-[0_25px_60px_-15px_rgba(2,18,12,0.8)]">
       
+      {/* Ambient Radial Glow Backdrop */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_48%,rgba(52,211,153,0.16)_0%,rgba(16,48,35,0.06)_50%,transparent_75%)] pointer-events-none" />
+
+      {/* Top HUD Status & Quick Pick Bar */}
+      <div className="absolute top-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
+        
+        {/* Live Radar Tag */}
+        <div className="pointer-events-auto flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-[#03150F]/85 backdrop-blur-md border border-emerald-500/30 text-white shadow-soft">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
+          <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-300">
+            3D India Radar
+          </span>
+          <span className="text-[10px] text-ivory-300/60 hidden sm:inline">
+            • Live Routes
+          </span>
+        </div>
+
+        {/* Quick Destination Chips */}
+        <div className="pointer-events-auto hidden sm:flex items-center gap-1.5 bg-[#03150F]/75 backdrop-blur-md p-1 rounded-full border border-forest-700/50 shadow-soft">
+          {quickPicks.map((pick) => {
+            const isCurrent = activeDest?.id === pick.id;
+            return (
+              <button
+                key={pick.id}
+                onClick={() => handleQuickPick(pick.id)}
+                className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-all ${
+                  isCurrent
+                    ? 'bg-terracotta-500 text-white shadow-soft font-semibold'
+                    : 'text-ivory-200/80 hover:text-white hover:bg-forest-800/60'
+                }`}
+              >
+                {pick.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* 3D WebGL Canvas */}
       {hasWebGL ? (
         <div className="w-full h-full cursor-grab active:cursor-grabbing" style={{ touchAction: 'pan-y' }}>
           <Canvas
-            camera={{ position: [0, 0, 5.2], fov: 42 }}
+            camera={{ position: [0, 0, 5.8], fov: 42 }}
             dpr={[1, 2]}
             onCreated={() => setIsLoaded(true)}
             gl={{
@@ -127,105 +176,57 @@ export function TravelGlobe({ onPlanTripClick }) {
         />
       )}
 
-      {/* Floating Interactive Destination Card */}
-      {activeDest && (
-        <div className="absolute bottom-4 left-4 right-4 sm:right-auto sm:left-6 sm:bottom-6 max-w-sm w-auto z-10 animate-fade-in pointer-events-auto">
-          <div className="glass-card bg-ivory-50/95 backdrop-blur-xl border border-ivory-200/90 rounded-2xl p-4 shadow-soft-xl transition-all">
-            <div className="flex items-start justify-between gap-3 mb-2.5">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-                <span className="text-[11px] font-bold uppercase tracking-wider text-forest-700">
-                  {activeDest.tag}
-                </span>
-                {hoveredDest && (
-                  <span className="text-[10px] text-terracotta-600 font-semibold bg-terracotta-50 px-1.5 py-0.5 rounded border border-terracotta-200">
-                    Hovered in 3D
-                  </span>
-                )}
-              </div>
-              <button
-                onClick={() => {
-                  setSelectedDest(null);
-                  setHoveredDest(null);
-                }}
-                aria-label="Close preview card"
-                className="text-charcoal-400 hover:text-charcoal-700 p-1 rounded-lg hover:bg-ivory-200/50 transition-colors"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <div className="flex gap-3 mb-3">
-              <img
-                src={activeDest.image}
-                alt={activeDest.name}
-                className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover shrink-0 shadow-soft"
-                onError={(e) => {
-                  e.currentTarget.src =
-                    'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=400&q=80';
-                }}
-              />
-              <div className="flex-1 min-w-0">
-                <h4 className="font-serif text-base font-bold text-charcoal-900 truncate">
+      {/* Floating Interactive Destination Preview Card (Visible on Hover/Click) */}
+      {activeDest ? (
+        <div className="absolute bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 max-w-sm z-30 animate-in fade-in slide-in-from-bottom-2 duration-200 pointer-events-auto">
+          <div className="bg-[#03150F]/95 text-white backdrop-blur-2xl border border-emerald-400/60 rounded-2xl p-3.5 shadow-[0_20px_45px_rgba(0,0,0,0.85)] flex items-center gap-3.5 hover:border-terracotta-400 transition-all">
+            <img
+              src={activeDest.image}
+              alt={activeDest.name}
+              className="w-14 h-14 rounded-xl object-cover shrink-0 border border-emerald-400/30 shadow-soft"
+              onError={(e) => {
+                e.currentTarget.src =
+                  'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=400&q=80';
+              }}
+            />
+            <div className="flex-1 min-w-0 text-left">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                <h4 className="font-serif text-sm font-bold text-white truncate">
                   {activeDest.name}
                 </h4>
-                <p className="text-xs text-charcoal-500 mb-1 flex items-center gap-1 font-medium">
-                  <MapPin className="w-3 h-3 text-terracotta-500 shrink-0" />
-                  {activeDest.region ? `${activeDest.region}, ${activeDest.country}` : activeDest.country}
-                </p>
-                <div className="flex items-center gap-3 text-[11px] text-charcoal-600">
-                  <span className="flex items-center gap-0.5 text-forest-700 font-semibold">
-                    <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                    {activeDest.rating}
-                  </span>
-                  <span className="font-bold font-mono text-charcoal-900">{activeDest.avgBudget}</span>
-                </div>
               </div>
-            </div>
-
-            <p className="text-xs text-charcoal-600 line-clamp-2 mb-3 leading-relaxed">
-              {activeDest.description}
-            </p>
-
-            <div className="flex items-center justify-between pt-2 border-t border-ivory-200">
-              <span className="text-[11px] text-charcoal-500">
-                Season: <strong className="text-charcoal-800">{activeDest.bestSeason}</strong>
-              </span>
+              <p className="text-[11px] text-emerald-300 truncate">
+                {activeDest.region || activeDest.country} • <span className="font-mono font-bold text-terracotta-300">{activeDest.avgBudget?.split(' ')[0] || activeDest.avgBudget}</span>
+              </p>
               <button
                 onClick={() => {
                   if (onPlanTripClick) onPlanTripClick(activeDest);
                 }}
-                className="inline-flex items-center gap-1 text-xs font-bold text-forest-700 hover:text-forest-900 hover:underline"
+                className="text-[11px] font-bold text-ivory-100 hover:text-emerald-300 inline-flex items-center gap-1 mt-1 group"
               >
-                Plan this trip <ArrowRight className="w-3 h-3" />
+                Plan this trip <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </button>
             </div>
+            <button
+              onClick={() => {
+                setSelectedDest(null);
+                setHoveredDest(null);
+              }}
+              className="text-ivory-400 hover:text-white p-1 rounded-lg transition-colors"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         </div>
+      ) : (
+        /* Bottom Helper Instruction Hint */
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#03150F]/80 backdrop-blur-md border border-forest-700/50 text-xs text-ivory-200/90 shadow-soft pointer-events-none whitespace-nowrap">
+          <RotateCw className="w-3 h-3 text-emerald-400 animate-spin-slow" />
+          <span>Hover pins for place names & cost • Drag to rotate</span>
+        </div>
       )}
-
-      {/* Interactive Helper Hint Badge */}
-      <div className="absolute top-4 right-4 z-10 hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-forest-950/80 backdrop-blur-md border border-forest-700/60 text-xs text-ivory-100 shadow-soft pointer-events-none">
-        <RotateCw className="w-3.5 h-3.5 text-emerald-400 animate-spin-slow" />
-        <span>Hover on pins for places • Drag to spin globe</span>
-      </div>
-
-      {/* Quick Destination Navigation Pills at Top Left */}
-      <div className="absolute top-4 left-4 z-10 hidden lg:flex items-center gap-1.5 p-1 rounded-2xl bg-forest-950/60 backdrop-blur-md border border-forest-800/60 max-w-md overflow-x-auto">
-        {DESTINATIONS.slice(0, 5).map((d) => (
-          <button
-            key={d.id}
-            onClick={() => setSelectedDest(d)}
-            className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold transition-all whitespace-nowrap ${
-              activeDest?.id === d.id
-                ? 'bg-emerald-600 text-white shadow-soft-sm'
-                : 'text-ivory-200 hover:text-white hover:bg-forest-800/50'
-            }`}
-          >
-            {d.name.split(' ')[0]}
-          </button>
-        ))}
-      </div>
 
     </div>
   );
