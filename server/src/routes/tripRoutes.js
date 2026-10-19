@@ -50,6 +50,7 @@ import {
 import { getTripActivities } from '../controllers/activityController.js';
 import { receiptUpload } from '../middleware/upload.js';
 import { protect } from '../middleware/auth.js';
+import { tripPaymentRouter } from './paymentRoutes.js';
 
 const router = Router();
 
@@ -107,5 +108,8 @@ router.delete('/:tripId/packing/:itemId', deletePackingItem);
 
 // Activity Feed Endpoints
 router.get('/:tripId/activities', getTripActivities);
+
+// Razorpay Payments & Settlements Integration
+router.use('/:tripId/payments', tripPaymentRouter);
 
 export default router;

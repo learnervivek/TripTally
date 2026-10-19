@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoutes.js';
 import tripRoutes from './routes/tripRoutes.js';
 import invitationRoutes from './routes/invitationRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import { paymentPublicRouter } from './routes/paymentRoutes.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 
 import path from 'path';
@@ -40,7 +41,13 @@ app.use(
   })
 );
 
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    },
+  })
+);
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
@@ -72,6 +79,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/invitations', invitationRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/payments', paymentPublicRouter);
 
 // Error Handling Middleware
 app.use(notFound);

@@ -49,8 +49,10 @@ export function ExpenseManager({ trip, members = [], canEdit = false }) {
   const [activeSubTab, setActiveSubTab] = useState('expenses'); // 'expenses' | 'settlements'
   const [expenses, setExpenses] = useState([]);
   const [settlements, setSettlements] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [balances, setBalances] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [settlementsViewMode, setSettlementsViewMode] = useState('settlements'); // 'settlements' | 'payments'
 
   // Filters
   const [search, setSearch] = useState('');
@@ -68,19 +70,23 @@ export function ExpenseManager({ trip, members = [], canEdit = false }) {
   const [deleteSettlementItem, setDeleteSettlementItem] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // Load expenses, settlements, and balances from authoritative backend
+  // Load expenses, settlements, balances, and payments from authoritative backend
   const loadData = async () => {
     setLoading(true);
     try {
-      const [expRes, setRes, balRes] = await Promise.all([
+      const [expRes, setRes, balRes, payRes] = await Promise.all([
         tripService.getExpenses(trip._id),
         tripService.getSettlements(trip._id),
         tripService.getExpenseBalances(trip._id),
+        typeof tripService.getTripPayments === 'function'
+          ? tripService.getTripPayments(trip._id).catch(() => ({ success: false, payments: [] }))
+          : Promise.resolve({ success: true, payments: [] }),
       ]);
 
       if (expRes.success) setExpenses(expRes.expenses || []);
       if (setRes.success) setSettlements(setRes.settlements || []);
       if (balRes.success) setBalances(balRes.balances || null);
+      if (payRes?.success) setPayments(payRes.payments || []);
     } catch (err) {
       console.error('Failed to load expense data:', err);
       toast.error('Load Error', err.message || 'Could not load expense data.');
@@ -161,6 +167,18 @@ export function ExpenseManager({ trip, members = [], canEdit = false }) {
       fromUser: suggestion.from,
       toUser: suggestion.to,
       amountMinor: suggestion.amount,
+      forceRazorpay: false,
+    });
+    setSettlementModalOpen(true);
+  };
+
+  // 1-Click "Pay Online" with Razorpay from suggested settlements
+  const handleQuickPayOnline = (suggestion) => {
+    setSettlementPrefill({
+      fromUser: suggestion.from,
+      toUser: suggestion.to,
+      amountMinor: suggestion.amount,
+      forceRazorpay: true,
     });
     setSettlementModalOpen(true);
   };
@@ -383,14 +401,26 @@ export function ExpenseManager({ trip, members = [], canEdit = false }) {
                     </div>
 
                     {canEdit && (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => handleQuickSettle(s)}
-                        className="text-[11px] h-7 px-2.5 shrink-0"
-                      >
-                        Settle
-                      </Button>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {String(s.from?._id || s.from) === String(currentUser?._id) && (
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => handleQuickPayOnline(s)}
+                            className="text-[11px] h-7 px-2.5"
+                          >
+                            Pay Online
+                          </Button>
+                        )}
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleQuickSettle(s)}
+                          className="text-[11px] h-7 px-2.5"
+                        >
+                          Settle
+                        </Button>
+                      </div>
                     )}
                   </div>
                 ))
@@ -422,6 +452,7 @@ export function ExpenseManager({ trip, members = [], canEdit = false }) {
 
             <button
               type="button"
+              data-testid="settlements-tab"
               onClick={() => setActiveSubTab('settlements')}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 activeSubTab === 'settlements'
@@ -603,68 +634,179 @@ export function ExpenseManager({ trip, members = [], canEdit = false }) {
           </div>
         )}
 
-        {/* Tab 2: Settlement History */}
+        {/* Tab 2: Settlement History & Online Transactions */}
         {activeSubTab === 'settlements' && (
-          <div className="space-y-3 pt-2">
-            {settlements.length === 0 ? (
-              <EmptyState
-                icon={Handshake}
-                title="No Settlements Recorded"
-                description="When companions reimburse each other with cash, UPI, or Venmo, record it here to update balances."
-                actionLabel={canEdit ? 'Record First Settlement' : undefined}
-                onAction={canEdit ? () => setSettlementModalOpen(true) : undefined}
-              />
+          <div className="space-y-4 pt-2">
+            {/* View Mode Switcher: Settlements vs Razorpay Transactions */}
+            <div className="flex items-center gap-2 border-b border-ivory-200 pb-2">
+              <button
+                type="button"
+                onClick={() => setSettlementsViewMode('settlements')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  settlementsViewMode === 'settlements'
+                    ? 'bg-forest-600 text-white shadow-soft-sm'
+                    : 'text-charcoal-600 hover:text-charcoal-900 hover:bg-ivory-100'
+                }`}
+              >
+                Settlements ({settlements.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setSettlementsViewMode('payments')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  settlementsViewMode === 'payments'
+                    ? 'bg-forest-600 text-white shadow-soft-sm'
+                    : 'text-charcoal-600 hover:text-charcoal-900 hover:bg-ivory-100'
+                }`}
+              >
+                <CreditCard className="w-3.5 h-3.5" />
+                <span>Online Payments ({payments.length})</span>
+              </button>
+            </div>
+
+            {settlementsViewMode === 'settlements' ? (
+              settlements.length === 0 ? (
+                <EmptyState
+                  icon={Handshake}
+                  title="No Settlements Recorded"
+                  description="When companions reimburse each other with cash, UPI, Venmo, or Razorpay, record it here to update balances."
+                  actionLabel={canEdit ? 'Record First Settlement' : undefined}
+                  onAction={canEdit ? () => setSettlementModalOpen(true) : undefined}
+                />
+              ) : (
+                <div className="divide-y divide-ivory-200 border border-ivory-200 rounded-2xl overflow-hidden">
+                  {settlements.map((set) => {
+                    const canModify =
+                      canEdit &&
+                      (set.recordedBy?._id === currentUser?._id ||
+                        trip.owner?._id === currentUser?._id ||
+                        trip.owner === currentUser?._id);
+
+                    const isPending = set.status === 'pending';
+                    const isFailed = set.status === 'failed';
+                    const isRefunded = set.status === 'refunded';
+                    const isPayer = String(set.payer?._id || set.payer) === String(currentUser?._id);
+
+                    return (
+                      <div
+                        key={set._id}
+                        className="p-4 bg-white hover:bg-ivory-50/60 transition-colors flex items-center justify-between gap-3 text-xs"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-8 h-8 rounded-xl bg-terracotta-50 text-terracotta-700 border border-terracotta-200 flex items-center justify-center shrink-0">
+                            <Handshake className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="font-bold text-charcoal-900 text-xs flex items-center gap-1.5 truncate">
+                                <span>{set.payer?.name}</span>
+                                <ArrowRight className="w-3 h-3 text-charcoal-400 shrink-0" />
+                                <span>{set.payee?.name}</span>
+                              </p>
+                              {isPending && <Badge variant="warning" size="sm">Pending Payment</Badge>}
+                              {isFailed && <Badge variant="error" size="sm">Failed</Badge>}
+                              {isRefunded && <Badge variant="neutral" size="sm">Refunded</Badge>}
+                              {(!set.status || set.status === 'completed') && (
+                                <Badge variant="success" size="sm">Completed</Badge>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-charcoal-400 mt-0.5">
+                              {new Date(set.date).toLocaleDateString()} • Method: <span className="capitalize">{set.paymentMethod}</span>
+                              {set.notes && ` • "${set.notes}"`}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 shrink-0">
+                          <span className={`font-mono font-bold text-sm ${isPending ? 'text-charcoal-600' : 'text-emerald-700'}`}>
+                            ${(set.amount / 100).toFixed(2)}
+                          </span>
+
+                          {isPending && isPayer && (
+                            <Button
+                              variant="primary"
+                              size="sm"
+                              onClick={() => {
+                                setSettlementPrefill({
+                                  settlementId: set._id,
+                                  fromUser: set.payer,
+                                  toUser: set.payee,
+                                  amountMinor: set.amount,
+                                  forceRazorpay: true,
+                                });
+                                setSettlementModalOpen(true);
+                              }}
+                              className="text-[11px] h-7 px-2.5"
+                            >
+                              Pay Now
+                            </Button>
+                          )}
+
+                          {canModify && (
+                            <button
+                              type="button"
+                              onClick={() => setDeleteSettlementItem(set)}
+                              className="p-1 rounded-lg text-charcoal-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                              title="Delete Settlement (Reverses Balance)"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )
             ) : (
-              <div className="divide-y divide-ivory-200 border border-ivory-200 rounded-2xl overflow-hidden">
-                {settlements.map((set) => {
-                  const canModify =
-                    canEdit &&
-                    (set.recordedBy?._id === currentUser?._id ||
-                      trip.owner?._id === currentUser?._id ||
-                      trip.owner === currentUser?._id);
+              /* Online Payments Transaction History */
+              payments.length === 0 ? (
+                <EmptyState
+                  icon={CreditCard}
+                  title="No Online Transactions Yet"
+                  description="When members initiate online payments via Razorpay test mode, transaction orders, signatures, and timestamps will be logged here."
+                />
+              ) : (
+                <div className="divide-y divide-ivory-200 border border-ivory-200 rounded-2xl overflow-hidden text-xs">
+                  {payments.map((p) => {
+                    const isPaid = p.status === 'paid';
+                    const isFailed = p.status === 'failed';
+                    const isRefunded = p.status === 'refunded';
 
-                  return (
-                    <div
-                      key={set._id}
-                      className="p-4 bg-white hover:bg-ivory-50/60 transition-colors flex items-center justify-between gap-3 text-xs"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-8 h-8 rounded-xl bg-terracotta-50 text-terracotta-700 border border-terracotta-200 flex items-center justify-center shrink-0">
-                          <Handshake className="w-4 h-4" />
+                    return (
+                      <div key={p._id} className="p-4 bg-white hover:bg-ivory-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="space-y-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-charcoal-900">
+                              {p.payer?.name} &rarr; {p.payee?.name}
+                            </span>
+                            <Badge variant={isPaid ? 'success' : isFailed ? 'error' : isRefunded ? 'neutral' : 'warning'} size="sm">
+                              {p.status?.toUpperCase()}
+                            </Badge>
+                          </div>
+                          <p className="text-[11px] text-charcoal-500 font-mono">
+                            Order: {p.razorpayOrderId} {p.razorpayPaymentId ? `• Payment: ${p.razorpayPaymentId}` : ''}
+                          </p>
+                          {p.failureReason && (
+                            <p className="text-[11px] text-rose-500 font-medium">
+                              Error: {p.failureReason}
+                            </p>
+                          )}
                         </div>
-                        <div className="min-w-0">
-                          <p className="font-bold text-charcoal-900 text-xs flex items-center gap-1.5 truncate">
-                            <span>{set.payer?.name}</span>
-                            <ArrowRight className="w-3 h-3 text-charcoal-400 shrink-0" />
-                            <span>{set.payee?.name}</span>
+
+                        <div className="text-right shrink-0">
+                          <p className="font-mono font-bold text-sm text-charcoal-900">
+                            ${(p.amount / 100).toFixed(2)} {p.currency}
                           </p>
-                          <p className="text-[11px] text-charcoal-400">
-                            {new Date(set.date).toLocaleDateString()} • Method: <span className="capitalize">{set.paymentMethod}</span>
-                            {set.notes && ` • "${set.notes}"`}
-                          </p>
+                          <span className="text-[10px] text-charcoal-400">
+                            {new Date(p.createdAt).toLocaleString()}
+                          </span>
                         </div>
                       </div>
-
-                      <div className="flex items-center gap-3 shrink-0">
-                        <span className="font-mono font-bold text-sm text-emerald-700">
-                          ${(set.amount / 100).toFixed(2)}
-                        </span>
-
-                        {canModify && (
-                          <button
-                            type="button"
-                            onClick={() => setDeleteSettlementItem(set)}
-                            className="p-1 rounded-lg text-charcoal-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-                            title="Delete Settlement (Reverses Balance)"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )
             )}
           </div>
         )}

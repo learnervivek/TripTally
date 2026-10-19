@@ -184,6 +184,11 @@ export function calculateTripBalances(members = [], expenses = [], settlements =
 
   // 2. Process Settlements
   settlements.forEach((settlement) => {
+    // Only count completed settlements towards balances (skip pending/failed/refunded)
+    if (settlement.status && settlement.status !== 'completed') {
+      return;
+    }
+
     const amount = Number(settlement.amount) || 0;
     const payerId = String(settlement.payer?._id || settlement.payer);
     const payeeId = String(settlement.payee?._id || settlement.payee);

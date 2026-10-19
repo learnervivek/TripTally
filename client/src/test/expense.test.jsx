@@ -17,6 +17,7 @@ vi.mock('../services/tripService', () => ({
     deleteExpense: vi.fn(),
     createSettlement: vi.fn(),
     deleteSettlement: vi.fn(),
+    getTripPayments: vi.fn().mockResolvedValue({ success: true, payments: [] }),
   },
 }));
 

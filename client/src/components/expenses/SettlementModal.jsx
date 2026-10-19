@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { X, Handshake, ArrowRight, DollarSign, Calendar, CreditCard } from 'lucide-react';
+import { X, Handshake, ArrowRight, DollarSign, Calendar, CreditCard, ShieldCheck, AlertCircle, Sparkles } from 'lucide-react';
 import Button from '../ui/Button';
+import Badge from '../ui/Badge';
 import tripService from '../../services/tripService';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
+import { openRazorpayModal } from '../../utils/razorpay';
 
-const PAYMENT_METHODS = [
+const BASE_PAYMENT_METHODS = [
   { value: 'cash', label: 'Cash' },
   { value: 'upi', label: 'UPI / Instant Pay' },
   { value: 'venmo', label: 'Venmo' },
   { value: 'paypal', label: 'PayPal' },
   { value: 'bank_transfer', label: 'Bank Transfer' },
+  { value: 'razorpay', label: 'Razorpay (Online Checkout)' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -18,10 +22,11 @@ export function SettlementModal({
   onClose,
   trip,
   members = [],
-  prefill = null, // { fromUser, toUser, amountMinor }
+  prefill = null, // { fromUser, toUser, amountMinor, settlementId, forceRazorpay }
   onSaved,
 }) {
   const { toast } = useToast();
+  const { user: currentUser } = useAuth();
   const currency = trip?.currency || 'USD';
 
   const [payer, setPayer] = useState('');
@@ -32,6 +37,7 @@ export function SettlementModal({
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [paymentConfig, setPaymentConfig] = useState({ enabled: false, testMode: true, keyId: '' });
 
   // Compile full members list
   const allMembers = React.useMemo(() => {
@@ -63,6 +69,20 @@ export function SettlementModal({
     return list;
   }, [trip?.owner, members]);
 
+  // Load payment config
+  useEffect(() => {
+    if (isOpen) {
+      tripService
+        .getPaymentConfig()
+        .then((res) => {
+          if (res?.success) {
+            setPaymentConfig(res);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     if (isOpen) {
       if (prefill) {
@@ -73,12 +93,17 @@ export function SettlementModal({
         } else {
           setAmountInput('');
         }
+        if (prefill.forceRazorpay) {
+          setPaymentMethod('razorpay');
+        } else {
+          setPaymentMethod('cash');
+        }
       } else {
         setPayer(allMembers[0]?._id || '');
         setPayee(allMembers[1]?._id || '');
         setAmountInput('');
+        setPaymentMethod('cash');
       }
-      setPaymentMethod('cash');
       setDate(new Date().toISOString().split('T')[0]);
       setNotes('');
       setErrors({});
@@ -86,6 +111,8 @@ export function SettlementModal({
   }, [isOpen, prefill, allMembers]);
 
   if (!isOpen) return null;
+
+  const isCurrentUserPayer = currentUser && String(payer) === String(currentUser._id || currentUser.id);
 
   const validate = () => {
     const errs = {};
@@ -97,6 +124,13 @@ export function SettlementModal({
     if (!amountInput || parseFloat(amountInput) <= 0) {
       errs.amount = 'Amount must be greater than zero';
     }
+    if (paymentMethod === 'razorpay') {
+      if (!paymentConfig.enabled) {
+        errs.paymentMethod = 'Razorpay is not configured on this server. Please choose a manual payment method.';
+      } else if (!isCurrentUserPayer) {
+        errs.payer = 'To initiate an online checkout, you must be the designated payer.';
+      }
+    }
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -106,26 +140,88 @@ export function SettlementModal({
     if (!validate()) return;
 
     setLoading(true);
-    try {
-      const amountMinor = Math.round(parseFloat(amountInput) * 100);
-      const res = await tripService.createSettlement(trip._id, {
-        payer,
-        payee,
-        amount: amountMinor,
-        paymentMethod,
-        date,
-        notes: notes.trim(),
-      });
+    const amountMinor = Math.round(parseFloat(amountInput) * 100);
 
-      if (res.success) {
-        toast.success('Settlement Recorded', `Payment of $${amountInput} has been logged.`);
-        onSaved?.(res.settlement);
-        onClose();
+    try {
+      // Branch 1: Razorpay Online Payment Checkout
+      if (paymentMethod === 'razorpay') {
+        const orderPayload = prefill?.settlementId
+          ? { settlementId: prefill.settlementId, notes: notes.trim() }
+          : { payeeId: payee, amount: amountMinor, notes: notes.trim() };
+
+        const orderRes = await tripService.createPaymentOrder(trip._id, orderPayload);
+        if (!orderRes?.success || !orderRes.order) {
+          throw new Error(orderRes?.message || 'Could not initiate Razorpay order');
+        }
+
+        const { order, paymentOrderId, settlementId } = orderRes;
+
+        // Open Razorpay Checkout modal
+        await openRazorpayModal({
+          key: order.keyId || paymentConfig.keyId,
+          amount: order.amount,
+          currency: order.currency,
+          order_id: order.id,
+          name: 'TripTally',
+          description: `Settlement for ${trip?.title || 'Trip'}`,
+          prefill: {
+            name: currentUser?.name || '',
+            email: currentUser?.email || '',
+          },
+          onSuccess: async (response) => {
+            try {
+              // Cryptographically verify payment on server
+              const verifyRes = await tripService.verifyPayment(trip._id, {
+                orderId: response.razorpay_order_id,
+                paymentId: response.razorpay_payment_id,
+                signature: response.razorpay_signature,
+                paymentOrderId,
+              });
+
+              if (verifyRes.success) {
+                toast.success('Payment Verified!', `Paid ${(order.amount / 100).toFixed(2)} ${order.currency} via Razorpay.`);
+                onSaved?.(verifyRes.settlement);
+                onClose();
+              } else {
+                toast.error('Verification Failed', verifyRes.message || 'Signature could not be verified.');
+              }
+            } catch (vErr) {
+              toast.error('Verification Error', vErr.message || 'Server failed to verify payment.');
+            } finally {
+              setLoading(false);
+            }
+          },
+          onDismiss: () => {
+            setLoading(false);
+            toast.info('Checkout Cancelled', 'Payment window was closed. Settlement recorded in pending state.');
+            onSaved?.();
+            onClose();
+          },
+        });
+      }
+      // Branch 2: Standard Manual Settlement (Cash, UPI, Venmo, etc.)
+      else {
+        const res = await tripService.createSettlement(trip._id, {
+          payer,
+          payee,
+          amount: amountMinor,
+          paymentMethod,
+          date,
+          notes: notes.trim(),
+        });
+
+        if (res.success) {
+          toast.success('Settlement Recorded', `Payment of $${amountInput} has been logged.`);
+          onSaved?.(res.settlement);
+          onClose();
+        }
       }
     } catch (err) {
       toast.error('Failed to Settle', err.message || 'Could not record settlement.');
     } finally {
-      setLoading(false);
+      if (paymentMethod !== 'razorpay') {
+        setLoading(false);
+      }
     }
   };
 
@@ -139,8 +235,13 @@ export function SettlementModal({
               <Handshake className="w-5 h-5 text-ivory-50" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-charcoal-900 font-display">Record Settlement</h3>
-              <p className="text-xs text-charcoal-500">Log a payment made between companions.</p>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-bold text-charcoal-900 font-display">Record Settlement</h3>
+                {paymentMethod === 'razorpay' && paymentConfig.testMode && (
+                  <Badge variant="warning" size="sm">Test Mode</Badge>
+                )}
+              </div>
+              <p className="text-xs text-charcoal-500">Log an online or manual payment between companions.</p>
             </div>
           </div>
           <button
@@ -158,7 +259,7 @@ export function SettlementModal({
           {/* Payer and Payee Selection */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
             <div className="space-y-1">
-              <label className="font-bold text-charcoal-700">Payer (Who paid) *</label>
+              <label className="font-bold text-charcoal-700">Payer (Who pays) *</label>
               <select
                 value={payer}
                 onChange={(e) => setPayer(e.target.value)}
@@ -166,7 +267,7 @@ export function SettlementModal({
               >
                 {allMembers.map((m) => (
                   <option key={m._id} value={m._id}>
-                    {m.name} {m.isOwner ? '(Owner)' : ''}
+                    {m.name} {m.isOwner ? '(Owner)' : ''} {currentUser && String(m._id) === String(currentUser._id || currentUser.id) ? '• (You)' : ''}
                   </option>
                 ))}
               </select>
@@ -174,7 +275,7 @@ export function SettlementModal({
             </div>
 
             <div className="space-y-1">
-              <label className="font-bold text-charcoal-700">Payee (Who received) *</label>
+              <label className="font-bold text-charcoal-700">Payee (Who receives) *</label>
               <select
                 value={payee}
                 onChange={(e) => setPayee(e.target.value)}
@@ -182,7 +283,7 @@ export function SettlementModal({
               >
                 {allMembers.map((m) => (
                   <option key={m._id} value={m._id}>
-                    {m.name} {m.isOwner ? '(Owner)' : ''}
+                    {m.name} {m.isOwner ? '(Owner)' : ''} {currentUser && String(m._id) === String(currentUser._id || currentUser.id) ? '• (You)' : ''}
                   </option>
                 ))}
               </select>
@@ -221,12 +322,13 @@ export function SettlementModal({
                 onChange={(e) => setPaymentMethod(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-ivory-300 bg-white font-medium text-charcoal-800 outline-none focus:border-forest-500"
               >
-                {PAYMENT_METHODS.map((pm) => (
+                {BASE_PAYMENT_METHODS.map((pm) => (
                   <option key={pm.value} value={pm.value}>
-                    {pm.label}
+                    {pm.label} {pm.value === 'razorpay' && !paymentConfig.enabled ? ' (Unavailable)' : ''}
                   </option>
                 ))}
               </select>
+              {errors.paymentMethod && <p className="text-[11px] text-rose-500">{errors.paymentMethod}</p>}
             </div>
 
             <div className="space-y-1">
@@ -240,12 +342,31 @@ export function SettlementModal({
             </div>
           </div>
 
+          {/* Razorpay Information Box */}
+          {paymentMethod === 'razorpay' && (
+            <div className="p-3.5 rounded-2xl bg-forest-50 border border-forest-200 space-y-2">
+              <div className="flex items-center gap-2 text-forest-800 font-bold">
+                <ShieldCheck className="w-4 h-4 text-forest-700" />
+                <span>Razorpay Test-Mode Checkout</span>
+              </div>
+              <p className="text-[11px] text-forest-700 leading-relaxed">
+                Processes payment into the trip's standard merchant settlement arrangement. After completing payment in the test checkout popup, the signature is cryptographically verified on the backend before completing the settlement.
+              </p>
+              {!paymentConfig.enabled && (
+                <div className="flex items-center gap-1.5 text-rose-600 font-semibold text-[11px] bg-rose-50 p-2 rounded-xl border border-rose-200">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>Razorpay credentials not configured. Please use manual settlement.</span>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Notes */}
           <div className="space-y-1">
             <label className="font-bold text-charcoal-700">Notes (Optional)</label>
             <input
               type="text"
-              placeholder="e.g. Venmo transaction #1234 or cash at hotel"
+              placeholder="e.g. Venmo #1234, cash at dinner, or hotel bill share"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="w-full px-3 py-2 rounded-xl border border-ivory-300 text-xs outline-none focus:border-forest-500"
@@ -257,8 +378,16 @@ export function SettlementModal({
             <Button variant="ghost" size="sm" type="button" onClick={onClose}>
               Cancel
             </Button>
-            <Button variant="accent" size="sm" type="submit" loading={loading}>
-              Confirm Settlement
+            <Button
+              variant={paymentMethod === 'razorpay' ? 'primary' : 'accent'}
+              size="sm"
+              type="submit"
+              loading={loading}
+              disabled={paymentMethod === 'razorpay' && !paymentConfig.enabled}
+            >
+              {paymentMethod === 'razorpay'
+                ? `Pay with Razorpay ($${amountInput || '0.00'})`
+                : 'Confirm Settlement'}
             </Button>
           </div>
         </form>

@@ -417,7 +417,48 @@ export const tripService = {
     const response = await api.post('/notifications/run-reminders');
     return response.data;
   },
+
+  /**
+   * Get Razorpay configuration status and public key
+   */
+  async getPaymentConfig() {
+    const response = await api.get('/payments/config');
+    return response.data;
+  },
+
+  /**
+   * Create Razorpay payment order for a settlement
+   */
+  async createPaymentOrder(tripId, data) {
+    const response = await api.post(`/trips/${tripId}/payments/create-order`, data);
+    return response.data;
+  },
+
+  /**
+   * Verify Razorpay payment signature
+   */
+  async verifyPayment(tripId, data) {
+    const response = await api.post(`/trips/${tripId}/payments/verify`, data);
+    return response.data;
+  },
+
+  /**
+   * Get all payment orders and online transaction history for a trip
+   */
+  async getTripPayments(tripId) {
+    const response = await api.get(`/trips/${tripId}/payments`);
+    return response.data;
+  },
+
+  /**
+   * Get details for a single payment order
+   */
+  async getPaymentOrder(tripId, paymentOrderId) {
+    const response = await api.get(`/trips/${tripId}/payments/${paymentOrderId}`);
+    return response.data;
+  },
 };
 
 export default tripService;
+
 

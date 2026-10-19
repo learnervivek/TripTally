@@ -39,8 +39,19 @@ const settlementSchema = new mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ['cash', 'upi', 'venmo', 'paypal', 'bank_transfer', 'other'],
+      enum: ['cash', 'upi', 'venmo', 'paypal', 'bank_transfer', 'razorpay', 'other'],
       default: 'cash',
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'completed', 'failed', 'refunded'],
+      default: 'completed',
+      index: true,
+    },
+    paymentOrder: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'PaymentOrder',
+      default: null,
     },
     notes: {
       type: String,

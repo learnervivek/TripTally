@@ -79,8 +79,51 @@ npm test            # Runs backend Supertest and frontend RTL test suites
 
 ---
 
+## 💳 Razorpay Test-Mode Payments & Settlements
+
+TripTally integrates Razorpay test-mode online payments for debt settlements without disrupting ordinary manual expense tracking.
+
+### Supported Merchant Payment Arrangement
+- **Arrangement**: Standard Merchant Settlement Collection.
+- In Razorpay's model, payments made through standard checkout are collected into the trip's designated merchant account.
+- Online payments are credited towards the authoritative group ledger, settling the payer's debt towards the payee.
+- No fake peer-to-peer transfers or unregulated custodial wallets are used.
+
+### Configuration & Environment Variables
+In `server/.env`:
+```env
+# Razorpay Test Mode Credentials
+RAZORPAY_KEY_ID=rzp_test_YourKeyIdHere
+RAZORPAY_KEY_SECRET=YourKeySecretHere
+RAZORPAY_WEBHOOK_SECRET=YourWebhookSecretHere
+```
+
+*Note: If payment credentials are not configured, the frontend gracefully disables online checkout with a helpful message, while manual settlement logging (Cash, UPI, Venmo, Bank Transfer) remains fully available.*
+
+### Webhook Configuration
+1. Go to your [Razorpay Dashboard](https://dashboard.razorpay.com/) > **Settings** > **Webhooks**.
+2. Add an endpoint URL:
+   - Development / Ngrok: `https://<your-tunnel-domain>/api/payments/webhook`
+   - Local: `http://localhost:5001/api/payments/webhook`
+3. Enter your secret in the **Secret** field (must match `RAZORPAY_WEBHOOK_SECRET`).
+4. Subscribe to the following active events:
+   - `payment.captured`
+   - `order.paid`
+   - `payment.failed`
+   - `refund.processed`
+5. All webhook deliveries are cryptographically verified using `X-Razorpay-Signature` over the raw request body and processed idempotently by tracking event IDs.
+
+---
+
 ## 🧪 Testing Summary
 
-- **Frontend Component Tests**: `client/src/test/components.test.jsx` (5/5 passed)
-- **Backend API Integration Tests**: `server/src/test/health.test.js` (3/3 passed)
+- **Frontend Component Tests**: Vitest + React Testing Library (39/39 passed across 9 test suites)
+  - `client/src/test/payments.test.jsx` (Razorpay modal, disabled states, transaction history)
+  - `client/src/test/notifications.test.jsx` (Notification filters, bulk read, preferences)
+  - `client/src/test/expense.test.jsx` (Expense ledger, calculations, settlement creation)
+- **Backend API Integration Tests**: Vitest + Supertest (106/106 passed across 11 test suites)
+  - `server/src/test/paymentApi.test.js` (Razorpay order creation, signature verification, webhooks, idempotency)
+  - `server/src/test/notificationApi.test.js` (In-app notifications and scheduled reminders)
+  - `server/src/test/expenseApi.test.js` (Group expenses, split calculations, settlements)
 - **Live Browser Verification**: Automated end-to-end verification of components, modals, form validation, and skeleton toggles recorded via `browser_subagent`.
+
