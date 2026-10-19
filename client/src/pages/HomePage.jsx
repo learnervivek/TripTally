@@ -40,8 +40,8 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { formatINR } from '../utils/currency';
 
-// Lazy-load the 3D Travel Globe component for performance
-const TravelGlobe = lazy(() => import('../components/3d/TravelGlobe'));
+// Interactive Dynamic Hero Trip Showcase component
+import HeroTripShowcase from '../components/landing/HeroTripShowcase';
 
 // A. Curated Popular Indian Destinations with authentic Unsplash photography
 const popularDestinations = [
@@ -403,27 +403,14 @@ export default function HomePage() {
               </div>
             </motion.div>
 
-            {/* Right Column: 3D Travel Globe (Centered on India) */}
+            {/* Right Column: Dynamic Interactive India Trip Workspace Showcase */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.9, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:col-span-7 relative flex items-center justify-center"
+              initial={{ opacity: 0, scale: 0.96, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:col-span-7 relative flex items-center justify-center w-full"
             >
-              <div className="w-full relative rounded-3xl shadow-soft-2xl">
-                <Suspense
-                  fallback={
-                    <div className="w-full h-[460px] sm:h-[540px] flex flex-col items-center justify-center text-center p-8 bg-forest-900/10 rounded-2xl animate-pulse">
-                      <Compass className="w-10 h-10 text-forest-600 animate-spin-slow mb-3" />
-                      <p className="text-sm font-medium text-forest-800">
-                        Initializing 3D India Travel Globe...
-                      </p>
-                    </div>
-                  }
-                >
-                  <TravelGlobe onPlanTripClick={handlePlanDestination} />
-                </Suspense>
-              </div>
+              <HeroTripShowcase onPlanTripClick={handlePlanDestination} />
             </motion.div>
 
           </div>
