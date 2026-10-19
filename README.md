@@ -12,9 +12,9 @@ TripTally is a modern, collaborative group travel workspace and expense tallying
 
 ## 📸 Application Preview
 
-| Landing Hero with 3D DotGlobe | Collaborative Dashboard Overview |
+| Immersive 3D Travel Globe Hero (Three.js & R3F) | Collaborative Dashboard Overview |
 | :---: | :---: |
-| ![TripTally Landing Hero](docs/screenshots/landing_hero.png) | ![TripTally Dashboard](docs/screenshots/dashboard_overview.png) |
+| ![TripTally 3D Travel Hero](docs/screenshots/landing_hero_3d.png) | ![TripTally Dashboard](docs/screenshots/dashboard_overview.png) |
 
 | Trip Workspace & Itinerary Planner | Interactive Destination Map (Leaflet) |
 | :---: | :---: |
