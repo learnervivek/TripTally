@@ -38,6 +38,10 @@ const tripSchema = new mongoose.Schema(
       required: [true, 'Destination is required'],
       trim: true,
     },
+    coordinates: {
+      lat: { type: Number, default: null },
+      lng: { type: Number, default: null },
+    },
     description: {
       type: String,
       trim: true,

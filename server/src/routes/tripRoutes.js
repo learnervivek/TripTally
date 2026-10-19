@@ -22,6 +22,7 @@ import {
   updateItineraryItem,
   deleteItineraryItem,
   reorderItineraryItems,
+  geocodeQuery,
 } from '../controllers/itineraryController.js';
 import { protect } from '../middleware/auth.js';
 
@@ -31,6 +32,7 @@ const router = Router();
 router.use(protect);
 
 router.get('/dashboard', getDashboardData);
+router.get('/geocode', geocodeQuery);
 router.get('/', getTrips);
 router.post('/', createTrip);
 router.get('/:id', getTripById);

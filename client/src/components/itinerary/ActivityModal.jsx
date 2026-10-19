@@ -15,7 +15,9 @@ import {
   Car,
   Sparkles,
   Save,
-  Plus
+  Plus,
+  Check,
+  Navigation
 } from 'lucide-react';
 import Dialog from '../ui/Dialog';
 import Input from '../ui/Input';
@@ -51,6 +53,8 @@ export function ActivityModal({
   onSave,
 }) {
   const [loading, setLoading] = useState(false);
+  const [verifyingLocation, setVerifyingLocation] = useState(false);
+  const [coordinates, setCoordinates] = useState(activity?.coordinates || null);
   const { toast } = useToast();
 
   const toInputDate = (d) => {
@@ -105,6 +109,7 @@ export function ActivityModal({
         notes: activity.notes || '',
         estimatedCost: activity.estimatedCost || 0,
       });
+      setCoordinates(activity.coordinates || null);
     } else {
       reset({
         title: '',
@@ -116,12 +121,39 @@ export function ActivityModal({
         notes: '',
         estimatedCost: 0,
       });
+      setCoordinates(null);
     }
   }, [activity, initialDate, reset]);
+
+  const handleVerifyLocation = async () => {
+    const loc = watch('location');
+    if (!loc?.trim()) {
+      toast.info('Enter Location First', 'Type an attraction, restaurant, or address to verify.');
+      return;
+    }
+    setVerifyingLocation(true);
+    try {
+      const query = loc.trim() + (trip?.destination ? `, ${trip.destination}` : '');
+      const res = await tripService.geocode(query);
+      if (res?.success && res.result) {
+        setCoordinates({ lat: res.result.lat, lng: res.result.lng });
+        toast.success('Coordinates Found!', `Pinned: ${res.result.displayName.slice(0, 45)}...`);
+      } else {
+        toast.warning('Not Found', 'Could not locate exact coordinates. You can still save the text address.');
+      }
+    } catch (err) {
+      toast.error('Search Failed', 'Could not reach geocoding provider.');
+    } finally {
+      setVerifyingLocation(false);
+    }
+  };
 
   const onSubmit = async (data) => {
     setLoading(true);
     try {
+      if (coordinates) {
+        data.coordinates = coordinates;
+      }
       let savedItem;
       if (activity && activity._id) {
         const res = await tripService.updateItineraryItem(trip._id, activity._id, data);
@@ -239,13 +271,34 @@ export function ActivityModal({
 
         {/* Location & Estimated Cost */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Input
-            label="Location / Meeting Point"
-            placeholder="e.g. Kyoto Station, Platform 4"
-            leftIcon={<MapPin className="w-4 h-4" />}
-            error={errors.location?.message}
-            {...register('location')}
-          />
+          <div className="space-y-1">
+            <Input
+              label="Location / Meeting Point"
+              placeholder="e.g. Kyoto Station, Platform 4"
+              leftIcon={<MapPin className="w-4 h-4" />}
+              error={errors.location?.message}
+              {...register('location')}
+            />
+            <div className="flex items-center justify-between text-[11px] px-1">
+              {coordinates ? (
+                <span className="text-forest-700 font-semibold flex items-center gap-1">
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  Pinned ({coordinates.lat.toFixed(3)}, {coordinates.lng.toFixed(3)})
+                </span>
+              ) : (
+                <span className="text-charcoal-400">Map coordinates optional</span>
+              )}
+              <button
+                type="button"
+                onClick={handleVerifyLocation}
+                disabled={verifyingLocation}
+                className="text-forest-700 font-semibold hover:underline flex items-center gap-1 disabled:opacity-50"
+              >
+                <Navigation className="w-3 h-3" />
+                {verifyingLocation ? 'Finding...' : 'Verify Pin'}
+              </button>
+            </div>
+          </div>
 
           <Input
             label={`Estimated Cost (${trip?.currency || 'USD'})`}

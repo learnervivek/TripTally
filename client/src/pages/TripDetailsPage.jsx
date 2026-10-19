@@ -20,7 +20,8 @@ import {
   Lock,
   UserPlus,
   Clock,
-  X
+  X,
+  Map
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card, { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/Card';
@@ -29,6 +30,7 @@ import Skeleton, { TripCardSkeleton } from '../components/ui/Skeleton';
 import EditTripModal from '../components/trips/EditTripModal';
 import InviteMemberModal from '../components/trips/InviteMemberModal';
 import ItineraryPlanner from '../components/itinerary/ItineraryPlanner';
+import TripMapView from '../components/map/TripMapView';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import tripService from '../services/tripService';
 import { useToast } from '../context/ToastContext';
@@ -42,6 +44,7 @@ export function TripDetailsPage() {
 
   const [trip, setTrip] = useState(null);
   const [expenses, setExpenses] = useState([]);
+  const [itineraryItems, setItineraryItems] = useState([]);
   const [isOwner, setIsOwner] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -70,6 +73,16 @@ export function TripDetailsPage() {
         setIsOwner(res.isOwner || false);
         setCanEdit(res.canEdit || false);
         setInvitations(res.invitations || []);
+
+        // Load itinerary items
+        try {
+          const itinRes = await tripService.getItinerary(id);
+          if (itinRes.success && itinRes.items) {
+            setItineraryItems(itinRes.items);
+          }
+        } catch (itinErr) {
+          console.warn('Itinerary items load error:', itinErr);
+        }
       } else {
         setError('Trip details not available.');
       }
@@ -319,11 +332,11 @@ export function TripDetailsPage() {
         <div className="lg:col-span-8 space-y-6">
           
           {/* Section Tab Switcher */}
-          <div className="flex items-center gap-2 p-1 rounded-2xl bg-ivory-200/70 border border-ivory-300 w-full sm:w-fit">
+          <div className="flex items-center gap-2 p-1 rounded-2xl bg-ivory-200/70 border border-ivory-300 w-full sm:w-fit overflow-x-auto">
             <button
               type="button"
               onClick={() => setActiveTab('itinerary')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
                 activeTab === 'itinerary'
                   ? 'bg-white text-forest-900 shadow-soft-sm'
                   : 'text-charcoal-600 hover:text-charcoal-900'
@@ -334,8 +347,20 @@ export function TripDetailsPage() {
             </button>
             <button
               type="button"
+              onClick={() => setActiveTab('map')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+                activeTab === 'map'
+                  ? 'bg-white text-forest-900 shadow-soft-sm'
+                  : 'text-charcoal-600 hover:text-charcoal-900'
+              }`}
+            >
+              <Map className="w-4 h-4 text-forest-600" />
+              <span>Map View</span>
+            </button>
+            <button
+              type="button"
               onClick={() => setActiveTab('expenses')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
                 activeTab === 'expenses'
                   ? 'bg-white text-forest-900 shadow-soft-sm'
                   : 'text-charcoal-600 hover:text-charcoal-900'
@@ -358,7 +383,22 @@ export function TripDetailsPage() {
 
           {/* Tab 1: Itinerary Planner */}
           {activeTab === 'itinerary' && (
-            <ItineraryPlanner trip={trip} canEdit={canEdit} />
+            <ItineraryPlanner
+              trip={trip}
+              canEdit={canEdit}
+              items={itineraryItems}
+              onItemsChange={setItineraryItems}
+              onSwitchToMap={() => setActiveTab('map')}
+            />
+          )}
+
+          {/* Tab 2: Map View */}
+          {activeTab === 'map' && (
+            <TripMapView
+              trip={trip}
+              items={itineraryItems}
+              onSwitchToList={() => setActiveTab('itinerary')}
+            />
           )}
 
           {/* Tab 2: Expenses Breakdown */}

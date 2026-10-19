@@ -2,6 +2,7 @@ import * as z from 'zod';
 import ItineraryItem from '../models/ItineraryItem.js';
 import Trip from '../models/Trip.js';
 import { getUserRoleOnTrip } from './tripController.js';
+import { geocodeLocation } from '../utils/geocodingService.js';
 
 // Schemas
 export const itineraryItemSchema = z.object({
@@ -11,6 +12,13 @@ export const itineraryItemSchema = z.object({
   startTime: z.string().optional().or(z.literal('')),
   duration: z.coerce.number().min(0, 'Duration must be positive or zero').default(60),
   location: z.string().trim().optional().or(z.literal('')),
+  coordinates: z
+    .object({
+      lat: z.number(),
+      lng: z.number(),
+    })
+    .optional()
+    .nullable(),
   notes: z.string().trim().max(1000, 'Notes cannot exceed 1000 characters').optional().or(z.literal('')),
   estimatedCost: z.coerce.number().min(0, 'Estimated cost cannot be negative').default(0),
 });
@@ -149,12 +157,25 @@ export async function createItineraryItem(req, res, next) {
       });
     }
 
-    const { title, category, date, startTime, duration, location, notes, estimatedCost } = parseResult.data;
+    const { title, category, date, startTime, duration, location, notes, estimatedCost, coordinates } = parseResult.data;
 
     // Validate date against trip start and end dates
     const dateCheck = isDateWithinTripRange(date, trip);
     if (!dateCheck.valid) {
       return res.status(400).json({ success: false, message: dateCheck.message });
+    }
+
+    // Geocode coordinates if not provided but location is given
+    let finalCoords = coordinates && typeof coordinates.lat === 'number' && typeof coordinates.lng === 'number'
+      ? coordinates
+      : null;
+
+    if (!finalCoords && location && location.trim()) {
+      const geoQuery = location + (trip.destination ? ', ' + trip.destination : '');
+      const geo = await geocodeLocation(geoQuery);
+      if (geo) {
+        finalCoords = { lat: geo.lat, lng: geo.lng };
+      }
     }
 
     // Determine order within the given date
@@ -176,6 +197,7 @@ export async function createItineraryItem(req, res, next) {
       startTime: startTime || '',
       duration: duration || 60,
       location: location || '',
+      coordinates: finalCoords,
       notes: notes || '',
       estimatedCost: estimatedCost || 0,
       currency: trip.currency || 'USD',
@@ -245,9 +267,24 @@ export async function updateItineraryItem(req, res, next) {
     if (updates.category !== undefined) item.category = updates.category;
     if (updates.startTime !== undefined) item.startTime = updates.startTime;
     if (updates.duration !== undefined) item.duration = updates.duration;
-    if (updates.location !== undefined) item.location = updates.location;
     if (updates.notes !== undefined) item.notes = updates.notes;
     if (updates.estimatedCost !== undefined) item.estimatedCost = updates.estimatedCost;
+
+    if (updates.coordinates !== undefined) {
+      item.coordinates = updates.coordinates;
+    }
+
+    if (updates.location !== undefined) {
+      const prevLocation = item.location;
+      item.location = updates.location;
+      if (updates.coordinates === undefined && updates.location && updates.location !== prevLocation) {
+        const geoQuery = updates.location + (trip.destination ? ', ' + trip.destination : '');
+        const geo = await geocodeLocation(geoQuery);
+        if (geo) {
+          item.coordinates = { lat: geo.lat, lng: geo.lng };
+        }
+      }
+    }
 
     await item.save();
 
@@ -355,6 +392,28 @@ export async function reorderItineraryItems(req, res, next) {
     return res.status(200).json({
       success: true,
       message: 'Itinerary schedule reordered successfully',
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * @route   GET /api/trips/geocode
+ * @desc    Geocode a place query via OpenStreetMap Nominatim
+ * @access  Private
+ */
+export async function geocodeQuery(req, res, next) {
+  try {
+    const { q } = req.query;
+    if (!q || !q.trim()) {
+      return res.status(400).json({ success: false, message: 'Query string q is required' });
+    }
+
+    const result = await geocodeLocation(q.trim());
+    return res.status(200).json({
+      success: true,
+      result,
     });
   } catch (err) {
     next(err);

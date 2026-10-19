@@ -10,7 +10,8 @@ import {
   MapPin,
   Compass,
   ArrowUpDown,
-  Filter
+  Filter,
+  Map
 } from 'lucide-react';
 import Button from '../ui/Button';
 import Card, { CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
@@ -22,11 +23,17 @@ import ActivityModal from './ActivityModal';
 import tripService from '../../services/tripService';
 import { useToast } from '../../context/ToastContext';
 
-export function ItineraryPlanner({ trip, canEdit = false }) {
+export function ItineraryPlanner({
+  trip,
+  canEdit = false,
+  items: propItems,
+  onItemsChange,
+  onSwitchToMap,
+}) {
   const { toast } = useToast();
 
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState(propItems || []);
+  const [loading, setLoading] = useState(propItems && propItems.length > 0 ? false : true);
   const [selectedDayIndex, setSelectedDayIndex] = useState(0); // 0 = Day 1, -1 = All Days
   const [filterCategory, setFilterCategory] = useState('all');
 
@@ -36,6 +43,22 @@ export function ItineraryPlanner({ trip, canEdit = false }) {
   const [itemToDelete, setItemToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  // Sync with propItems if passed
+  useEffect(() => {
+    if (propItems) {
+      setItems(propItems);
+      setLoading(false);
+    }
+  }, [propItems]);
+
+  const updateItemsState = (updater) => {
+    setItems((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      onItemsChange?.(next);
+      return next;
+    });
+  };
+
   // Load itinerary items
   const fetchItinerary = async () => {
     setLoading(true);
@@ -43,6 +66,7 @@ export function ItineraryPlanner({ trip, canEdit = false }) {
       const res = await tripService.getItinerary(trip._id);
       if (res.success && res.items) {
         setItems(res.items);
+        onItemsChange?.(res.items);
       }
     } catch (err) {
       console.error('Failed to load itinerary:', err);
@@ -53,7 +77,7 @@ export function ItineraryPlanner({ trip, canEdit = false }) {
   };
 
   useEffect(() => {
-    if (trip?._id) {
+    if (trip?._id && !propItems) {
       fetchItinerary();
     }
   }, [trip?._id]);
@@ -160,9 +184,9 @@ export function ItineraryPlanner({ trip, canEdit = false }) {
 
   const handleSaveItem = (savedItem, isNew) => {
     if (isNew) {
-      setItems((prev) => [...prev, savedItem]);
+      updateItemsState((prev) => [...prev, savedItem]);
     } else {
-      setItems((prev) =>
+      updateItemsState((prev) =>
         prev.map((i) => (i._id === savedItem._id ? savedItem : i))
       );
     }
@@ -174,7 +198,7 @@ export function ItineraryPlanner({ trip, canEdit = false }) {
     const id = itemToDelete._id;
 
     // Optimistic delete
-    setItems((prev) => prev.filter((i) => i._id !== id));
+    updateItemsState((prev) => prev.filter((i) => i._id !== id));
     setItemToDelete(null);
 
     try {
@@ -204,7 +228,7 @@ export function ItineraryPlanner({ trip, canEdit = false }) {
       reorderedMap.set(it._id, idx);
     });
 
-    setItems((prev) =>
+    updateItemsState((prev) =>
       prev.map((it) => (reorderedMap.has(it._id) ? { ...it, order: reorderedMap.get(it._id) } : it))
     );
 
@@ -233,16 +257,28 @@ export function ItineraryPlanner({ trip, canEdit = false }) {
             </h3>
           </div>
 
-          {canEdit && (
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => handleOpenAddModal(activeDay?.dateStr)}
-              leftIcon={<Plus className="w-4 h-4" />}
-            >
-              Add Activity
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {onSwitchToMap && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onSwitchToMap}
+                leftIcon={<Map className="w-4 h-4 text-forest-600" />}
+              >
+                Map View
+              </Button>
+            )}
+            {canEdit && (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => handleOpenAddModal(activeDay?.dateStr)}
+                leftIcon={<Plus className="w-4 h-4" />}
+              >
+                Add Activity
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Budget & Target Progress Meter */}

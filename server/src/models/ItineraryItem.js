@@ -45,6 +45,10 @@ const itineraryItemSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    coordinates: {
+      lat: { type: Number, default: null },
+      lng: { type: Number, default: null },
+    },
     notes: {
       type: String,
       trim: true,

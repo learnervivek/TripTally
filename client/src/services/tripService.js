@@ -195,6 +195,14 @@ export const tripService = {
     const response = await api.patch(`/trips/${tripId}/itinerary/reorder`, { items });
     return response.data;
   },
+
+  /**
+   * Geocode a place query via backend OSM Nominatim proxy
+   */
+  async geocode(query) {
+    const response = await api.get('/trips/geocode', { params: { q: query } });
+    return response.data;
+  },
 };
 
 export default tripService;
