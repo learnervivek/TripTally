@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { DESTINATIONS, latLonToVector3 } from './worldData';
@@ -8,19 +8,26 @@ function DestinationMarker({ dest, radius, isSelected, onSelect }) {
   const ringRef = useRef();
 
   // Position on surface
-  const pos = latLonToVector3(dest.lat, dest.lon, radius);
+  const pos = useMemo(() => latLonToVector3(dest.lat, dest.lon, radius), [dest.lat, dest.lon, radius]);
 
-  // Direction vector pointing outwards from globe center
-  const normal = new THREE.Vector3(...pos).normalize();
+  // Surface normal pointing outwards
+  const normal = useMemo(() => new THREE.Vector3(...pos).normalize(), [pos]);
 
-  // Elevate pin slightly above surface
-  const pinHeadPos = new THREE.Vector3(...pos).addScaledVector(normal, 0.08);
+  // Flat ring quaternion (oriented tangent to surface normal)
+  const ringQuaternion = useMemo(() => {
+    return new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+  }, [normal]);
+
+  // Cylinder stem quaternion (Cylinder default height is along Y axis [0, 1, 0])
+  const stemQuaternion = useMemo(() => {
+    return new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
+  }, [normal]);
 
   useFrame(({ clock }) => {
     if (ringRef.current) {
       const t = clock.getElapsedTime() * 2 + dest.lat;
       const scale = 1 + (Math.sin(t) + 1) * 0.45;
-      ringRef.current.scale.set(scale, scale, scale);
+      ringRef.current.scale.set(scale, scale, 1);
       if (ringRef.current.material) {
         ringRef.current.material.opacity = Math.max(0.15, 0.8 - (scale - 1) * 0.7);
       }
@@ -50,7 +57,8 @@ function DestinationMarker({ dest, radius, isSelected, onSelect }) {
       {/* Expanding Ripple Ring on Globe Surface */}
       <mesh
         ref={ringRef}
-        rotation={new THREE.Euler().setFromVector3(normal)}
+        quaternion={ringQuaternion}
+        position={[normal.x * 0.005, normal.y * 0.005, normal.z * 0.005]}
       >
         <ringGeometry args={[0.035, 0.05, 24]} />
         <meshBasicMaterial
@@ -61,15 +69,18 @@ function DestinationMarker({ dest, radius, isSelected, onSelect }) {
         />
       </mesh>
 
-      {/* Pin Stem */}
-      <mesh position={[normal.x * 0.04, normal.y * 0.04, normal.z * 0.04]}>
+      {/* Pin Stem Oriented Along Normal */}
+      <mesh
+        position={[normal.x * 0.04, normal.y * 0.04, normal.z * 0.04]}
+        quaternion={stemQuaternion}
+      >
         <cylinderGeometry args={[0.006, 0.006, 0.08, 8]} />
         <meshBasicMaterial color="#FAF8F5" />
       </mesh>
 
       {/* Pin Head Glow Orb */}
       <mesh position={[normal.x * 0.08, normal.y * 0.08, normal.z * 0.08]}>
-        <sphereGeometry args={[hovered || isSelected ? 0.042 : 0.032, 16, 16]} />
+        <sphereGeometry args={[hovered || isSelected ? 0.044 : 0.034, 16, 16]} />
         <meshStandardMaterial
           color={pinColor}
           emissive={pinColor}

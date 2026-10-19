@@ -57,7 +57,7 @@ export function FlightArcs({ radius = 2, selectedDestId }) {
       const mesh = pulseRefs.current[i];
       if (mesh && arc.curve) {
         // Staggered loop progress between 0 and 1
-        const progress = ((t * 0.25 + i * 0.18) % 1);
+        const progress = (t * 0.22 + i * 0.18) % 1;
         const pos = arc.curve.getPointAt(progress);
         mesh.position.copy(pos);
       }
@@ -71,25 +71,20 @@ export function FlightArcs({ radius = 2, selectedDestId }) {
         return (
           <group key={`${arc.from}-${arc.to}-${i}`}>
             {/* The Flight Path Line */}
-            <primitive
-              object={
-                new THREE.Line(
-                  arc.geometry,
-                  new THREE.LineBasicMaterial({
-                    color: new THREE.Color(isHighlighted ? '#FFFFFF' : arc.color),
-                    transparent: true,
-                    opacity: isHighlighted ? 0.85 : 0.45,
-                    linewidth: 1.5,
-                  })
-                )
-              }
-            />
+            <line geometry={arc.geometry}>
+              <lineBasicMaterial
+                color={isHighlighted ? '#FFFFFF' : arc.color}
+                transparent
+                opacity={isHighlighted ? 0.85 : 0.45}
+                linewidth={1.5}
+              />
+            </line>
 
             {/* Traveling Glowing Light Particle */}
             <mesh ref={(el) => (pulseRefs.current[i] = el)}>
-              <sphereGeometry args={[0.028, 12, 12]} />
+              <sphereGeometry args={[0.03, 12, 12]} />
               <meshBasicMaterial
-                color={arc.color}
+                color={isHighlighted ? '#FFFFFF' : arc.color}
                 toneMapped={false}
               />
             </mesh>

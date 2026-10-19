@@ -88,6 +88,13 @@ export function Navbar() {
             {/* Desktop Navigation Links */}
             <nav className="hidden md:flex items-center gap-1 lg:gap-2">
               <a
+                href="#destinations"
+                onClick={(e) => handleNavClick(e, '#destinations')}
+                className="px-3.5 py-2 rounded-xl text-sm font-medium text-charcoal-600 hover:text-forest-800 hover:bg-ivory-200/60 transition-colors"
+              >
+                Destinations
+              </a>
+              <a
                 href="#features"
                 onClick={(e) => handleNavClick(e, '#features')}
                 className="px-3.5 py-2 rounded-xl text-sm font-medium text-charcoal-600 hover:text-forest-800 hover:bg-ivory-200/60 transition-colors"
@@ -291,6 +298,13 @@ export function Navbar() {
             )}
 
             <div className="flex flex-col space-y-1">
+              <a
+                href="#destinations"
+                onClick={(e) => handleNavClick(e, '#destinations')}
+                className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-charcoal-700 hover:bg-ivory-100"
+              >
+                Destinations
+              </a>
               <a
                 href="#features"
                 onClick={(e) => handleNavClick(e, '#features')}
