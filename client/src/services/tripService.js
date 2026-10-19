@@ -305,6 +305,54 @@ export const tripService = {
     const response = await api.patch(`/trips/${tripId}/budget-alert`, { threshold });
     return response.data;
   },
+
+  /**
+   * Get all packing checklist items with optional filters
+   */
+  async getPackingItems(tripId, params = {}) {
+    const response = await api.get(`/trips/${tripId}/packing`, { params });
+    return response.data;
+  },
+
+  /**
+   * Add a new item to the packing checklist
+   */
+  async createPackingItem(tripId, itemData) {
+    const response = await api.post(`/trips/${tripId}/packing`, itemData);
+    return response.data;
+  },
+
+  /**
+   * Toggle packed status of a checklist item
+   */
+  async togglePackingItem(tripId, itemId) {
+    const response = await api.patch(`/trips/${tripId}/packing/${itemId}/toggle`);
+    return response.data;
+  },
+
+  /**
+   * Update details of a checklist item
+   */
+  async updatePackingItem(tripId, itemId, updateData) {
+    const response = await api.put(`/trips/${tripId}/packing/${itemId}`, updateData);
+    return response.data;
+  },
+
+  /**
+   * Delete an item from the packing checklist
+   */
+  async deletePackingItem(tripId, itemId) {
+    const response = await api.delete(`/trips/${tripId}/packing/${itemId}`);
+    return response.data;
+  },
+
+  /**
+   * Get chronological trip activities with pagination and optional entity filter
+   */
+  async getTripActivities(tripId, params = {}) {
+    const response = await api.get(`/trips/${tripId}/activities`, { params });
+    return response.data;
+  },
 };
 
 export default tripService;

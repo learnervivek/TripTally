@@ -40,6 +40,14 @@ import {
   getTripAnalytics,
   updateBudgetAlertThreshold,
 } from '../controllers/analyticsController.js';
+import {
+  getPackingItems,
+  createPackingItem,
+  togglePackingItem,
+  updatePackingItem,
+  deletePackingItem,
+} from '../controllers/packingController.js';
+import { getTripActivities } from '../controllers/activityController.js';
 import { receiptUpload } from '../middleware/upload.js';
 import { protect } from '../middleware/auth.js';
 
@@ -89,5 +97,15 @@ router.delete('/:tripId/settlements/:settlementId', deleteSettlement);
 // Budget Analytics Endpoints
 router.get('/:tripId/analytics', getTripAnalytics);
 router.patch('/:tripId/budget-alert', updateBudgetAlertThreshold);
+
+// Packing Checklist Endpoints
+router.get('/:tripId/packing', getPackingItems);
+router.post('/:tripId/packing', createPackingItem);
+router.patch('/:tripId/packing/:itemId/toggle', togglePackingItem);
+router.put('/:tripId/packing/:itemId', updatePackingItem);
+router.delete('/:tripId/packing/:itemId', deletePackingItem);
+
+// Activity Feed Endpoints
+router.get('/:tripId/activities', getTripActivities);
 
 export default router;

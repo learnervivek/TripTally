@@ -7,6 +7,7 @@ import {
   validateAndFormatCustomSplits,
   calculateTripBalances,
 } from '../services/expenseCalculationService.js';
+import { logTripActivity } from '../services/activityService.js';
 
 /**
  * Helper to check trip membership and roles.
@@ -249,6 +250,22 @@ export const createExpense = async (req, res, next) => {
       .populate('splits.user', 'name email avatar')
       .populate('createdBy', 'name email');
 
+    // Log non-sensitive trip activity (no payment details/receipts)
+    await logTripActivity({
+      tripId,
+      actorId: req.user._id,
+      action: 'expense_add',
+      entityType: 'expense',
+      entityId: expense._id,
+      summary: `Logged expense "${populatedExpense.title}" for ${(populatedExpense.amount / 100).toFixed(2)} ${trip.currency || 'USD'}`,
+      metadata: {
+        title: populatedExpense.title,
+        amountMajor: populatedExpense.amount / 100,
+        currency: trip.currency || 'USD',
+        category: populatedExpense.category,
+      },
+    });
+
     res.status(201).json({
       success: true,
       message: 'Expense recorded successfully',
@@ -443,7 +460,19 @@ export const deleteExpense = async (req, res, next) => {
       });
     }
 
+    const deletedTitle = expense.title;
     await expense.deleteOne();
+
+    // Log trip activity
+    await logTripActivity({
+      tripId,
+      actorId: req.user._id,
+      action: 'expense_delete',
+      entityType: 'expense',
+      entityId: expenseId,
+      summary: `Deleted expense "${deletedTitle}"`,
+      metadata: { title: deletedTitle },
+    });
 
     res.json({
       success: true,
@@ -540,6 +569,22 @@ export const createSettlement = async (req, res, next) => {
       .populate('payee', 'name email avatar')
       .populate('recordedBy', 'name email');
 
+    // Log trip activity
+    await logTripActivity({
+      tripId,
+      actorId: req.user._id,
+      action: 'settlement_add',
+      entityType: 'settlement',
+      entityId: settlement._id,
+      summary: `Recorded settlement of ${(settlement.amount / 100).toFixed(2)} ${trip.currency || 'USD'} between ${populatedSettlement.payer?.name || 'Traveler'} and ${populatedSettlement.payee?.name || 'Traveler'}`,
+      metadata: {
+        amountMajor: settlement.amount / 100,
+        currency: trip.currency || 'USD',
+        payerName: populatedSettlement.payer?.name,
+        payeeName: populatedSettlement.payee?.name,
+      },
+    });
+
     res.status(201).json({
       success: true,
       message: 'Settlement recorded successfully',
@@ -586,6 +631,16 @@ export const deleteSettlement = async (req, res, next) => {
     }
 
     await settlement.deleteOne();
+
+    // Log trip activity
+    await logTripActivity({
+      tripId,
+      actorId: req.user._id,
+      action: 'settlement_delete',
+      entityType: 'settlement',
+      entityId: settlementId,
+      summary: `Settlement record was deleted`,
+    });
 
     res.json({
       success: true,

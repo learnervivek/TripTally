@@ -3,6 +3,7 @@ import ItineraryItem from '../models/ItineraryItem.js';
 import Trip from '../models/Trip.js';
 import { getUserRoleOnTrip } from './tripController.js';
 import { geocodeLocation } from '../utils/geocodingService.js';
+import { logTripActivity } from '../services/activityService.js';
 
 // Schemas
 export const itineraryItemSchema = z.object({
@@ -206,6 +207,22 @@ export async function createItineraryItem(req, res, next) {
 
     const populatedItem = await ItineraryItem.findById(item._id).populate('creator', 'name email avatar');
 
+    // Log trip activity
+    await logTripActivity({
+      tripId,
+      actorId: userId,
+      action: 'itinerary_add',
+      entityType: 'itinerary',
+      entityId: item._id,
+      summary: `Added activity "${item.title}" (${item.category})`,
+      metadata: {
+        title: item.title,
+        category: item.category,
+        date: item.date,
+        location: item.location,
+      },
+    });
+
     return res.status(201).json({
       success: true,
       message: 'Activity scheduled successfully',
@@ -327,6 +344,19 @@ export async function deleteItineraryItem(req, res, next) {
     if (!item) {
       return res.status(404).json({ success: false, message: 'Itinerary item not found' });
     }
+
+    // Log trip activity
+    await logTripActivity({
+      tripId,
+      actorId: userId,
+      action: 'itinerary_delete',
+      entityType: 'itinerary',
+      entityId: itemId,
+      summary: `Removed activity "${item.title}" from itinerary`,
+      metadata: {
+        title: item.title,
+      },
+    });
 
     return res.status(200).json({
       success: true,

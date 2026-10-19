@@ -4,6 +4,7 @@ import Invitation from '../models/Invitation.js';
 import Trip from '../models/Trip.js';
 import User from '../models/User.js';
 import emailService from '../utils/emailService.js';
+import { logTripActivity } from '../services/activityService.js';
 
 const inviteSchema = z.object({
   email: z.string().trim().email('Please provide a valid email address').toLowerCase(),
@@ -113,6 +114,17 @@ export async function inviteMember(req, res, next) {
     });
 
     const isDevelopment = process.env.NODE_ENV !== 'production';
+
+    // Log trip activity
+    await logTripActivity({
+      tripId,
+      actorId: req.user._id,
+      action: 'member_invite',
+      entityType: 'member',
+      entityId: invitation._id,
+      summary: `Invited ${email} as ${role || 'editor'}`,
+      metadata: { email, role: role || 'editor' },
+    });
 
     return res.status(201).json({
       success: true,
@@ -261,6 +273,16 @@ export async function removeMember(req, res, next) {
 
     trip.members = trip.members.filter((m) => m.user.toString() !== userId);
     await trip.save();
+
+    // Log trip activity
+    await logTripActivity({
+      tripId,
+      actorId: req.user._id,
+      action: 'member_remove',
+      entityType: 'member',
+      entityId: userId,
+      summary: isSelf ? 'Left the trip' : 'Removed a member from the trip',
+    });
 
     return res.status(200).json({
       success: true,
@@ -475,6 +497,16 @@ export async function acceptInvitationByToken(req, res, next) {
     // Mark invitation accepted (prevents token reuse)
     invitation.status = 'accepted';
     await invitation.save();
+
+    // Log trip activity
+    await logTripActivity({
+      tripId: trip._id,
+      actorId: req.user._id,
+      action: 'member_join',
+      entityType: 'member',
+      entityId: req.user._id,
+      summary: `${req.user.name || 'Traveler'} joined the trip`,
+    });
 
     return res.status(200).json({
       success: true,
