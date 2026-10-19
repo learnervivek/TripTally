@@ -37,6 +37,12 @@ const userSchema = new mongoose.Schema(
       default: '',
       maxlength: [240, 'Bio cannot exceed 240 characters'],
     },
+    notificationPreferences: {
+      emailNotifications: { type: Boolean, default: true },
+      tripReminders: { type: Boolean, default: true },
+      expenseAlerts: { type: Boolean, default: true },
+      itineraryUpdates: { type: Boolean, default: true },
+    },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
   },

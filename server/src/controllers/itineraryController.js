@@ -4,6 +4,7 @@ import Trip from '../models/Trip.js';
 import { getUserRoleOnTrip } from './tripController.js';
 import { geocodeLocation } from '../utils/geocodingService.js';
 import { logTripActivity } from '../services/activityService.js';
+import { notifyTripMembers } from '../services/notificationService.js';
 
 // Schemas
 export const itineraryItemSchema = z.object({
@@ -221,6 +222,17 @@ export async function createItineraryItem(req, res, next) {
         date: item.date,
         location: item.location,
       },
+    });
+
+    // Notify trip members
+    await notifyTripMembers({
+      tripId,
+      senderId: userId,
+      type: 'itinerary_update',
+      title: 'Itinerary Updated',
+      message: `${req.user.name || 'A companion'} added "${item.title}" to the trip schedule.`,
+      link: `/trips/${tripId}`,
+      metadata: { title: item.title, category: item.category },
     });
 
     return res.status(201).json({

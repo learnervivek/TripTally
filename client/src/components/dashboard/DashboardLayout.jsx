@@ -14,7 +14,12 @@ import {
   LogOut,
   ChevronRight,
   Settings,
-  Sparkles
+  Sparkles,
+  CheckCircle2,
+  DollarSign,
+  Calendar,
+  AlertCircle,
+  Check
 } from 'lucide-react';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
@@ -28,6 +33,8 @@ export function DashboardLayout({ children }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [invitationCount, setInvitationCount] = useState(0);
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
+  const [recentNotifs, setRecentNotifs] = useState([]);
 
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -43,13 +50,24 @@ export function DashboardLayout({ children }) {
         })
         .catch(() => {});
     }
+
+    if (typeof tripService?.getNotifications === 'function') {
+      tripService.getNotifications({ limit: 5 })
+        .then((res) => {
+          if (res?.success) {
+            setUnreadNotifCount(res.unreadCount || 0);
+            setRecentNotifs(res.notifications || []);
+          }
+        })
+        .catch(() => {});
+    }
   }, [location.pathname]);
 
   const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'My Trips', href: '/trips', icon: MapPin },
     { name: 'Invitations', href: '/invitations', icon: Mail, badge: invitationCount > 0 ? String(invitationCount) : null },
-    { name: 'Notifications', href: '/notifications', icon: Bell, indicator: true },
+    { name: 'Notifications', href: '/notifications', icon: Bell, badge: unreadNotifCount > 0 ? String(unreadNotifCount) : null },
     { name: 'Profile', href: '/profile', icon: User },
   ];
 
@@ -57,6 +75,37 @@ export function DashboardLayout({ children }) {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/trips?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleMarkAllNotificationsRead = async (e) => {
+    e?.stopPropagation?.();
+    try {
+      await tripService.markAllNotificationsRead();
+      setUnreadNotifCount(0);
+      setRecentNotifs((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    } catch (err) {
+      console.error('Failed to mark notifications read:', err);
+    }
+  };
+
+  const handleNotificationClick = async (notif) => {
+    setNotificationsOpen(false);
+    if (!notif.isRead) {
+      try {
+        await tripService.markNotificationRead(notif._id);
+        setUnreadNotifCount((prev) => Math.max(0, prev - 1));
+        setRecentNotifs((prev) =>
+          prev.map((n) => (n._id === notif._id ? { ...n, isRead: true } : n))
+        );
+      } catch (err) {
+        console.error('Failed to mark notification read:', err);
+      }
+    }
+    if (notif.link) {
+      navigate(notif.link);
+    } else {
+      navigate('/notifications');
     }
   };
 
@@ -201,27 +250,83 @@ export function DashboardLayout({ children }) {
                 aria-label="Notifications"
               >
                 <Bell className="w-4 h-4" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-terracotta-500 animate-pulse" />
+                {unreadNotifCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 rounded-full bg-terracotta-500 text-white text-[10px] font-bold flex items-center justify-center animate-pulse shadow-soft-sm">
+                    {unreadNotifCount > 9 ? '9+' : unreadNotifCount}
+                  </span>
+                )}
               </button>
 
               {notificationsOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-soft-xl border border-ivory-300 p-4 space-y-3 z-50 animate-fadeIn text-xs"
-                  onMouseLeave={() => setNotificationsOpen(false)}
+                  className="absolute right-0 mt-2 w-80 sm:w-88 bg-white rounded-2xl shadow-soft-xl border border-ivory-300 p-3.5 space-y-3 z-50 animate-fadeIn text-xs"
                 >
                   <div className="flex items-center justify-between pb-2 border-b border-ivory-200">
-                    <span className="font-bold text-charcoal-900">Notifications</span>
-                    <Badge variant="forest" size="sm">2 New</Badge>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-charcoal-900 text-sm font-display">Notifications</span>
+                      {unreadNotifCount > 0 ? (
+                        <Badge variant="terracotta" size="sm">
+                          {unreadNotifCount} New
+                        </Badge>
+                      ) : (
+                        <span className="text-[10px] text-charcoal-400 font-medium">All caught up</span>
+                      )}
+                    </div>
+                    {unreadNotifCount > 0 && (
+                      <button
+                        onClick={handleMarkAllNotificationsRead}
+                        className="text-[11px] font-semibold text-forest-700 hover:text-forest-900 flex items-center gap-1 transition-colors"
+                      >
+                        <Check className="w-3 h-3" />
+                        <span>Mark read</span>
+                      </button>
+                    )}
                   </div>
-                  <div className="space-y-2.5">
-                    <div className="p-2 rounded-xl bg-ivory-50 border border-ivory-200">
-                      <p className="font-semibold text-charcoal-800">Trip Invite from Maya</p>
-                      <p className="text-[11px] text-charcoal-500 mt-0.5">Invited you to "Swiss Alps Hiking".</p>
-                    </div>
-                    <div className="p-2 rounded-xl bg-ivory-50 border border-ivory-200">
-                      <p className="font-semibold text-charcoal-800">Expense Added</p>
-                      <p className="text-[11px] text-charcoal-500 mt-0.5">Alex logged Villa deposit ($1,650).</p>
-                    </div>
+
+                  <div className="space-y-1.5 max-h-72 overflow-y-auto pr-0.5">
+                    {recentNotifs.length === 0 ? (
+                      <div className="py-6 text-center text-charcoal-400">
+                        <Bell className="w-6 h-6 mx-auto mb-1.5 opacity-40 text-charcoal-400" />
+                        <p className="text-xs">No notifications yet</p>
+                      </div>
+                    ) : (
+                      recentNotifs.map((n) => (
+                        <div
+                          key={n._id}
+                          onClick={() => handleNotificationClick(n)}
+                          className={`p-2.5 rounded-xl border transition-all cursor-pointer flex items-start gap-2.5 ${
+                            !n.isRead
+                              ? 'bg-forest-50/50 border-forest-200/80 hover:bg-forest-50'
+                              : 'bg-ivory-50/60 border-ivory-200 hover:bg-ivory-100/60'
+                          }`}
+                        >
+                          <span
+                            className={`w-2 h-2 rounded-full mt-1 shrink-0 ${
+                              !n.isRead ? 'bg-terracotta-500' : 'bg-transparent'
+                            }`}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="font-bold text-charcoal-900 text-xs truncate">
+                              {n.title}
+                            </p>
+                            <p className="text-[11px] text-charcoal-500 line-clamp-2 mt-0.5 leading-snug">
+                              {n.message}
+                            </p>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  <div className="pt-2 border-t border-ivory-200 text-center">
+                    <Link
+                      to="/notifications"
+                      onClick={() => setNotificationsOpen(false)}
+                      className="text-xs font-bold text-forest-700 hover:text-forest-900 transition-colors inline-flex items-center gap-1"
+                    >
+                      <span>View all notifications</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
                   </div>
                 </div>
               )}

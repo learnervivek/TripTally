@@ -353,6 +353,71 @@ export const tripService = {
     const response = await api.get(`/trips/${tripId}/activities`, { params });
     return response.data;
   },
+
+  /**
+   * Get notifications for authenticated user
+   */
+  async getNotifications(params = {}) {
+    const response = await api.get('/notifications', { params });
+    return response.data;
+  },
+
+  /**
+   * Mark single notification as read
+   */
+  async markNotificationRead(notificationId) {
+    const response = await api.patch(`/notifications/${notificationId}/read`);
+    return response.data;
+  },
+
+  /**
+   * Mark all unread notifications as read
+   */
+  async markAllNotificationsRead() {
+    const response = await api.patch('/notifications/mark-all-read');
+    return response.data;
+  },
+
+  /**
+   * Delete a notification
+   */
+  async deleteNotification(notificationId) {
+    const response = await api.delete(`/notifications/${notificationId}`);
+    return response.data;
+  },
+
+  /**
+   * Clear all read notifications
+   */
+  async clearReadNotifications() {
+    const response = await api.delete('/notifications/clear-read');
+    return response.data;
+  },
+
+  /**
+   * Get notification preferences for current user
+   */
+  async getNotificationPreferences() {
+    const response = await api.get('/notifications/preferences');
+    return response.data;
+  },
+
+  /**
+   * Update notification preferences for current user
+   */
+  async updateNotificationPreferences(preferences) {
+    const response = await api.patch('/notifications/preferences', preferences);
+    return response.data;
+  },
+
+  /**
+   * Run scheduled trip and expense reminders check
+   */
+  async triggerScheduledReminders() {
+    const response = await api.post('/notifications/run-reminders');
+    return response.data;
+  },
 };
 
 export default tripService;
+

@@ -8,6 +8,7 @@ import {
   calculateTripBalances,
 } from '../services/expenseCalculationService.js';
 import { logTripActivity } from '../services/activityService.js';
+import { notifyTripMembers, createNotification } from '../services/notificationService.js';
 
 /**
  * Helper to check trip membership and roles.
@@ -263,6 +264,21 @@ export const createExpense = async (req, res, next) => {
         amountMajor: populatedExpense.amount / 100,
         currency: trip.currency || 'USD',
         category: populatedExpense.category,
+      },
+    });
+
+    // Notify trip members about new expense
+    await notifyTripMembers({
+      tripId,
+      senderId: req.user._id,
+      type: 'expense_created',
+      title: 'New Expense Logged',
+      message: `${req.user.name || 'A traveler'} logged "${populatedExpense.title}" for ${(populatedExpense.amount / 100).toFixed(2)} ${trip.currency || 'USD'}.`,
+      link: `/trips/${tripId}`,
+      metadata: {
+        title: populatedExpense.title,
+        amount: populatedExpense.amount,
+        currency: trip.currency || 'USD',
       },
     });
 
@@ -584,6 +600,25 @@ export const createSettlement = async (req, res, next) => {
         payeeName: populatedSettlement.payee?.name,
       },
     });
+
+    // Notify payee about settlement
+    const payeeId = populatedSettlement.payee?._id || populatedSettlement.payee;
+    if (payeeId && String(payeeId) !== String(req.user._id)) {
+      await createNotification({
+        recipientId: payeeId,
+        senderId: req.user._id,
+        tripId,
+        type: 'settlement_created',
+        title: 'Settlement Payment Recorded',
+        message: `${populatedSettlement.payer?.name || 'A companion'} recorded a settlement of ${(settlement.amount / 100).toFixed(2)} ${trip.currency || 'USD'} to you.`,
+        link: `/trips/${tripId}`,
+        metadata: {
+          amount: settlement.amount,
+          currency: trip.currency || 'USD',
+          payerName: populatedSettlement.payer?.name,
+        },
+      });
+    }
 
     res.status(201).json({
       success: true,

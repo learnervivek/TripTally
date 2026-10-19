@@ -5,6 +5,7 @@ import Trip from '../models/Trip.js';
 import User from '../models/User.js';
 import emailService from '../utils/emailService.js';
 import { logTripActivity } from '../services/activityService.js';
+import { createNotification } from '../services/notificationService.js';
 
 const inviteSchema = z.object({
   email: z.string().trim().email('Please provide a valid email address').toLowerCase(),
@@ -125,6 +126,26 @@ export async function inviteMember(req, res, next) {
       summary: `Invited ${email} as ${role || 'editor'}`,
       metadata: { email, role: role || 'editor' },
     });
+
+    // If an existing registered user matches the invited email, send an in-app notification
+    const existingRegisteredUser = await User.findOne({ email });
+    if (existingRegisteredUser) {
+      await createNotification({
+        recipientId: existingRegisteredUser._id,
+        senderId: req.user._id,
+        tripId: trip._id,
+        type: 'trip_invitation',
+        title: `Trip Invitation: ${trip.title}`,
+        message: `${req.user.name || 'A traveler'} invited you to join "${trip.title}" (${trip.destination}) as an ${role || 'editor'}.`,
+        link: '/invitations',
+        metadata: {
+          tripTitle: trip.title,
+          destination: trip.destination,
+          role: role || 'editor',
+        },
+        sendEmailIfAllowed: false, // Already sent invite email above
+      });
+    }
 
     return res.status(201).json({
       success: true,
