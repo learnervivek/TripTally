@@ -289,6 +289,22 @@ export const tripService = {
     });
     return response.data;
   },
+
+  /**
+   * Get comprehensive budget analytics for a trip
+   */
+  async getTripAnalytics(tripId) {
+    const response = await api.get(`/trips/${tripId}/analytics`);
+    return response.data;
+  },
+
+  /**
+   * Update budget alert threshold percentage
+   */
+  async updateBudgetAlertThreshold(tripId, threshold) {
+    const response = await api.patch(`/trips/${tripId}/budget-alert`, { threshold });
+    return response.data;
+  },
 };
 
 export default tripService;

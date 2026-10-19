@@ -16,3 +16,19 @@ export function cn(...inputs) {
     .filter(Boolean)
     .join(' ');
 }
+
+/**
+ * Format monetary amount with consistent currency code/symbol
+ */
+export function formatCurrency(amount, currency = 'USD') {
+  const numericAmount = Number(amount) || 0;
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: (currency || 'USD').toUpperCase(),
+      maximumFractionDigits: 2,
+    }).format(numericAmount);
+  } catch {
+    return `${numericAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
+  }
+}

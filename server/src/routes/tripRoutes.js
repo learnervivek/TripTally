@@ -36,6 +36,10 @@ import {
   deleteSettlement,
   uploadReceipt,
 } from '../controllers/expenseController.js';
+import {
+  getTripAnalytics,
+  updateBudgetAlertThreshold,
+} from '../controllers/analyticsController.js';
 import { receiptUpload } from '../middleware/upload.js';
 import { protect } from '../middleware/auth.js';
 
@@ -81,5 +85,9 @@ router.delete('/:tripId/expenses/:expenseId', deleteExpense);
 router.get('/:tripId/settlements', getTripSettlements);
 router.post('/:tripId/settlements', createSettlement);
 router.delete('/:tripId/settlements/:settlementId', deleteSettlement);
+
+// Budget Analytics Endpoints
+router.get('/:tripId/analytics', getTripAnalytics);
+router.patch('/:tripId/budget-alert', updateBudgetAlertThreshold);
 
 export default router;

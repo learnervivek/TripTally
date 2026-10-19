@@ -76,6 +76,12 @@ const tripSchema = new mongoose.Schema(
       default: 0,
       min: [0, 'Budget must be zero or a positive amount'],
     },
+    budgetAlertThreshold: {
+      type: Number,
+      default: 80,
+      min: [10, 'Alert threshold must be at least 10%'],
+      max: [200, 'Alert threshold cannot exceed 200%'],
+    },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

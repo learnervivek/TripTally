@@ -14,6 +14,7 @@ export const createTripSchema = z.object({
   endDate: z.string().optional().or(z.literal('')),
   currency: z.string().default('USD'),
   budget: z.coerce.number().min(0, 'Budget must be zero or a positive amount').default(0),
+  budgetAlertThreshold: z.coerce.number().min(10, 'Alert threshold must be at least 10%').max(200, 'Alert threshold cannot exceed 200%').default(80),
 }).refine((data) => {
   if (data.startDate && data.endDate) {
     return new Date(data.endDate) >= new Date(data.startDate);
@@ -33,6 +34,7 @@ export const updateTripSchema = z.object({
   endDate: z.string().optional().or(z.literal('')),
   currency: z.string().optional(),
   budget: z.coerce.number().min(0, 'Budget must be zero or a positive amount').optional(),
+  budgetAlertThreshold: z.coerce.number().min(10, 'Alert threshold must be at least 10%').max(200, 'Alert threshold cannot exceed 200%').optional(),
   status: z.enum(['planning', 'confirmed', 'ongoing', 'completed', 'archived']).optional(),
 }).refine((data) => {
   if (data.startDate && data.endDate) {
@@ -239,7 +241,7 @@ export async function createTrip(req, res, next) {
       return res.status(400).json({ success: false, message: errorMsg, errors: parseResult.error.flatten().fieldErrors });
     }
 
-    const { title, destination, description, coverImage, startDate, endDate, currency, budget } = parseResult.data;
+    const { title, destination, description, coverImage, startDate, endDate, currency, budget, budgetAlertThreshold } = parseResult.data;
 
     // Generate unique 8-character invite code
     const inviteCode = crypto.randomBytes(4).toString('hex').toUpperCase();
@@ -263,6 +265,7 @@ export async function createTrip(req, res, next) {
       endDate: endDate ? new Date(endDate) : undefined,
       currency: currency || 'USD',
       budget: budget || 0,
+      budgetAlertThreshold: budgetAlertThreshold || 80,
       owner: req.user._id,
       inviteCode,
       status: 'planning',
@@ -396,6 +399,7 @@ export async function updateTrip(req, res, next) {
     if (data.endDate !== undefined) trip.endDate = data.endDate ? new Date(data.endDate) : undefined;
     if (data.currency !== undefined) trip.currency = data.currency;
     if (data.budget !== undefined) trip.budget = data.budget;
+    if (data.budgetAlertThreshold !== undefined) trip.budgetAlertThreshold = data.budgetAlertThreshold;
     if (data.status !== undefined) trip.status = data.status;
 
     await trip.save();

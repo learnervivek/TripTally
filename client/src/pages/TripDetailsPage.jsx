@@ -21,7 +21,8 @@ import {
   UserPlus,
   Clock,
   X,
-  Map
+  Map,
+  BarChart3
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card, { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/Card';
@@ -32,6 +33,7 @@ import InviteMemberModal from '../components/trips/InviteMemberModal';
 import ItineraryPlanner from '../components/itinerary/ItineraryPlanner';
 import TripMapView from '../components/map/TripMapView';
 import ExpenseManager from '../components/expenses/ExpenseManager';
+import BudgetAnalytics from '../components/analytics/BudgetAnalytics';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import tripService from '../services/tripService';
 import { useToast } from '../context/ToastContext';
@@ -370,6 +372,18 @@ export function TripDetailsPage() {
               <Receipt className="w-4 h-4 text-terracotta-600" />
               <span>Expenses & Budget ({expenses.length})</span>
             </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('analytics')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+                activeTab === 'analytics'
+                  ? 'bg-white text-forest-900 shadow-soft-sm'
+                  : 'text-charcoal-600 hover:text-charcoal-900'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4 text-emerald-600" />
+              <span>Budget Analytics</span>
+            </button>
           </div>
 
           {/* Trip Description Note */}
@@ -405,6 +419,15 @@ export function TripDetailsPage() {
           {/* Tab 3: Group Expenses & Debt Tally */}
           {activeTab === 'expenses' && (
             <ExpenseManager
+              trip={trip}
+              members={members}
+              canEdit={canEdit}
+            />
+          )}
+
+          {/* Tab 4: Budget Analytics */}
+          {activeTab === 'analytics' && (
+            <BudgetAnalytics
               trip={trip}
               members={members}
               canEdit={canEdit}
