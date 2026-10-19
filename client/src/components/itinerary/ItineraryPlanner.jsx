@@ -22,6 +22,7 @@ import ActivityCard from './ActivityCard';
 import ActivityModal from './ActivityModal';
 import tripService from '../../services/tripService';
 import { useToast } from '../../context/ToastContext';
+import { formatCurrency } from '../../lib/utils';
 
 export function ItineraryPlanner({
   trip,
@@ -286,14 +287,14 @@ export function ItineraryPlanner({
           <div className="space-y-1">
             <span className="text-xs text-charcoal-500 font-medium">Planned Itinerary Cost</span>
             <p className="text-lg sm:text-xl font-bold text-forest-800 font-display font-mono">
-              ${overallPlannedCost.toLocaleString()} {trip.currency || 'USD'}
+              {formatCurrency(overallPlannedCost, trip.currency || 'INR')}
             </p>
           </div>
 
           <div className="space-y-1">
             <span className="text-xs text-charcoal-500 font-medium">Target Trip Budget</span>
             <p className="text-lg sm:text-xl font-bold text-charcoal-900 font-display font-mono">
-              ${(trip.budget || 0).toLocaleString()} {trip.currency || 'USD'}
+              {formatCurrency(trip.budget || 0, trip.currency || 'INR')}
             </p>
           </div>
 
@@ -458,7 +459,7 @@ export function ItineraryPlanner({
               canEdit={canEdit}
               isFirst={idx === 0}
               isLast={idx === displayedItems.length - 1}
-              currency={trip.currency || 'USD'}
+              currency={trip.currency || 'INR'}
               onEdit={() => handleOpenEditModal(item)}
               onDelete={() => setItemToDelete(item)}
               onMoveUp={() => handleMove(idx, 'up')}

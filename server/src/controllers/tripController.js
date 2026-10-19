@@ -12,7 +12,7 @@ export const createTripSchema = z.object({
   coverImage: z.string().optional().or(z.literal('')),
   startDate: z.string().optional().or(z.literal('')),
   endDate: z.string().optional().or(z.literal('')),
-  currency: z.string().default('USD'),
+  currency: z.string().default('INR'),
   budget: z.coerce.number().min(0, 'Budget must be zero or a positive amount').default(0),
   budgetAlertThreshold: z.coerce.number().min(10, 'Alert threshold must be at least 10%').max(200, 'Alert threshold cannot exceed 200%').default(80),
 }).refine((data) => {
@@ -263,7 +263,7 @@ export async function createTrip(req, res, next) {
       coverImage: finalCover,
       startDate: startDate ? new Date(startDate) : undefined,
       endDate: endDate ? new Date(endDate) : undefined,
-      currency: currency || 'USD',
+      currency: currency || 'INR',
       budget: budget || 0,
       budgetAlertThreshold: budgetAlertThreshold || 80,
       owner: req.user._id,

@@ -202,7 +202,7 @@ export async function createItineraryItem(req, res, next) {
       coordinates: finalCoords,
       notes: notes || '',
       estimatedCost: estimatedCost || 0,
-      currency: trip.currency || 'USD',
+      currency: trip.currency || 'INR',
       order: existingCount,
     });
 

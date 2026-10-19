@@ -62,7 +62,7 @@ const paymentOrderSchema = new mongoose.Schema(
       required: [true, 'Currency is required'],
       uppercase: true,
       trim: true,
-      default: 'USD',
+      default: 'INR',
     },
     razorpayOrderId: {
       type: String,

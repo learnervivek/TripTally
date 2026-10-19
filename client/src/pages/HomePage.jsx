@@ -11,13 +11,11 @@ import {
   Calendar,
   Sparkles,
   CheckCircle2,
-  DollarSign,
   ChevronRight,
   Split,
   PieChart,
   HelpCircle,
   Share2,
-  Coins,
   ChevronDown,
   Globe2,
   Navigation,
@@ -26,7 +24,12 @@ import {
   ExternalLink,
   Layers,
   HeartHandshake,
-  Smartphone
+  Smartphone,
+  IndianRupee,
+  Clock,
+  Car,
+  Compass as CompassIcon,
+  Tent
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card, { CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
@@ -35,137 +38,260 @@ import ProductPreview from '../components/landing/ProductPreview';
 import AuthModal from '../components/auth/AuthModal';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { formatINR } from '../utils/currency';
 
-// Lazy-load the 3D Travel Globe component for fast initial page load
+// Lazy-load the 3D Travel Globe component for performance
 const TravelGlobe = lazy(() => import('../components/3d/TravelGlobe'));
 
-// Curated destinations with high-resolution photography
-const featuredDestinations = [
+// A. Curated Popular Indian Destinations with authentic Unsplash photography
+const popularDestinations = [
   {
-    id: 'amalfi',
-    title: 'Amalfi Coast & Capri',
-    country: 'Italy',
-    image: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80',
-    alt: 'Pastel cliffside houses overlooking the azure Mediterranean on the Amalfi Coast',
-    days: '7 Days',
-    travelers: '4 Friends',
-    estBudget: '$1,350 / person',
-    tag: 'Coastal Luxury',
+    id: 'manali',
+    name: 'Manali & Solang Valley',
+    state: 'Himachal Pradesh',
+    image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80',
+    alt: 'Snow-capped Himalayan peaks and pine forests in Solang Valley near Manali',
+    duration: '5 Days',
+    travelers: '4 Travellers',
+    estBudget: 40000,
+    tag: 'Snow & Adventure',
     tagVariant: 'forest',
+    description: 'Crisp pine air, Solang Valley snow adventure, paragliding, and cozy Old Manali riverside cafes.',
   },
   {
-    id: 'kyoto',
-    title: 'Kyoto & Tokyo Neon',
-    country: 'Japan',
-    image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=800&q=80',
-    alt: 'Traditional Japanese pagoda surrounded by vibrant autumn foliage in Kyoto',
-    days: '10 Days',
-    travelers: '5 Friends',
-    estBudget: '$1,650 / person',
-    tag: 'Cultural Trail',
+    id: 'goa',
+    name: 'Goa Coastal Getaway',
+    state: 'Goa',
+    image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80',
+    alt: 'Palm-fringed golden sandy beach and Arabian Sea sunset in Goa',
+    duration: '4 Days',
+    travelers: '5 Travellers',
+    estBudget: 36000,
+    tag: 'Beaches & Shacks',
     tagVariant: 'terracotta',
+    description: 'Golden Arabian Sea sunsets, beach shacks, Fontainhas Latin quarter, water sports, and seaside dining.',
   },
   {
-    id: 'swiss-alps',
-    title: 'Swiss Alps Expedition',
-    country: 'Switzerland',
-    image: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=800&q=80',
-    alt: 'Snowy peaks and lush alpine valleys of the Swiss Alps',
-    days: '6 Days',
-    travelers: '6 Friends',
-    estBudget: '$1,200 / person',
-    tag: 'Alpine Trek',
-    tagVariant: 'forest',
-  },
-  {
-    id: 'bali',
-    title: 'Bali Island Sanctuary',
-    country: 'Indonesia',
-    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80',
-    alt: 'Lush tropical palm trees and emerald rice terraces in Bali',
-    days: '9 Days',
-    travelers: '4 Friends',
-    estBudget: '$890 / person',
-    tag: 'Tropical Escape',
-    tagVariant: 'terracotta',
-  },
-  {
-    id: 'patagonia',
-    title: 'Torres del Paine',
-    country: 'Chile',
-    image: 'https://images.unsplash.com/photo-1527004013197-933c4bb611b3?auto=format&fit=crop&w=800&q=80',
-    alt: 'Granite peaks and turquoise glacial lakes in Patagonia',
-    days: '8 Days',
-    travelers: '4 Friends',
-    estBudget: '$1,400 / person',
-    tag: 'Wilderness',
+    id: 'jaipur',
+    name: 'Jaipur & Udaipur',
+    state: 'Rajasthan',
+    image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=800&q=80',
+    alt: 'Intricate pink sandstone facade of Hawa Mahal in Jaipur Rajasthan',
+    duration: '4 Days',
+    travelers: '4 Travellers',
+    estBudget: 32000,
+    tag: 'Royal Heritage',
     tagVariant: 'neutral',
+    description: 'Majestic Amer Fort, romantic sunset boat cruises on Lake Pichola, and royal Rajasthani thali dinners.',
   },
   {
-    id: 'reykjavik',
-    title: 'Reykjavík & Waterfalls',
-    country: 'Iceland',
-    image: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80',
-    alt: 'Dramatic waterfall and basalt cliffs in Iceland',
-    days: '5 Days',
-    travelers: '3 Friends',
-    estBudget: '$1,250 / person',
-    tag: 'Nordic Wonder',
+    id: 'kerala',
+    name: 'Kerala Backwaters & Munnar',
+    state: 'Kerala',
+    image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80',
+    alt: 'Traditional wooden houseboat navigating emerald palm-lined backwaters of Alleppey Kerala',
+    duration: '6 Days',
+    travelers: '4 Travellers',
+    estBudget: 55000,
+    tag: "God's Own Country",
     tagVariant: 'forest',
+    description: 'Tranquil Alleppey private houseboats, misty Munnar tea estate walks, and authentic Ayurvedic wellness.',
+  },
+  {
+    id: 'kashmir',
+    name: 'Srinagar & Gulmarg',
+    state: 'Jammu & Kashmir',
+    image: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=800&q=80',
+    alt: 'Traditional wooden Shikara boat floating on the serene waters of Dal Lake Srinagar',
+    duration: '6 Days',
+    travelers: '4 Travellers',
+    estBudget: 65000,
+    tag: 'Himalayan Heaven',
+    tagVariant: 'terracotta',
+    description: 'Shikara rides on Dal Lake, Gulmarg Gondola Phase 2 snow heights, saffron valleys, and pine forests.',
+  },
+  {
+    id: 'meghalaya',
+    name: 'Shillong & Cherrapunji',
+    state: 'Meghalaya',
+    image: 'https://images.unsplash.com/photo-1597040663342-45b6af3d91a5?auto=format&fit=crop&w=800&q=80',
+    alt: 'Living Root Bridges and cascading waterfalls amidst lush green hills of Meghalaya',
+    duration: '5 Days',
+    travelers: '3 Travellers',
+    estBudget: 38000,
+    tag: 'Abode of Clouds',
+    tagVariant: 'forest',
+    description: 'Double Decker Living Root Bridges, crystal clear boating in Dawki, and roaring Nohkalikai Falls.',
+  },
+  {
+    id: 'rishikesh',
+    name: 'Rishikesh & Mussoorie',
+    state: 'Uttarakhand',
+    image: 'https://images.unsplash.com/photo-1598890777032-bde13fba5be3?auto=format&fit=crop&w=800&q=80',
+    alt: 'The holy Ganges river flowing through lush green Himalayan foothills in Rishikesh',
+    duration: '3 Days',
+    travelers: '4 Travellers',
+    estBudget: 18000,
+    tag: 'Rafting & Serenity',
+    tagVariant: 'neutral',
+    description: 'Grade-3 white water Ganga rafting, peaceful Triveni Ghat evening maha aarti, and misty hill stations.',
+  },
+  {
+    id: 'varanasi',
+    name: 'Varanasi Ancient Ghats',
+    state: 'Uttar Pradesh',
+    image: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=800&q=80',
+    alt: 'Sunrise over the ancient riverfront stone ghats and boats along the holy Ganges in Varanasi',
+    duration: '3 Days',
+    travelers: '2 Travellers',
+    estBudget: 22000,
+    tag: 'Spiritual Legacy',
+    tagVariant: 'terracotta',
+    description: 'Dawn wooden boat ride on the holy Ganges, grand Dashashwamedh evening aarti, and historic silk corridors.',
   },
 ];
 
+// B. Plan Your Next Trip: Believable Indian Group Trip Templates
+const readyTripPlans = [
+  {
+    id: 'delhi-manali',
+    title: 'Delhi to Manali Road Trip',
+    duration: '5 Days / 4 Nights',
+    route: 'Delhi • Chandigarh • Kullu • Manali • Solang',
+    budget: 40000,
+    perPerson: 10000,
+    travelers: '4 Friends',
+    transport: 'Overnight Volvo & Local 4x4',
+    highlights: ['Solang Valley Snow Point', 'Atal Tunnel Drive', 'Old Manali Cafe Crawl', 'Hadimba Temple'],
+    category: 'Hill Station & Adventure',
+  },
+  {
+    id: 'jaipur-udaipur',
+    title: 'Jaipur & Udaipur Royal Circuit',
+    duration: '4 Days / 3 Nights',
+    route: 'Jaipur • Ajmer • Pushkar • Udaipur',
+    budget: 32000,
+    perPerson: 8000,
+    travelers: '4 Travellers',
+    transport: 'Vande Bharat / Private Cab',
+    highlights: ['Amer Fort Light Show', 'City Palace & Lake Pichola', 'Johari Bazaar Souvenirs', 'Dal Baati Churma'],
+    category: 'Heritage & Culture',
+  },
+  {
+    id: 'rishikesh-getaway',
+    title: 'Rishikesh Weekend Getaway',
+    duration: '3 Days / 2 Nights',
+    route: 'Delhi/NCR • Haridwar • Rishikesh • Shivpuri',
+    budget: 18000,
+    perPerson: 4500,
+    travelers: '4 Friends',
+    transport: 'Express Highway Carpool',
+    highlights: ['16km River Rafting & Cliff Jump', 'Riverside Campfire & BBQ', 'Triveni Ghat Evening Aarti'],
+    category: 'Weekend Thrills',
+  },
+  {
+    id: 'kerala-escape',
+    title: 'Kerala Backwaters & Hills Escape',
+    duration: '6 Days / 5 Nights',
+    route: 'Kochi • Munnar • Thekkady • Alleppey',
+    budget: 55000,
+    perPerson: 13750,
+    travelers: '4 Travellers',
+    transport: 'Flight to Kochi + Chauffeur Cab',
+    highlights: ['Overnight Houseboat in Alleppey', 'Munnar Tea Plantation Treks', 'Kathakali Martial Arts Show'],
+    category: 'Nature & Wellness',
+  },
+  {
+    id: 'goa-friends',
+    title: 'Goa Coastal Hangout with Friends',
+    duration: '4 Days / 3 Nights',
+    route: 'North Goa (Anjuna) • Panaji • South Goa (Palolem)',
+    budget: 36000,
+    perPerson: 9000,
+    travelers: '4 Friends',
+    transport: 'Direct Flight + Scooters/Thar Rental',
+    highlights: ['Curties Shacks & Catamaran Sunset', 'Fontainhas Portuguese Walk', 'Chapora Fort Sunset Views'],
+    category: 'Beach & Leisure',
+  },
+  {
+    id: 'kashmir-adventure',
+    title: 'Kashmir Paradise Adventure',
+    duration: '6 Days / 5 Nights',
+    route: 'Srinagar • Gulmarg • Pahalgam • Sonmarg',
+    budget: 65000,
+    perPerson: 16250,
+    travelers: '4 Travellers',
+    transport: 'Flight to Srinagar + Private Innova',
+    highlights: ['Dal Lake Houseboat Stay', 'Gulmarg Gondola Phase 2 Ski Heights', 'Aru & Betaab Valleys'],
+    category: 'Himalayan Luxury',
+  },
+];
+
+// C. How TripTally Works: The 5-Step Workflow
 const howItWorksSteps = [
   {
     step: '01',
-    title: 'Create Your Shared Trip Board',
-    description: 'Set your dates, destination, target budget, and select curated travel photography.',
+    title: 'Create Your Trip Board',
+    description: 'Set destination, dates, and budget in Indian Rupees (₹). Pick authentic cover photography.',
     icon: Compass,
     color: 'forest',
   },
   {
     step: '02',
-    title: 'Invite Companions with 1 Link',
-    description: 'Collaborate via email invite or shareable 7-day tokens. Assign roles for Organizers, Editors, or Viewers.',
+    title: 'Invite Friends & Family',
+    description: 'Share a 1-click WhatsApp or email link. Set roles as Organizers, Editors, or Viewers.',
     icon: Users,
     color: 'terracotta',
   },
   {
     step: '03',
-    title: 'Build Itineraries & Map Stops',
-    description: 'Coordinate day-by-day schedules, activities, stays, and route lines plotted with OpenStreetMap.',
+    title: 'Build Shared Itinerary',
+    description: 'Schedule activities, hotel stays, Volvo buses, flights, and scenic spots day-by-day.',
     icon: MapPin,
     color: 'forest',
   },
   {
     step: '04',
-    title: 'Tally Expenses & Settle Easily',
-    description: 'Log group expenses with equal or custom splits. Our ledger minimizes debts so nobody does mental math.',
+    title: 'Track Expenses & Splits',
+    description: 'Record who paid in ₹, attach bill photos, and split costs equally or custom per friend.',
     icon: Split,
     color: 'terracotta',
   },
+  {
+    step: '05',
+    title: 'Settle Up & Enjoy',
+    description: 'Minimise debt transfers and settle instantly via UPI or Razorpay without awkward math.',
+    icon: IndianRupee,
+    color: 'forest',
+  },
 ];
 
+// FAQs
 const faqs = [
   {
-    question: 'Is TripTally completely free to use?',
+    question: 'Is TripTally completely free to use for Indian travellers?',
     answer:
-      'Yes. TripTally is 100% free for friends and travel groups. You can create unlimited trips, invite unlimited collaborators, log shared expenses, and build collaborative itineraries without subscription fees or paywalls.',
+      'Yes. TripTally is 100% free for friends, families, and travel groups across India. You can create unlimited trips, invite companions, log expenses in Indian Rupees (₹), and build collaborative itineraries without subscription fees or hidden paywalls.',
   },
   {
-    question: 'How does the debt simplification algorithm work?',
+    question: 'How does the debt simplification algorithm work for group trips?',
     answer:
-      'Traditional group trips result in messy round-robin payments where everyone owes everyone else. TripTally calculates net creditor and debtor balances and finds the minimum number of direct transactions needed to settle all accounts with mathematical certainty.',
+      'In a typical group trip with 4 to 8 friends, everyone pays for different things (cabs, hotels, cafes, fuel, tickets). TripTally calculates net creditor and debtor balances and mathematically collapses the transactions to the minimum possible direct payments, so you settle with just 1 or 2 quick UPI transfers.',
   },
   {
-    question: 'Can I use TripTally on mobile devices?',
+    question: 'Can we pay settlements directly through UPI or Razorpay?',
     answer:
-      'Yes! TripTally is fully responsive with touch-optimized interfaces, smooth drawer navigation, mobile map views, and quick expense logging designed for use while traveling on the go.',
+      'Yes! TripTally natively supports Indian Rupees (₹). You can record settlements via UPI (Google Pay, PhonePe, Paytm, BHIM) or initiate secure test-mode online payments through Razorpay integration.',
   },
   {
-    question: 'How does online debt settlement work?',
+    question: 'Are all sample budgets on this page live prices?',
     answer:
-      'TripTally supports both manual settlements (Cash, UPI, Venmo, Bank Transfer) and online payment orders via Razorpay test mode, keeping your group ledger updated in real time.',
+      'All sample budgets shown are realistic estimated planning benchmarks for popular Indian group circuits. They serve as reliable guidelines to help your group set target savings and distribute expenses equitably.',
+  },
+  {
+    question: 'Can I track trips on mobile while traveling on the road?',
+    answer:
+      'TripTally is fully responsive and touch-optimized. You can quickly log cab fares, roadside dhaba bills, or cottage deposits right from your phone with instant cloud synchronization.',
   },
 ];
 
@@ -199,7 +325,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-ivory-50 text-charcoal-900 selection:bg-forest-100 selection:text-forest-900 overflow-x-hidden">
       
-      {/* ---------------- 1. Immersive 3D Travel Hero Section ---------------- */}
+      {/* ---------------- 1. Hero Section: 3D Travel Globe & Indian Hubs ---------------- */}
       <section className="relative pt-6 pb-16 lg:pt-10 lg:pb-24 overflow-hidden border-b border-ivory-200/70">
         
         {/* Subtle Decorative Background Glows */}
@@ -209,58 +335,66 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             
-            {/* Left Column: Editorial Headline & Copy */}
+            {/* Left Column: Required Headline & Copy */}
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               className="lg:col-span-5 flex flex-col items-start z-10 text-left"
             >
-              {/* Trust Tag */}
+              {/* Trust Badge */}
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-forest-50 border border-forest-200/80 text-forest-800 text-xs font-semibold mb-6 shadow-soft-sm">
                 <Sparkles className="w-3.5 h-3.5 text-terracotta-500 animate-spin-slow" />
-                <span>Next-Gen Group Travel Management</span>
+                <span>India's Collaborative Group Travel Platform</span>
               </div>
 
-              {/* Required Headline */}
+              {/* Required Exact Headline */}
               <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-charcoal-900 leading-[1.12] tracking-tight mb-5">
-                Plan Together. <br />
-                <span className="italic font-normal text-forest-700">Travel Better.</span>
+                Your India. <br />
+                <span className="italic font-normal text-forest-700">Your Journey.</span> <br />
+                Your Story.
               </h1>
 
-              {/* Required Supporting Text */}
+              {/* Required Exact Supporting Text */}
               <p className="text-base sm:text-lg text-charcoal-600 leading-relaxed max-w-xl mb-8">
-                Build unforgettable trips together. Plan itineraries, organize your group, and split expenses in one place.
+                Plan unforgettable trips across India, explore destinations together, and manage every rupee with one collaborative travel planner.
               </p>
 
-              {/* CTAs */}
+              {/* Primary & Secondary CTAs */}
               <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto mb-10">
                 <Button
                   variant="primary"
                   size="lg"
-                  onClick={() => handleOpenAuth('register')}
+                  onClick={() => {
+                    if (isAuthenticated) {
+                      navigate('/trips');
+                    } else {
+                      handleOpenAuth('register');
+                    }
+                  }}
                   rightIcon={<ArrowRight className="w-4 h-4" />}
                   className="w-full sm:w-auto shadow-soft-lg"
                 >
-                  Start Planning Free
+                  Plan a Trip
                 </Button>
                 <a
-                  href="#features"
-                  className="w-full sm:w-auto inline-flex items-center justify-center font-medium rounded-xl border border-ivory-300 hover:border-forest-600 bg-white hover:bg-ivory-100/70 text-charcoal-800 text-sm px-5 py-3 transition-all duration-200 shadow-soft-sm"
+                  href="#destinations"
+                  className="w-full sm:w-auto inline-flex items-center justify-center font-medium rounded-xl border border-ivory-300 hover:border-forest-600 bg-white hover:bg-ivory-100/70 text-charcoal-800 text-sm px-5 py-3 transition-all duration-200 shadow-soft-sm gap-2"
                 >
-                  Explore Features
+                  <MapPin className="w-4 h-4 text-terracotta-500" />
+                  Explore Destinations
                 </a>
               </div>
 
-              {/* Key Trust Highlights */}
+              {/* Trust Highlights */}
               <div className="grid grid-cols-3 gap-4 pt-6 border-t border-ivory-200 w-full text-xs text-charcoal-600">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-forest-600 shrink-0" />
-                  <span>100% Free Forever</span>
+                  <span>100% in Rupees (₹)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-forest-600 shrink-0" />
-                  <span>No Spreadsheets</span>
+                  <span>UPI Settlements</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-forest-600 shrink-0" />
@@ -269,7 +403,7 @@ export default function HomePage() {
               </div>
             </motion.div>
 
-            {/* Right Column: 3D Travel Globe Canvas */}
+            {/* Right Column: 3D Travel Globe (Centered on India) */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -282,7 +416,7 @@ export default function HomePage() {
                     <div className="w-full h-[460px] sm:h-[540px] flex flex-col items-center justify-center text-center p-8 bg-forest-900/10 rounded-2xl animate-pulse">
                       <Compass className="w-10 h-10 text-forest-600 animate-spin-slow mb-3" />
                       <p className="text-sm font-medium text-forest-800">
-                        Initializing 3D Travel Globe...
+                        Initializing 3D India Travel Globe...
                       </p>
                     </div>
                   }
@@ -296,7 +430,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ---------------- 3. Featured Destinations Section ---------------- */}
+      {/* ---------------- Section A: Popular Destinations (India Centric) ---------------- */}
       <section id="destinations" className="py-20 bg-ivory-100/50 border-b border-ivory-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
@@ -304,38 +438,39 @@ export default function HomePage() {
             <div>
               <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-terracotta-600 mb-2">
                 <MapPin className="w-3.5 h-3.5" />
-                <span>Curated Destinations</span>
+                <span>Premier Indian Circuits</span>
               </div>
               <h2 className="font-serif text-3xl sm:text-4xl font-bold text-charcoal-900">
-                Where will your group wander next?
+                Popular Destinations Across India
               </h2>
             </div>
             <p className="text-sm text-charcoal-600 max-w-md mt-3 md:mt-0 leading-relaxed">
-              From Italian coastal roads to Tokyo neon alleys, plan complete itineraries with real budgets and shared responsibilities.
+              Explore handpicked domestic destinations with estimated budgets in ₹, ideal duration, and seamless trip planner integration.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredDestinations.map((dest, idx) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {popularDestinations.map((dest, idx) => (
               <motion.div
                 key={dest.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.08 }}
+                transition={{ duration: 0.5, delay: idx * 0.05 }}
                 className="group bg-white rounded-2xl border border-ivory-200 overflow-hidden shadow-soft hover:shadow-soft-xl transition-all duration-300 flex flex-col"
               >
-                <div className="relative h-56 overflow-hidden">
+                <div className="relative h-48 overflow-hidden">
                   <img
                     src={dest.image}
                     alt={dest.alt}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    loading="lazy"
                     onError={(e) => {
                       e.currentTarget.src =
-                        'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80';
+                        'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=800&q=80';
                     }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/60 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/70 via-charcoal-900/20 to-transparent" />
                   
                   <div className="absolute top-3 left-3">
                     <Badge variant={dest.tagVariant}>{dest.tag}</Badge>
@@ -343,27 +478,31 @@ export default function HomePage() {
 
                   <div className="absolute bottom-3 left-3 right-3 text-white">
                     <p className="text-xs font-medium text-ivory-200 uppercase tracking-wider">
-                      {dest.country}
+                      {dest.state}
                     </p>
-                    <h3 className="font-serif text-xl font-bold text-white drop-shadow-sm">
-                      {dest.title}
+                    <h3 className="font-serif text-lg font-bold text-white drop-shadow-sm leading-tight">
+                      {dest.name}
                     </h3>
                   </div>
                 </div>
 
-                <div className="p-5 flex-1 flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-xs text-charcoal-600 mb-4 pb-3 border-b border-ivory-200">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-forest-600" />
-                      {dest.days}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Users className="w-3.5 h-3.5 text-forest-600" />
-                      {dest.travelers}
-                    </span>
-                    <span className="font-semibold text-charcoal-800">
-                      {dest.estBudget}
-                    </span>
+                <div className="p-4 flex-1 flex flex-col justify-between">
+                  <div>
+                    <p className="text-xs text-charcoal-600 mb-3 leading-relaxed line-clamp-2">
+                      {dest.description}
+                    </p>
+                    <div className="flex items-center justify-between text-xs text-charcoal-600 mb-4 pb-3 border-b border-ivory-200">
+                      <span className="flex items-center gap-1 font-medium">
+                        <Calendar className="w-3.5 h-3.5 text-forest-600" />
+                        {dest.duration}
+                      </span>
+                      <div className="text-right">
+                        <span className="font-bold text-forest-800 text-sm">
+                          {formatINR(dest.estBudget)}
+                        </span>
+                        <span className="text-[10px] text-charcoal-400 block">Est. budget</span>
+                      </div>
+                    </div>
                   </div>
 
                   <Button
@@ -371,11 +510,106 @@ export default function HomePage() {
                     size="sm"
                     onClick={() => handlePlanDestination(dest)}
                     rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
-                    className="w-full justify-between hover:bg-forest-50 hover:text-forest-800 hover:border-forest-600"
+                    className="w-full justify-between hover:bg-forest-50 hover:text-forest-800 hover:border-forest-600 text-xs"
                   >
-                    Plan this Expedition
+                    Plan this Trip
                   </Button>
                 </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="mt-8 text-center text-xs text-charcoal-500">
+            * Budgets shown are estimated planning guidelines for groups of 2-5 travellers and subject to seasonal variability.
+          </div>
+
+        </div>
+      </section>
+
+      {/* ---------------- Section B: Plan Your Next Trip (Ready Templates) ---------------- */}
+      <section className="py-20 bg-ivory-50 border-b border-ivory-200/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-forest-700 mb-2">
+              <CompassIcon className="w-3.5 h-3.5" />
+              <span>Ready-To-Customize Templates</span>
+            </div>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-charcoal-900 mb-4">
+              Plan Your Next Trip in Minutes
+            </h2>
+            <p className="text-base text-charcoal-600 leading-relaxed">
+              Start with a battle-tested Indian itinerary template with realistic budgets in rupees, transit plans, and day-by-day schedules.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {readyTripPlans.map((trip, idx) => (
+              <motion.div
+                key={trip.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.08 }}
+                className="bg-white rounded-2xl p-6 border border-ivory-200 shadow-soft hover:shadow-soft-lg transition-all flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <Badge variant="forest">{trip.category}</Badge>
+                    <span className="text-xs font-bold text-forest-700 font-mono">
+                      {trip.duration}
+                    </span>
+                  </div>
+
+                  <h3 className="font-serif text-xl font-bold text-charcoal-900 mb-1">
+                    {trip.title}
+                  </h3>
+                  <p className="text-xs text-charcoal-500 mb-4 flex items-center gap-1">
+                    <Navigation className="w-3.5 h-3.5 text-terracotta-500 shrink-0" />
+                    <span className="truncate">{trip.route}</span>
+                  </p>
+
+                  {/* Budget & Split Metric */}
+                  <div className="p-3.5 rounded-xl bg-ivory-100/70 border border-ivory-200 mb-4 space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-charcoal-600">Total Group Budget:</span>
+                      <strong className="text-charcoal-900 text-sm font-mono">{formatINR(trip.budget)}</strong>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-charcoal-600">Estimated / Member ({trip.travelers}):</span>
+                      <strong className="text-forest-700 text-xs font-mono">{formatINR(trip.perPerson)}</strong>
+                    </div>
+                    <div className="flex items-center justify-between text-[11px] text-charcoal-500 pt-1 border-t border-ivory-200">
+                      <span className="flex items-center gap-1">
+                        <Car className="w-3 h-3 text-charcoal-400" />
+                        {trip.transport}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Highlights Bullet List */}
+                  <div className="space-y-1.5 mb-6">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-charcoal-400 block mb-1">
+                      Key Highlights:
+                    </span>
+                    {trip.highlights.map((item) => (
+                      <div key={item} className="flex items-center gap-2 text-xs text-charcoal-700">
+                        <Check className="w-3.5 h-3.5 text-forest-600 shrink-0" />
+                        <span className="truncate">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => handlePlanDestination(trip)}
+                  rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+                  className="w-full justify-between"
+                >
+                  Customize This Itinerary
+                </Button>
               </motion.div>
             ))}
           </div>
@@ -383,24 +617,24 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ---------------- 4. How TripTally Works ---------------- */}
-      <section id="how-it-works" className="py-20 bg-ivory-50 border-b border-ivory-200/80">
+      {/* ---------------- Section C: How TripTally Works ---------------- */}
+      <section id="how-it-works" className="py-20 bg-ivory-100/40 border-b border-ivory-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-2xl mx-auto mb-16">
             <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-forest-700 mb-2">
               <Layers className="w-3.5 h-3.5" />
-              <span>Effortless Collaboration</span>
+              <span>Simple 5-Step Workflow</span>
             </div>
             <h2 className="font-serif text-3xl sm:text-4xl font-bold text-charcoal-900 mb-4">
-              How TripTally Keeps Groups in Sync
+              How TripTally Works for Indian Groups
             </h2>
             <p className="text-base text-charcoal-600 leading-relaxed">
-              No more 300-message chat threads or conflicting spreadsheets. Everything lives in one shared, beautiful board.
+              No more messy WhatsApp messages, lost payment screenshots, or conflicting notes. TripTally keeps every friend on the exact same page.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
             {howItWorksSteps.map((item, idx) => {
               const Icon = item.icon;
               return (
@@ -409,21 +643,23 @@ export default function HomePage() {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: idx * 0.1 }}
-                  className="bg-white rounded-2xl p-6 border border-ivory-200 shadow-soft hover:shadow-soft-lg transition-all relative"
+                  transition={{ duration: 0.5, delay: idx * 0.08 }}
+                  className="bg-white rounded-2xl p-5 border border-ivory-200 shadow-soft hover:shadow-soft-lg transition-all relative flex flex-col justify-between"
                 >
-                  <span className="font-mono text-xs font-bold text-terracotta-600 mb-3 block">
-                    STEP {item.step}
-                  </span>
-                  <div className="w-12 h-12 rounded-xl bg-forest-50 border border-forest-100 flex items-center justify-center text-forest-700 mb-4">
-                    <Icon className="w-6 h-6" />
+                  <div>
+                    <span className="font-mono text-xs font-bold text-terracotta-600 mb-3 block">
+                      STEP {item.step}
+                    </span>
+                    <div className="w-11 h-11 rounded-xl bg-forest-50 border border-forest-100 flex items-center justify-center text-forest-700 mb-3">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <h3 className="font-serif text-base font-bold text-charcoal-900 mb-2">
+                      {item.title}
+                    </h3>
+                    <p className="text-xs text-charcoal-600 leading-relaxed">
+                      {item.description}
+                    </p>
                   </div>
-                  <h3 className="font-serif text-lg font-bold text-charcoal-900 mb-2">
-                    {item.title}
-                  </h3>
-                  <p className="text-xs text-charcoal-600 leading-relaxed">
-                    {item.description}
-                  </p>
                 </motion.div>
               );
             })}
@@ -432,188 +668,32 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ---------------- 5. Core Features Deep Dive ---------------- */}
-      <section id="features" className="py-20 bg-ivory-100/40 border-b border-ivory-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          {/* Feature 1: Daily Itinerary & Leaflet Maps */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-24">
-            <div>
-              <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-forest-700 mb-2">
-                <Calendar className="w-3.5 h-3.5" />
-                <span>Day-by-Day Precision</span>
-              </div>
-              <h3 className="font-serif text-3xl font-bold text-charcoal-900 mb-4">
-                Collaborative Itineraries with Real Route Maps
-              </h3>
-              <p className="text-sm sm:text-base text-charcoal-600 leading-relaxed mb-6">
-                Organize every morning, afternoon, and evening. Categorize reservations, accommodations, and transit. Watch planned costs tally up automatically by day and total trip.
-              </p>
-              <ul className="space-y-3 text-xs sm:text-sm text-charcoal-700 mb-8">
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-forest-600 shrink-0" />
-                  <span>Free OpenStreetMap integration plots attractions and routes cleanly.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-forest-600 shrink-0" />
-                  <span>Timeline cards for Sightseeing, Food, Lodging, and Travel.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-forest-600 shrink-0" />
-                  <span>Custom time slots, duration, estimated costs, and member assignments.</span>
-                </li>
-              </ul>
-              <Button
-                variant="outline"
-                size="md"
-                onClick={() => handleOpenAuth('register')}
-                rightIcon={<ArrowRight className="w-4 h-4" />}
-              >
-                Try the Itinerary Planner
-              </Button>
-            </div>
-
-            <div className="glass-card bg-white p-5 rounded-3xl border border-ivory-200 shadow-soft-lg">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 rounded-xl bg-ivory-100/70 border border-ivory-200 text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-forest-600" />
-                    <strong className="text-charcoal-900">Day 1: Amalfi Coastal Arrival</strong>
-                  </div>
-                  <span className="font-semibold text-forest-800">$1,845 Planned</span>
-                </div>
-                <div className="p-4 rounded-xl border border-ivory-200 bg-white hover:border-forest-600 transition-colors">
-                  <div className="flex justify-between text-xs text-charcoal-500 mb-1">
-                    <span>11:30 AM • Ravello</span>
-                    <Badge variant="forest">Lodging</Badge>
-                  </div>
-                  <h4 className="font-serif text-sm font-bold text-charcoal-900">
-                    Villa Cimbrone Cliffside Suites
-                  </h4>
-                  <p className="text-xs text-charcoal-600 mt-1">
-                    Private terrace check-in overlooking the Gulf of Salerno.
-                  </p>
-                </div>
-                <div className="p-4 rounded-xl border border-ivory-200 bg-white hover:border-forest-600 transition-colors">
-                  <div className="flex justify-between text-xs text-charcoal-500 mb-1">
-                    <span>02:00 PM • Amalfi Town</span>
-                    <Badge variant="terracotta">Dining</Badge>
-                  </div>
-                  <h4 className="font-serif text-sm font-bold text-charcoal-900">
-                    Welcome Seafood Lunch & Limoncello
-                  </h4>
-                  <p className="text-xs text-charcoal-600 mt-1">
-                    Handmade scialatielli pasta with clams at Trattoria da Gemma.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Feature 2: Group Expense Splitting & Debt Minimization */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="order-2 lg:order-1 glass-card bg-white p-6 rounded-3xl border border-ivory-200 shadow-soft-lg">
-              <div className="flex items-center justify-between mb-4 pb-3 border-b border-ivory-200">
-                <div className="flex items-center gap-2">
-                  <Split className="w-4 h-4 text-terracotta-600" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-charcoal-900">
-                    Debt Simplification Ledger
-                  </span>
-                </div>
-                <Badge variant="success">Solved with 2 Payments</Badge>
-              </div>
-
-              <div className="space-y-3">
-                <div className="p-3 rounded-xl bg-ivory-50 border border-ivory-200 flex items-center justify-between text-xs">
-                  <div>
-                    <span className="font-semibold text-charcoal-900">Marco</span>
-                    <span className="text-charcoal-500"> pays </span>
-                    <span className="font-semibold text-charcoal-900">Alex</span>
-                  </div>
-                  <span className="font-bold text-forest-700 text-sm">$185.00</span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-ivory-50 border border-ivory-200 flex items-center justify-between text-xs">
-                  <div>
-                    <span className="font-semibold text-charcoal-900">Sofia</span>
-                    <span className="text-charcoal-500"> pays </span>
-                    <span className="font-semibold text-charcoal-900">Elena</span>
-                  </div>
-                  <span className="font-bold text-forest-700 text-sm">$142.50</span>
-                </div>
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-ivory-200 flex items-center justify-between text-[11px] text-charcoal-500">
-                <span>Stored authoritatively in integer minor units</span>
-                <span className="text-forest-700 font-semibold">Zero Rounding Discrepancies</span>
-              </div>
-            </div>
-
-            <div className="order-1 lg:order-2">
-              <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-terracotta-600 mb-2">
-                <Coins className="w-3.5 h-3.5" />
-                <span>Zero Awkward Money Conversations</span>
-              </div>
-              <h3 className="font-serif text-3xl font-bold text-charcoal-900 mb-4">
-                Group Expense Splitting with Mathematical Precision
-              </h3>
-              <p className="text-sm sm:text-base text-charcoal-600 leading-relaxed mb-6">
-                Log who paid, attach receipt photos or PDFs, and choose equal or custom splits. TripTally's debt simplification algorithm untangles the web of transactions so everyone pays what they truly owe.
-              </p>
-              <ul className="space-y-3 text-xs sm:text-sm text-charcoal-700 mb-8">
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-forest-600 shrink-0" />
-                  <span>Supports Equal splits and custom percentage or fixed shares.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-forest-600 shrink-0" />
-                  <span>5MB receipt photo uploads with protected storage.</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-forest-600 shrink-0" />
-                  <span>Manual settlements via UPI, Cash, Venmo, or Razorpay online payments.</span>
-                </li>
-              </ul>
-              <Button
-                variant="primary"
-                size="md"
-                onClick={() => handleOpenAuth('register')}
-                rightIcon={<ArrowRight className="w-4 h-4" />}
-              >
-                Split Expenses Now
-              </Button>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ---------------- 6. Interactive Dashboard Preview ---------------- */}
+      {/* ---------------- Sections D, E, F: Interactive Product Preview Workspace ---------------- */}
       <section id="preview" className="py-20 bg-ivory-50 border-b border-ivory-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-2xl mx-auto mb-14">
             <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-forest-700 mb-2">
               <Sparkles className="w-3.5 h-3.5 text-terracotta-500" />
-              <span>Interactive Workspace</span>
+              <span>Interactive Live Preview</span>
             </div>
             <h2 className="font-serif text-3xl sm:text-4xl font-bold text-charcoal-900 mb-4">
-              Test the TripTally Workspace Right Here
+              Explore a Live Trip Board (Manali 5-Day Circuit)
             </h2>
             <p className="text-base text-charcoal-600 leading-relaxed">
-              Click through the interactive itinerary timeline, expense split ledger, and budget charts below.
+              Test out the collaborative day-by-day itinerary, expense splitting with UPI settlement, and budget analytics below.
             </p>
           </div>
 
-          {/* Embedded Interactive ProductPreview Component */}
-          <div className="bg-white rounded-3xl border border-ivory-200/90 shadow-soft-xl p-4 sm:p-8">
+          {/* Embedded Interactive ProductPreview Component with Indian Manali Data */}
+          <div className="bg-white rounded-3xl border border-ivory-200/90 shadow-soft-xl p-3 sm:p-6">
             <ProductPreview />
           </div>
 
         </div>
       </section>
 
-      {/* ---------------- 7. Frequently Asked Questions ---------------- */}
+      {/* ---------------- Section G: FAQ & Final Call to Action ---------------- */}
       <section id="faq" className="py-20 bg-ivory-100/30 border-b border-ivory-200/80">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           
@@ -626,7 +706,7 @@ export default function HomePage() {
               Frequently Asked Questions
             </h2>
             <p className="text-sm text-charcoal-600">
-              Everything you need to know about planning trips and splitting expenses with TripTally.
+              Everything you need to know about planning trips and managing rupees with TripTally.
             </p>
           </div>
 
@@ -661,7 +741,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ---------------- 8. Final Call to Action ---------------- */}
+      {/* Final Call to Action */}
       <section className="py-20 bg-ivory-50 relative overflow-hidden">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           
@@ -672,15 +752,15 @@ export default function HomePage() {
             <div className="max-w-2xl mx-auto relative z-10">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-forest-800/80 border border-forest-700 text-forest-200 text-xs font-semibold mb-6">
                 <Globe2 className="w-3.5 h-3.5 text-terracotta-400" />
-                <span>Ready for takeoff</span>
+                <span>Ready for takeoff across India</span>
               </span>
 
               <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-ivory-100 mb-6 leading-tight">
-                Start Planning Your Group Adventure Today
+                Start Planning Your Indian Adventure Today
               </h2>
 
               <p className="text-sm sm:text-base text-forest-100/90 mb-8 leading-relaxed max-w-xl mx-auto">
-                No credit cards. No paywalls. Just simple, beautiful collaborative trip planning for you and your favorite travel companions.
+                No subscription fees. No confusing spreadsheets. Just clean, collaborative trip planning and rupee management for you and your friends.
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-4">
@@ -691,7 +771,7 @@ export default function HomePage() {
                   rightIcon={<ArrowRight className="w-4 h-4" />}
                   className="shadow-soft"
                 >
-                  Create Free Account
+                  Plan a Trip Free
                 </Button>
                 <Button
                   variant="outline"
@@ -699,7 +779,7 @@ export default function HomePage() {
                   onClick={() => handleOpenAuth('login')}
                   className="bg-forest-800/60 hover:bg-forest-800 text-ivory-100 border-forest-700 hover:border-forest-600"
                 >
-                  Try Guest Demo
+                  Sign In with Demo Account
                 </Button>
               </div>
             </div>

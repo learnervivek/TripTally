@@ -17,18 +17,27 @@ export function cn(...inputs) {
     .join(' ');
 }
 
+export { formatINR, formatPaiseToINR } from '../utils/currency';
+
 /**
- * Format monetary amount with consistent currency code/symbol
+ * Format monetary amount with consistent currency code/symbol (defaults to INR)
  */
-export function formatCurrency(amount, currency = 'USD') {
+export function formatCurrency(amount, currency = 'INR', options = {}) {
   const numericAmount = Number(amount) || 0;
+  const curr = (currency || 'INR').toUpperCase();
+  const locale = curr === 'INR' ? 'en-IN' : undefined;
+
   try {
-    return new Intl.NumberFormat(undefined, {
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
-      currency: (currency || 'USD').toUpperCase(),
-      maximumFractionDigits: 2,
+      currency: curr,
+      maximumFractionDigits: options.maximumFractionDigits ?? (curr === 'INR' ? 0 : 2),
+      minimumFractionDigits: options.minimumFractionDigits ?? (curr === 'INR' ? 0 : 2),
     }).format(numericAmount);
   } catch {
-    return `${numericAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${currency}`;
+    return curr === 'INR'
+      ? `₹${numericAmount.toLocaleString('en-IN')}`
+      : `${numericAmount.toLocaleString()} ${curr}`;
   }
 }
+

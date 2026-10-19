@@ -89,7 +89,7 @@ export const createPaymentOrder = async (req, res, next) => {
 
     let settlement = null;
     let amount = 0;
-    let currency = trip.currency || 'USD';
+    let currency = trip.currency || 'INR';
     let payeeId = null;
 
     // Case 1: Initiating payment for an existing recorded settlement

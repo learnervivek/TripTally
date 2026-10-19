@@ -42,10 +42,10 @@ function WebGLFallback({ onSelectDestination, selectedDest }) {
       </div>
 
       <h3 className="font-serif text-xl font-medium text-ivory-100 mb-2">
-        Global Travel Visualization
+        Incredible India & Travel Destinations
       </h3>
       <p className="text-xs text-forest-200/80 max-w-sm mb-6 leading-relaxed">
-        Explore premier travel destinations planned by TripTally groups worldwide.
+        Explore premier hill stations, coastal retreats, and heritage circuits planned with TripTally.
       </p>
 
       {/* Destination Pills */}
@@ -60,7 +60,7 @@ function WebGLFallback({ onSelectDestination, selectedDest }) {
                 : 'bg-forest-800/60 hover:bg-forest-750 text-forest-100 border border-forest-700/50'
             }`}
           >
-            {d.name}, {d.country}
+            {d.name}, {d.region || d.country}
           </button>
         ))}
       </div>

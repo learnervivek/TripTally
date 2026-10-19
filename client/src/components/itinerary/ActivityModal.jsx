@@ -17,7 +17,8 @@ import {
   Save,
   Plus,
   Check,
-  Navigation
+  Navigation,
+  IndianRupee
 } from 'lucide-react';
 import Dialog from '../ui/Dialog';
 import Input from '../ui/Input';
@@ -301,12 +302,12 @@ export function ActivityModal({
           </div>
 
           <Input
-            label={`Estimated Cost (${trip?.currency || 'USD'})`}
+            label={`Estimated Cost (${trip?.currency || 'INR'})`}
             type="number"
             min="0"
             step="any"
             placeholder="0.00"
-            leftIcon={<DollarSign className="w-4 h-4" />}
+            leftIcon={(trip?.currency || 'INR') === 'INR' ? <IndianRupee className="w-4 h-4" /> : <DollarSign className="w-4 h-4" />}
             error={errors.estimatedCost?.message}
             {...register('estimatedCost')}
           />

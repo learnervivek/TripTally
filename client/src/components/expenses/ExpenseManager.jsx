@@ -44,7 +44,7 @@ export function ExpenseManager({ trip, members = [], canEdit = false }) {
   const { toast } = useToast();
   const { user: currentUser } = useAuth();
 
-  const currency = trip?.currency || 'USD';
+  const currency = trip?.currency || 'INR';
 
   const [activeSubTab, setActiveSubTab] = useState('expenses'); // 'expenses' | 'settlements'
   const [expenses, setExpenses] = useState([]);

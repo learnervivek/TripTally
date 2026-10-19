@@ -119,14 +119,14 @@ export function GlobeScene({
         />
       </points>
 
-      {/* Interactive Rotatable Globe Group */}
+      {/* Interactive Rotatable Globe Group (Oriented towards India on initial load) */}
       <group
         ref={globeGroupRef}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerLeave={handlePointerUp}
-        rotation={[0.2, 0.4, 0]}
+        rotation={[0.3, -2.85, 0]}
       >
         {/* Main Earth Sphere */}
         <mesh ref={earthMeshRef}>

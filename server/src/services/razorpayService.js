@@ -46,7 +46,7 @@ const getRazorpayClient = () => {
  * @param {string} params.receipt - Internal reference string (max 40 chars)
  * @param {Object} params.notes - Optional key-value notes
  */
-export const createRazorpayOrder = async ({ amount, currency = 'USD', receipt, notes = {} }) => {
+export const createRazorpayOrder = async ({ amount, currency = 'INR', receipt, notes = {} }) => {
   if (!isRazorpayConfigured()) {
     throw new Error('Razorpay credentials are not configured on this server');
   }

@@ -4,7 +4,6 @@ import {
   Clock,
   MapPin,
   ThumbsUp,
-  DollarSign,
   PieChart,
   Users,
   CheckCircle2,
@@ -12,23 +11,25 @@ import {
   Sparkles,
   Receipt,
   Share2,
-  Plus
+  Plus,
+  IndianRupee
 } from 'lucide-react';
 import { ResponsiveContainer, PieChart as RechartsPie, Pie, Cell, Tooltip } from 'recharts';
 import Card, { CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
 import Badge from '../ui/Badge';
 import Button from '../ui/Button';
 import { useToast } from '../../context/ToastContext';
+import { formatINR } from '../../utils/currency';
 
 export function ProductPreview() {
   const [activeTab, setActiveTab] = useState('itinerary');
   const [activeDay, setActiveDay] = useState(1);
-  const [votes, setVotes] = useState({ 1: 4, 2: 5, 3: 3 });
+  const [votes, setVotes] = useState({ 1: 4, 2: 4, 3: 3, 4: 4, 5: 3, 6: 4 });
   const { toast } = useToast();
 
   const handleVote = (id) => {
     setVotes((prev) => {
-      const next = { ...prev, [id]: prev[id] + 1 };
+      const next = { ...prev, [id]: (prev[id] || 0) + 1 };
       toast.success('Vote Recorded', `You voted for this activity! Total votes: ${next[id]}`);
       return next;
     });
@@ -38,107 +39,112 @@ export function ProductPreview() {
     1: [
       {
         id: 1,
-        time: '11:30 AM',
-        title: 'Check-in at Villa Cimbrone Cliffside',
-        location: 'Ravello, Amalfi Coast',
+        time: '08:30 AM',
+        title: 'Arrival in Manali & Riverside Cottage Check-in',
+        location: 'Old Manali, Beas River Banks',
         category: 'Lodging',
         badgeVariant: 'forest',
-        cost: '$1,650 / 4 nights',
-        assigned: ['Alex', 'Elena'],
+        cost: '₹12,000 / 4 nights',
+        assigned: ['Rohan', 'Aarav'],
       },
       {
         id: 2,
-        time: '02:00 PM',
-        title: 'Coastal Welcome Lunch & Limoncello Tasting',
-        location: 'Trattoria da Gemma, Amalfi',
+        time: '01:30 PM',
+        title: 'Himalayan Trout & Woodfired Pizza Lunch',
+        location: 'Cafe 1947, Old Manali',
         category: 'Dining',
         badgeVariant: 'terracotta',
-        cost: '$195 total',
+        cost: '₹2,400 total',
         assigned: ['All 4'],
       },
       {
         id: 3,
-        time: '06:30 PM',
-        title: 'Sunset Terrace Walk & Golden Hour Photography',
-        location: 'Villa Cimbrone Infinity Terrace',
+        time: '05:00 PM',
+        title: 'Hadimba Devi Ancient Temple & Cedar Forest Stroll',
+        location: 'Dhungri Forest, Manali',
         category: 'Activity',
         badgeVariant: 'neutral',
-        cost: 'Free',
-        assigned: ['Liam', 'Maya'],
+        cost: '₹200 entry',
+        assigned: ['Priya', 'Ananya'],
       },
     ],
     2: [
       {
         id: 4,
-        time: '09:00 AM',
-        title: 'Private Gozzo Boat Charter to Capri Island',
-        location: 'Marina Grande & Blue Grotto',
+        time: '07:30 AM',
+        title: 'Solang Valley Paragliding & Snow Scooter Session',
+        location: 'Solang Valley Adventure Grounds',
         category: 'Activity',
         badgeVariant: 'forest',
-        cost: '$620 total',
-        assigned: ['Alex', 'Maya'],
+        cost: '₹6,000 total',
+        assigned: ['Aarav', 'Rohan'],
       },
       {
         id: 5,
-        time: '01:30 PM',
-        title: 'Seaside Seafood Lunch under Lemon Groves',
-        location: 'Da Paolino, Capri',
+        time: '02:00 PM',
+        title: 'Maggi, Siddu & Chai Mountain Shack Lunch',
+        location: 'Solang Meadow Stalls',
         category: 'Dining',
         badgeVariant: 'terracotta',
-        cost: '$310 total',
+        cost: '₹950 total',
         assigned: ['All 4'],
       },
       {
         id: 6,
-        time: '05:00 PM',
-        title: 'Chairlift to Monte Solaro Panorama',
-        location: 'Anacapri',
-        category: 'Activity',
+        time: '06:00 PM',
+        title: 'Atal Tunnel Scenic Drive & Sissu Waterfalls',
+        location: 'Lahaul Valley North Portal',
+        category: 'Travel',
         badgeVariant: 'neutral',
-        cost: '$56 total',
-        assigned: ['Elena', 'Liam'],
+        cost: '₹2,200 cab fuel',
+        assigned: ['Priya'],
       },
     ],
     3: [
       {
         id: 7,
-        time: '08:30 AM',
-        title: 'Path of the Gods (Sentiero degli Dei) Hike',
-        location: 'Bomerano to Nocelle Trail',
+        time: '09:00 AM',
+        title: 'Jogini Waterfall Trek & Natural Springs',
+        location: 'Vashisht Village Trail',
         category: 'Activity',
         badgeVariant: 'forest',
-        cost: 'Free',
+        cost: 'Free Trek',
         assigned: ['All 4'],
       },
       {
         id: 8,
-        time: '01:00 PM',
-        title: 'Panoramic Focaccia & Local Wine Recovery Lunch',
-        location: 'Trattoria Santa Croce, Nocelle',
-        category: 'Dining',
-        badgeVariant: 'terracotta',
-        cost: '$140 total',
-        assigned: ['Liam'],
+        time: '02:30 PM',
+        title: 'Vashisht Hot Water Springs & Traditional Baths',
+        location: 'Vashisht Temple Complex',
+        category: 'Activity',
+        badgeVariant: 'neutral',
+        cost: 'Free',
+        assigned: ['Rohan', 'Aarav'],
       },
       {
         id: 9,
-        time: '07:30 PM',
-        title: 'Farewell Dinner & Trip Settlement Tally',
-        location: 'Le Sirenuse Terrace, Positano',
+        time: '08:00 PM',
+        title: 'Riverside Bonfire, Live Music & Dinner',
+        location: 'The Lazy Dog Lounge, Old Manali',
         category: 'Dining',
         badgeVariant: 'terracotta',
-        cost: '$480 total',
+        cost: '₹3,200 total',
         assigned: ['All 4'],
       },
     ],
   };
 
+  // Indian demo trip budget: exact category breakdown totaling ₹40,000
   const expenseBreakdown = [
-    { name: 'Lodging & Villas', value: 1650, color: '#1B4332' },
-    { name: 'Dining & Cafes', value: 1125, color: '#E07A5F' },
-    { name: 'Activities & Boat', value: 676, color: '#2D6A4F' },
-    { name: 'Transit & Ferries', value: 290, color: '#D4A373' },
+    { name: 'Accommodation (Cottage)', value: 12000, color: '#1B4332' },
+    { name: 'Transport (Volvo & Cabs)', value: 10000, color: '#2D6A4F' },
+    { name: 'Food & Mountain Cafes', value: 8000, color: '#E07A5F' },
+    { name: 'Activities (Paragliding)', value: 6000, color: '#52B788' },
+    { name: 'Miscellaneous & Souvenirs', value: 4000, color: '#D4A373' },
   ];
+
+  const totalBudget = 40000;
+  const perPersonCost = totalBudget / 4;
 
   return (
     <div className="w-full max-w-6xl mx-auto rounded-3xl bg-white border border-ivory-300 shadow-soft-xl overflow-hidden">
@@ -154,11 +160,11 @@ export function ProductPreview() {
             <Badge variant="terracotta" size="sm">4 Friends Active</Badge>
           </div>
           <h3 className="text-2xl sm:text-3xl font-extrabold text-white font-display">
-            Amalfi Coast Summer Adventure
+            Manali Adventure with Friends
           </h3>
           <p className="text-xs sm:text-sm text-forest-200/80 mt-1 flex items-center gap-2">
             <MapPin className="w-4 h-4 text-terracotta-400" />
-            Ravello • Positano • Capri • Jul 14 - Jul 21, 2026
+            Manali & Solang Valley • Himachal Pradesh • 5 Days
           </p>
         </div>
 
@@ -215,7 +221,7 @@ export function ProductPreview() {
                 <Calendar className="w-3.5 h-3.5" />
                 <span>Day {day}</span>
                 <span className="text-[10px] opacity-75">
-                  {day === 1 ? 'Arrival & Ravello' : day === 2 ? 'Capri Island Boat' : 'Path of the Gods'}
+                  {day === 1 ? 'Old Manali Arrival' : day === 2 ? 'Solang & Atal Tunnel' : 'Jogini Falls Trek'}
                 </span>
               </button>
             ))}
@@ -258,7 +264,7 @@ export function ProductPreview() {
                       {item.cost}
                     </span>
                     <span className="text-[10px] text-charcoal-400">
-                      Organized by {item.assigned.join(', ')}
+                      Coordinated by {item.assigned.join(', ')}
                     </span>
                   </div>
 
@@ -278,12 +284,12 @@ export function ProductPreview() {
           <div className="p-4 rounded-2xl bg-forest-50/60 border border-forest-100 flex items-center justify-between flex-wrap gap-3">
             <span className="text-xs text-forest-800 font-medium flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-forest-600" />
-              All 4 members in sync. Changes save automatically to the cloud.
+              All 4 members in sync. Changes update automatically in real time.
             </span>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => toast.info('Activity Creator', 'Add activity dialog opens here.')}
+              onClick={() => toast.info('Activity Creator', 'Add activity modal opens here.')}
               leftIcon={<Plus className="w-3.5 h-3.5" />}
             >
               Add Activity
@@ -298,70 +304,52 @@ export function ProductPreview() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-5 rounded-2xl bg-white border border-ivory-300 shadow-soft-sm">
               <span className="text-xs text-charcoal-500">Total Group Spend</span>
-              <p className="text-2xl font-bold text-forest-800 font-mono mt-1">$3,741.00</p>
-              <span className="text-[11px] text-charcoal-400 mt-1 block">9 receipts logged across trip</span>
+              <p className="text-2xl font-bold text-forest-800 font-mono mt-1">
+                {formatINR(totalBudget)}
+              </p>
+              <span className="text-[11px] text-charcoal-400 mt-1 block">8 verified bills across 4 members</span>
             </div>
 
             <div className="p-5 rounded-2xl bg-white border border-ivory-300 shadow-soft-sm">
-              <span className="text-xs text-charcoal-500">Equal Cost Per Person</span>
-              <p className="text-2xl font-bold text-charcoal-900 font-mono mt-1">$935.25</p>
-              <span className="text-[11px] text-emerald-600 font-semibold mt-1 block">Within $1,000 budget target</span>
+              <span className="text-xs text-charcoal-500">Equal Share Per Person</span>
+              <p className="text-2xl font-bold text-charcoal-900 font-mono mt-1">
+                {formatINR(perPersonCost)}
+              </p>
+              <span className="text-[11px] text-emerald-600 font-semibold mt-1 block">Exact split • 4 friends</span>
             </div>
 
             <div className="p-5 rounded-2xl bg-forest-50 border border-forest-200 shadow-soft-sm">
-              <span className="text-xs text-forest-800 font-semibold">Smart Debt Minimization</span>
-              <p className="text-2xl font-bold text-forest-900 font-mono mt-1">3 Transfers</p>
-              <span className="text-[11px] text-forest-700 mt-1 block">Reduced down from 12 separate payments</span>
+              <span className="text-xs text-forest-800 font-semibold">Debt Simplification Ledger</span>
+              <p className="text-2xl font-bold text-forest-900 font-mono mt-1">2 UPI Transfers</p>
+              <span className="text-[11px] text-forest-700 mt-1 block">Simplified down from 12 round-robin payments</span>
             </div>
           </div>
 
           {/* Settle Up Matrix */}
           <div className="bg-ivory-50/70 rounded-2xl border border-ivory-300 p-5 space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-charcoal-600">
-              Simplified Settlement Transfers
+              Direct Settlement Plan (Zero Mental Math)
             </h4>
             
             <div className="space-y-2">
               <div className="flex items-center justify-between p-3.5 rounded-xl bg-white border border-ivory-300">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-forest-100 text-forest-800 text-xs font-bold flex items-center justify-center">
-                    ER
+                    AK
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-charcoal-900">Elena Rivera</p>
-                    <p className="text-[11px] text-charcoal-500">pays Alex Chen for Villa deposit</p>
+                    <p className="text-xs font-bold text-charcoal-900">Aarav Kapoor</p>
+                    <p className="text-[11px] text-charcoal-500">pays Rohan Sharma for Cottage Booking</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-bold text-terracotta-600 font-mono">$412.50</span>
+                  <span className="text-xs font-bold text-terracotta-600 font-mono">{formatINR(2000)}</span>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => toast.success('Transfer Recorded', 'Elena paid $412.50 to Alex Chen.')}
+                    onClick={() => toast.success('Transfer Recorded', 'Aarav paid ₹2,000 via UPI to Rohan.')}
                   >
-                    Mark Paid
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-3.5 rounded-xl bg-white border border-ivory-300">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-terracotta-100 text-terracotta-800 text-xs font-bold flex items-center justify-center">
-                    LT
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-charcoal-900">Liam Thorne</p>
-                    <p className="text-[11px] text-charcoal-500">pays Alex Chen for Boat Charter</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-bold text-terracotta-600 font-mono">$280.00</span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toast.success('Transfer Recorded', 'Liam paid $280.00 to Alex Chen.')}
-                  >
-                    Mark Paid
+                    Pay via UPI
                   </Button>
                 </div>
               </div>
@@ -369,24 +357,29 @@ export function ProductPreview() {
               <div className="flex items-center justify-between p-3.5 rounded-xl bg-white border border-ivory-300">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-800 text-xs font-bold flex items-center justify-center">
-                    MP
+                    AS
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-charcoal-900">Maya Patel</p>
-                    <p className="text-[11px] text-charcoal-500">pays Elena Rivera for Dinner</p>
+                    <p className="text-xs font-bold text-charcoal-900">Ananya Sen</p>
+                    <p className="text-[11px] text-charcoal-500">pays Priya Verma for Volvo & Local Cabs</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-bold text-terracotta-600 font-mono">$142.75</span>
+                  <span className="text-xs font-bold text-terracotta-600 font-mono">{formatINR(2000)}</span>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => toast.success('Transfer Recorded', 'Maya paid $142.75 to Elena Rivera.')}
+                    onClick={() => toast.success('Transfer Recorded', 'Ananya paid ₹2,000 via UPI to Priya.')}
                   >
-                    Mark Paid
+                    Pay via UPI
                   </Button>
                 </div>
               </div>
+            </div>
+
+            <div className="pt-2 text-[11px] text-charcoal-500 flex items-center justify-between">
+              <span>Recorded in Indian Rupees (₹) with integer paise precision</span>
+              <span className="text-forest-700 font-semibold">100% Balanced Ledger</span>
             </div>
           </div>
         </div>
@@ -413,7 +406,7 @@ export function ProductPreview() {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value) => [`$${value}`, 'Amount']}
+                    formatter={(value) => [formatINR(value), 'Spend']}
                     contentStyle={{
                       backgroundColor: '#FFFFFF',
                       borderRadius: '12px',
@@ -424,19 +417,23 @@ export function ProductPreview() {
                 </RechartsPie>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-xs text-charcoal-400 font-medium">Total</span>
-                <span className="text-lg font-bold text-charcoal-900 font-mono">$3,741</span>
+                <span className="text-xs text-charcoal-400 font-medium">Total Spend</span>
+                <span className="text-lg font-bold text-charcoal-900 font-mono">{formatINR(totalBudget)}</span>
               </div>
             </div>
 
             {/* Legend & Percentages */}
             <div className="space-y-4">
-              <h4 className="text-sm font-bold text-charcoal-900 font-display">
-                Expense Distribution by Category
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-bold text-charcoal-900 font-display">
+                  Budget Category Distribution
+                </h4>
+                <Badge variant="forest">Target: ₹40,000</Badge>
+              </div>
+
               <div className="space-y-3">
                 {expenseBreakdown.map((item) => {
-                  const percent = Math.round((item.value / 3741) * 100);
+                  const percent = Math.round((item.value / totalBudget) * 100);
                   return (
                     <div key={item.name} className="space-y-1">
                       <div className="flex items-center justify-between text-xs">
@@ -445,7 +442,7 @@ export function ProductPreview() {
                           {item.name}
                         </span>
                         <span className="font-mono font-bold text-charcoal-900">
-                          ${item.value} ({percent}%)
+                          {formatINR(item.value)} ({percent}%)
                         </span>
                       </div>
                       <div className="w-full bg-ivory-200 h-2 rounded-full overflow-hidden">

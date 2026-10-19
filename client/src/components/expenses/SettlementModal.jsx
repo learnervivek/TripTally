@@ -8,12 +8,12 @@ import { useAuth } from '../../context/AuthContext';
 import { openRazorpayModal } from '../../utils/razorpay';
 
 const BASE_PAYMENT_METHODS = [
-  { value: 'cash', label: 'Cash' },
-  { value: 'upi', label: 'UPI / Instant Pay' },
+  { value: 'upi', label: 'UPI (GPay, PhonePe, Paytm, BHIM)' },
+  { value: 'cash', label: 'Cash in Hand' },
+  { value: 'razorpay', label: 'Razorpay (Online Card / Netbanking)' },
+  { value: 'bank_transfer', label: 'Bank Transfer (IMPS / NEFT)' },
   { value: 'venmo', label: 'Venmo' },
   { value: 'paypal', label: 'PayPal' },
-  { value: 'bank_transfer', label: 'Bank Transfer' },
-  { value: 'razorpay', label: 'Razorpay (Online Checkout)' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -27,12 +27,12 @@ export function SettlementModal({
 }) {
   const { toast } = useToast();
   const { user: currentUser } = useAuth();
-  const currency = trip?.currency || 'USD';
+  const currency = trip?.currency || 'INR';
 
   const [payer, setPayer] = useState('');
   const [payee, setPayee] = useState('');
   const [amountInput, setAmountInput] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [paymentMethod, setPaymentMethod] = useState('upi');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);

@@ -21,7 +21,7 @@ import Button from '../ui/Button';
 import Skeleton from '../ui/Skeleton';
 import EmptyState from '../ui/EmptyState';
 import { useToast } from '../../context/ToastContext';
-import { cn } from '../../lib/utils';
+import { cn, formatCurrency } from '../../lib/utils';
 
 const entityMeta = {
   itinerary: {
@@ -319,7 +319,7 @@ export function TripActivityFeed({ trip }) {
                           )}
                           {act.metadata.amountMajor && (
                             <span className="font-semibold text-charcoal-800">
-                              {act.metadata.amountMajor} {act.metadata.currency || 'USD'}
+                              {formatCurrency(act.metadata.amountMajor, act.metadata.currency || 'INR')}
                             </span>
                           )}
                         </div>

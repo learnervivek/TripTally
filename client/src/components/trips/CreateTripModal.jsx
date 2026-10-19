@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { z } from 'zod';
 import {
   Compass,
-  MapPin,
   Calendar,
-  DollarSign,
+  MapPin,
   Image as ImageIcon,
-  ArrowRight,
-  FileText
+  Check,
+  Sparkles,
+  Info,
+  IndianRupee
 } from 'lucide-react';
 import Dialog from '../ui/Dialog';
 import Input from '../ui/Input';
@@ -24,8 +25,8 @@ const tripSchema = z.object({
   coverImage: z.string().optional().or(z.literal('')),
   startDate: z.string().optional().or(z.literal('')),
   endDate: z.string().optional().or(z.literal('')),
-  currency: z.string().default('USD'),
-  budget: z.coerce.number().min(0, 'Budget must be zero or positive').default(0),
+  currency: z.string().default('INR'),
+  budget: z.coerce.number().min(0, 'Budget must be zero or positive').default(40000),
 }).refine((data) => {
   if (data.startDate && data.endDate) {
     return new Date(data.endDate) >= new Date(data.startDate);
@@ -38,20 +39,20 @@ const tripSchema = z.object({
 
 const coverPresets = [
   {
-    name: 'Amalfi Coast',
-    url: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80',
+    name: 'Manali & Solang',
+    url: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=1200&q=80',
   },
   {
-    name: 'Kyoto Temple',
-    url: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80',
+    name: 'Goa Beaches',
+    url: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=1200&q=80',
   },
   {
-    name: 'Swiss Alps',
-    url: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=1200&q=80',
+    name: 'Jaipur & Udaipur',
+    url: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80',
   },
   {
-    name: 'Patagonia',
-    url: 'https://images.unsplash.com/photo-1527004013197-933c4bb611b3?auto=format&fit=crop&w=1200&q=80',
+    name: 'Kerala Backwaters',
+    url: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80',
   },
 ];
 
@@ -75,8 +76,8 @@ export function CreateTripModal({ isOpen, onClose, onTripCreated }) {
       coverImage: coverPresets[0].url,
       startDate: '',
       endDate: '',
-      currency: 'USD',
-      budget: 2500,
+      currency: 'INR',
+      budget: 40000,
     },
   });
 
@@ -93,10 +94,14 @@ export function CreateTripModal({ isOpen, onClose, onTripCreated }) {
         toast.success('Trip Created!', `"${response.trip.title}" is ready for planning.`);
         reset();
         onClose();
-        if (onTripCreated) onTripCreated(response.trip);
+        if (onTripCreated) {
+          onTripCreated(response.trip);
+        }
+      } else {
+        toast.error('Failed to create trip', response.message || 'Please check the form inputs.');
       }
     } catch (err) {
-      toast.error('Could not create trip', err.message || 'Please check your inputs.');
+      toast.error('Error', err.response?.data?.message || err.message || 'Could not save trip.');
     } finally {
       setLoading(false);
     }
@@ -107,16 +112,14 @@ export function CreateTripModal({ isOpen, onClose, onTripCreated }) {
       isOpen={isOpen}
       onClose={onClose}
       title="Create New Trip Board"
-      description="Start an adventure, organize daily schedules, and tally expenses with friends."
-      size="lg"
+      description="Start an Indian itinerary board, set your budget in rupees, and invite your travel group."
+      size="xl"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         
         <Input
           label="Trip Title"
-          placeholder="e.g. Amalfi Coast Roadtrip & Capri Sailing"
-          required
-          leftIcon={<Compass className="w-4 h-4" />}
+          placeholder="e.g. Manali Adventure with Friends"
           error={errors.title?.message}
           {...register('title')}
         />
@@ -124,8 +127,7 @@ export function CreateTripModal({ isOpen, onClose, onTripCreated }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="Destination"
-            placeholder="Positano, Italy"
-            required
+            placeholder="e.g. Manali, Himachal Pradesh"
             leftIcon={<MapPin className="w-4 h-4" />}
             error={errors.destination?.message}
             {...register('destination')}
@@ -133,18 +135,19 @@ export function CreateTripModal({ isOpen, onClose, onTripCreated }) {
 
           <div className="space-y-1.5">
             <label className="text-xs font-semibold uppercase tracking-wider text-charcoal-700">
-              Currency
+              Trip Currency
             </label>
             <select
               className="w-full bg-white text-charcoal-900 text-sm rounded-xl border border-ivory-300 hover:border-ivory-400 focus:border-forest-600 focus:ring-2 focus:ring-forest-100/80 h-10 px-3 transition-all outline-none"
               {...register('currency')}
             >
+              <option value="INR">INR (₹) Indian Rupee</option>
               <option value="USD">USD ($) United States Dollar</option>
               <option value="EUR">EUR (€) Euro</option>
               <option value="GBP">GBP (£) British Pound</option>
-              <option value="JPY">JPY (¥) Japanese Yen</option>
-              <option value="CAD">CAD ($) Canadian Dollar</option>
-              <option value="CHF">CHF Swiss Franc</option>
+              <option value="AED">AED (د.إ) UAE Dirham</option>
+              <option value="THB">THB (฿) Thai Baht</option>
+              <option value="SGD">SGD ($) Singapore Dollar</option>
             </select>
           </div>
         </div>
@@ -169,8 +172,8 @@ export function CreateTripModal({ isOpen, onClose, onTripCreated }) {
           <Input
             label="Target Budget"
             type="number"
-            placeholder="2500"
-            leftIcon={<DollarSign className="w-4 h-4" />}
+            placeholder="40000"
+            leftIcon={<IndianRupee className="w-4 h-4" />}
             error={errors.budget?.message}
             {...register('budget')}
           />
@@ -219,23 +222,18 @@ export function CreateTripModal({ isOpen, onClose, onTripCreated }) {
           </label>
           <textarea
             rows={2}
-            placeholder="Key highlights, villa notes, or packing reminders for the group..."
-            className="w-full bg-white text-charcoal-900 placeholder:text-charcoal-300 text-sm rounded-xl border border-ivory-300 hover:border-ivory-400 focus:border-forest-600 focus:ring-2 focus:ring-forest-100/80 p-3 transition-all outline-none"
+            placeholder="What kind of trip is this? (e.g. Backpacking, college reunion, family road trip...)"
+            className="w-full bg-white text-charcoal-900 text-sm rounded-xl border border-ivory-300 hover:border-ivory-400 focus:border-forest-600 focus:ring-2 focus:ring-forest-100/80 p-3 transition-all outline-none resize-none"
             {...register('description')}
           />
         </div>
 
-        <div className="pt-3 border-t border-ivory-200 flex items-center justify-end gap-3">
-          <Button type="button" variant="ghost" size="sm" onClick={onClose}>
+        {/* Modal Action Buttons */}
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-ivory-200">
+          <Button type="button" variant="ghost" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            size="md"
-            isLoading={loading}
-            rightIcon={<ArrowRight className="w-4 h-4" />}
-          >
+          <Button type="submit" variant="primary" loading={loading}>
             Create Trip Board
           </Button>
         </div>

@@ -47,7 +47,7 @@ import { useToast } from '../../context/ToastContext';
 
 export function BudgetAnalytics({ trip, members = [], canEdit = false }) {
   const { toast } = useToast();
-  const currency = trip?.currency || 'USD';
+  const currency = trip?.currency || 'INR';
 
   // State
   const [loading, setLoading] = useState(true);

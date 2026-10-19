@@ -42,7 +42,7 @@ export const loadRazorpayScript = () => {
 export const openRazorpayModal = async ({
   key,
   amount,
-  currency = 'USD',
+  currency = 'INR',
   order_id,
   name = 'TripTally',
   description = 'Trip Settlement Payment',

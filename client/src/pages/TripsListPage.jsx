@@ -19,6 +19,7 @@ import Badge from '../components/ui/Badge';
 import Skeleton, { TripCardSkeleton } from '../components/ui/Skeleton';
 import EmptyState from '../components/ui/EmptyState';
 import tripService from '../services/tripService';
+import { formatCurrency } from '../lib/utils';
 
 export function TripsListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -190,7 +191,7 @@ export function TripsListPage() {
                           {trip.status.toUpperCase()}
                         </Badge>
                         <span className="text-xs font-mono font-bold text-white bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/10 shadow-soft-sm">
-                          ${trip.budget?.toLocaleString()} {trip.currency}
+                          {formatCurrency(trip.budget || 0, trip.currency)}
                         </span>
                       </div>
 

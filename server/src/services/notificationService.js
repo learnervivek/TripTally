@@ -64,7 +64,7 @@ export async function createNotification({
           tripTitle: metadata.tripTitle || 'Trip',
           destination: metadata.destination || 'Destination',
           amountDue: metadata.amountDue || '0.00',
-          currency: metadata.currency || 'USD',
+          currency: metadata.currency || 'INR',
           tripUrl: targetUrl,
         });
       }
@@ -244,13 +244,13 @@ export async function runScheduledReminders() {
               tripId: trip._id,
               type: 'unsettled_expense_reminder',
               title: `Pending Settlement for ${trip.title}`,
-              message: `You have an unsettled balance of ${debtAmount} ${trip.currency || 'USD'} on "${trip.title}". Review group debts and settle up.`,
+              message: `You have an unsettled balance of ${debtAmount} ${trip.currency || 'INR'} on "${trip.title}". Review group debts and settle up.`,
               link: `/trips/${trip._id}`,
               metadata: {
                 tripTitle: trip.title,
                 destination: trip.destination,
                 amountDue: debtAmount,
-                currency: trip.currency || 'USD',
+                currency: trip.currency || 'INR',
               },
             });
             unsettledDebtsReminded++;

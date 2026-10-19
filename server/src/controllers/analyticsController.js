@@ -319,7 +319,7 @@ export const getTripAnalytics = async (req, res, next) => {
         threshold,
         isThresholdExceeded: true,
         isOverBudget: true,
-        message: `Over budget by ${overBudgetMajor.toLocaleString()} ${trip.currency || 'USD'} (${percentageUsed}% used).`,
+        message: `Over budget by ${overBudgetMajor.toLocaleString('en-IN')} ${trip.currency || 'INR'} (${percentageUsed}% used).`,
       };
     } else if (isThresholdExceeded) {
       alertStatus = {
@@ -354,7 +354,7 @@ export const getTripAnalytics = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      currency: trip.currency || 'USD',
+      currency: trip.currency || 'INR',
       kpis: {
         totalBudget: totalBudgetMajor,
         totalBudgetMinor,

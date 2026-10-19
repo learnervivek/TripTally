@@ -39,7 +39,7 @@ export function ExpenseModal({
 }) {
   const { toast } = useToast();
 
-  const currency = trip?.currency || 'USD';
+  const currency = trip?.currency || 'INR';
   const isEditing = Boolean(expense);
 
   // Form states
@@ -192,9 +192,7 @@ export function ExpenseModal({
       }
     } else {
       if (customSumMinor !== totalMinor) {
-        errs.splits = `Custom splits ($${(customSumMinor / 100).toFixed(
-          2
-        )}) must equal total amount ($${(totalMinor / 100).toFixed(2)})`;
+        errs.splits = `Custom splits (${formatCurrency(customSumMinor / 100, currency)}) must equal total amount (${formatCurrency(totalMinor / 100, currency)})`;
       }
     }
 

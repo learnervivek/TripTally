@@ -19,7 +19,8 @@ import {
   BellRing,
   FileText,
   CreditCard,
-  Plus
+  Plus,
+  IndianRupee
 } from 'lucide-react';
 
 import Button from '../components/ui/Button';
@@ -287,11 +288,11 @@ export function DesignSystemPage() {
               />
 
               <Input
-                label="Estimated Group Budget (USD)"
-                placeholder="2500"
+                label="Estimated Group Budget (INR)"
+                placeholder="40000"
                 type="number"
                 required
-                leftIcon={<DollarSign className="w-4 h-4" />}
+                leftIcon={<IndianRupee className="w-4 h-4" />}
                 error={errors.estimatedBudget?.message}
                 {...register('estimatedBudget')}
               />

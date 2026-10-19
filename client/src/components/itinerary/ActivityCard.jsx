@@ -54,12 +54,14 @@ const categoryMeta = {
   },
 };
 
+import { formatCurrency } from '../../lib/utils';
+
 export function ActivityCard({
   item,
   canEdit = false,
   isFirst = false,
   isLast = false,
-  currency = 'USD',
+  currency = 'INR',
   onEdit,
   onDelete,
   onMoveUp,
@@ -118,7 +120,7 @@ export function ActivityCard({
 
               {item.estimatedCost > 0 && (
                 <span className="text-[11px] font-mono font-bold text-forest-800 bg-forest-50 border border-forest-200 px-2 py-0.5 rounded-md">
-                  ${item.estimatedCost.toLocaleString()} {currency}
+                  {formatCurrency(item.estimatedCost, currency)}
                 </span>
               )}
             </div>

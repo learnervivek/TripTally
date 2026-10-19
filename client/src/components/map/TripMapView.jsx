@@ -23,6 +23,7 @@ import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 import EmptyState from '../ui/EmptyState';
 import tripService from '../../services/tripService';
+import { formatCurrency } from '../../lib/utils';
 
 // Category icon SVGs & colors for Leaflet divIcons
 const categoryConfig = {
@@ -498,7 +499,7 @@ export function TripMapView({ trip, items = [], onSwitchToList, onAddActivity })
                 )}
                 {selectedItem.estimatedCost > 0 && (
                   <span className="font-mono font-bold text-forest-800 ml-auto">
-                    ${selectedItem.estimatedCost.toLocaleString()}
+                    {formatCurrency(selectedItem.estimatedCost, trip?.currency || 'INR')}
                   </span>
                 )}
               </div>

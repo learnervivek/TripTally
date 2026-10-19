@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { z } from 'zod';
 import {
   Compass,
-  MapPin,
   Calendar,
-  DollarSign,
+  MapPin,
   Image as ImageIcon,
-  Save,
-  Sliders
+  Check,
+  IndianRupee,
+  AlertTriangle
 } from 'lucide-react';
 import Dialog from '../ui/Dialog';
 import Input from '../ui/Input';
@@ -24,7 +24,7 @@ const updateSchema = z.object({
   coverImage: z.string().optional().or(z.literal('')),
   startDate: z.string().optional().or(z.literal('')),
   endDate: z.string().optional().or(z.literal('')),
-  currency: z.string().default('USD'),
+  currency: z.string().default('INR'),
   budget: z.coerce.number().min(0, 'Budget must be zero or positive').default(0),
   status: z.enum(['planning', 'confirmed', 'ongoing', 'completed', 'archived']).default('planning'),
 }).refine((data) => {
@@ -38,11 +38,11 @@ const updateSchema = z.object({
 });
 
 const coverPresets = [
-  { name: 'Amalfi Coast', url: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80' },
-  { name: 'Kyoto Temple', url: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80' },
-  { name: 'Swiss Alps', url: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=1200&q=80' },
-  { name: 'Patagonia', url: 'https://images.unsplash.com/photo-1527004013197-933c4bb611b3?auto=format&fit=crop&w=1200&q=80' },
-  { name: 'Santorini', url: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80' },
+  { name: 'Manali & Solang', url: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=1200&q=80' },
+  { name: 'Goa Beaches', url: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=1200&q=80' },
+  { name: 'Jaipur & Udaipur', url: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=80' },
+  { name: 'Kerala Backwaters', url: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80' },
+  { name: 'Srinagar Dal Lake', url: 'https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=1200&q=80' },
 ];
 
 export function EditTripModal({ isOpen, onClose, trip, onTripUpdated }) {
@@ -71,7 +71,7 @@ export function EditTripModal({ isOpen, onClose, trip, onTripUpdated }) {
       coverImage: trip?.coverImage || '',
       startDate: toInputDate(trip?.startDate),
       endDate: toInputDate(trip?.endDate),
-      currency: trip?.currency || 'USD',
+      currency: trip?.currency || 'INR',
       budget: trip?.budget || 0,
       status: trip?.status || 'planning',
     },
@@ -86,7 +86,7 @@ export function EditTripModal({ isOpen, onClose, trip, onTripUpdated }) {
         coverImage: trip.coverImage || '',
         startDate: toInputDate(trip.startDate),
         endDate: toInputDate(trip.endDate),
-        currency: trip.currency || 'USD',
+        currency: trip.currency || 'INR',
         budget: trip.budget || 0,
         status: trip.status || 'planning',
       });
@@ -107,9 +107,11 @@ export function EditTripModal({ isOpen, onClose, trip, onTripUpdated }) {
         toast.success('Trip Updated!', `Saved changes for "${response.trip.title}".`);
         onClose();
         if (onTripUpdated) onTripUpdated(response.trip);
+      } else {
+        toast.error('Update Failed', response.message || 'Please review your inputs.');
       }
     } catch (err) {
-      toast.error('Could Not Update Trip', err.message || 'Please check your inputs.');
+      toast.error('Error', err.response?.data?.message || err.message || 'Could not update trip.');
     } finally {
       setLoading(false);
     }
@@ -119,17 +121,16 @@ export function EditTripModal({ isOpen, onClose, trip, onTripUpdated }) {
     <Dialog
       isOpen={isOpen}
       onClose={onClose}
-      title="Edit Trip Details"
-      description="Update destinations, travel dates, status, or group budget."
-      size="lg"
+      title="Edit Trip Settings"
+      description="Update destinations, trip dates, budget target in rupees, or cover imagery."
+      size="xl"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         
         <Input
           label="Trip Title"
-          placeholder="e.g. Amalfi Coast Roadtrip"
+          placeholder="e.g. Manali Adventure with Friends"
           required
-          leftIcon={<Compass className="w-4 h-4" />}
           error={errors.title?.message}
           {...register('title')}
         />
@@ -137,7 +138,7 @@ export function EditTripModal({ isOpen, onClose, trip, onTripUpdated }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="Destination"
-            placeholder="Positano, Italy"
+            placeholder="e.g. Manali, Himachal Pradesh"
             required
             leftIcon={<MapPin className="w-4 h-4" />}
             error={errors.destination?.message}
@@ -179,21 +180,39 @@ export function EditTripModal({ isOpen, onClose, trip, onTripUpdated }) {
           />
 
           <Input
-            label="Planned Budget"
+            label="Target Budget"
             type="number"
-            leftIcon={<DollarSign className="w-4 h-4" />}
+            leftIcon={<IndianRupee className="w-4 h-4" />}
             error={errors.budget?.message}
             {...register('budget')}
           />
         </div>
 
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold uppercase tracking-wider text-charcoal-700">
+            Trip Currency
+          </label>
+          <select
+            className="w-full bg-white text-charcoal-900 text-sm rounded-xl border border-ivory-300 hover:border-ivory-400 focus:border-forest-600 focus:ring-2 focus:ring-forest-100/80 h-10 px-3 transition-all outline-none"
+            {...register('currency')}
+          >
+            <option value="INR">INR (₹) Indian Rupee</option>
+            <option value="USD">USD ($) United States Dollar</option>
+            <option value="EUR">EUR (€) Euro</option>
+            <option value="GBP">GBP (£) British Pound</option>
+            <option value="AED">AED (د.إ) UAE Dirham</option>
+            <option value="THB">THB (฿) Thai Baht</option>
+            <option value="SGD">SGD ($) Singapore Dollar</option>
+          </select>
+        </div>
+
         {/* Cover selector */}
         <div className="space-y-2">
           <label className="text-xs font-semibold uppercase tracking-wider text-charcoal-700 flex items-center justify-between">
-            <span>Cover Photo</span>
-            <span className="text-[10px] text-charcoal-400 font-normal">Choose preset or custom URL</span>
+            <span>Change Cover Photo</span>
+            <span className="text-[10px] text-charcoal-400 font-normal">Select preset</span>
           </label>
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
             {coverPresets.map((preset) => (
               <button
                 key={preset.name}
@@ -202,10 +221,13 @@ export function EditTripModal({ isOpen, onClose, trip, onTripUpdated }) {
                 className={`relative h-14 rounded-xl overflow-hidden border-2 transition-all ${
                   selectedCover === preset.url
                     ? 'border-forest-600 ring-2 ring-forest-200'
-                    : 'border-ivory-300 opacity-75 hover:opacity-100'
+                    : 'border-ivory-300 opacity-70 hover:opacity-100 hover:border-forest-500'
                 }`}
               >
                 <img src={preset.url} alt={preset.name} className="w-full h-full object-cover" />
+                <span className="absolute bottom-1 left-1 right-1 text-[9px] font-bold text-white bg-black/60 px-1 py-0.5 rounded backdrop-blur-sm truncate block text-left">
+                  {preset.name}
+                </span>
               </button>
             ))}
           </div>
@@ -213,7 +235,7 @@ export function EditTripModal({ isOpen, onClose, trip, onTripUpdated }) {
 
         <Input
           label="Custom Cover Image URL"
-          placeholder="https://..."
+          placeholder="https://images.unsplash.com/..."
           leftIcon={<ImageIcon className="w-4 h-4" />}
           error={errors.coverImage?.message}
           {...register('coverImage', {
@@ -223,27 +245,23 @@ export function EditTripModal({ isOpen, onClose, trip, onTripUpdated }) {
 
         <div className="space-y-1.5">
           <label className="text-xs font-semibold uppercase tracking-wider text-charcoal-700">
-            Trip Notes & Description
+            Trip Description & Summary
           </label>
           <textarea
             rows={2}
-            className="w-full bg-white text-charcoal-900 placeholder:text-charcoal-300 text-sm rounded-xl border border-ivory-300 hover:border-ivory-400 focus:border-forest-600 focus:ring-2 focus:ring-forest-100/80 p-3 transition-all outline-none"
+            placeholder="Share context, lodging links, and group guidelines..."
+            className="w-full bg-white text-charcoal-900 text-sm rounded-xl border border-ivory-300 hover:border-ivory-400 focus:border-forest-600 focus:ring-2 focus:ring-forest-100/80 p-3 transition-all outline-none resize-none"
             {...register('description')}
           />
         </div>
 
-        <div className="pt-3 border-t border-ivory-200 flex items-center justify-end gap-3">
-          <Button type="button" variant="ghost" size="sm" onClick={onClose}>
+        {/* Footer controls */}
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-ivory-200">
+          <Button type="button" variant="ghost" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            size="md"
-            isLoading={loading}
-            leftIcon={<Save className="w-4 h-4" />}
-          >
-            Save Trip Changes
+          <Button type="submit" variant="primary" loading={loading}>
+            Save Changes
           </Button>
         </div>
 

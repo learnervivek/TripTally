@@ -227,7 +227,7 @@ export async function sendUnsettledExpenseReminderEmail({
   tripTitle,
   destination,
   amountDue,
-  currency = 'USD',
+  currency = 'INR',
   tripUrl,
 }) {
   const mailTransporter = getTransporter();

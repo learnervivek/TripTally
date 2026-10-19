@@ -27,6 +27,7 @@ import EmptyState from '../components/ui/EmptyState';
 import { useAuth } from '../context/AuthContext';
 import tripService from '../services/tripService';
 import CreateTripModal from '../components/trips/CreateTripModal';
+import { formatCurrency } from '../lib/utils';
 
 export function DashboardPage() {
   const { user } = useAuth();
@@ -340,7 +341,7 @@ export function DashboardPage() {
                           {trip.status.charAt(0).toUpperCase() + trip.status.slice(1)}
                         </Badge>
                         <span className="text-xs font-mono font-bold text-white bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/10">
-                          ${trip.budget?.toLocaleString()} {trip.currency}
+                          {formatCurrency(trip.budget || 0, trip.currency)}
                         </span>
                       </div>
 

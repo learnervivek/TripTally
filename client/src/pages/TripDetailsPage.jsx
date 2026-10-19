@@ -42,6 +42,7 @@ import ConfirmDialog from '../components/ui/ConfirmDialog';
 import tripService from '../services/tripService';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
+import { formatCurrency } from '../lib/utils';
 
 export function TripDetailsPage() {
   const { id } = useParams();
@@ -302,7 +303,7 @@ export function TripDetailsPage() {
                 {trip.status.toUpperCase()}
               </Badge>
               <span className="text-xs font-mono font-bold text-white bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-xl border border-white/10 shadow-soft-sm">
-                ${trip.budget?.toLocaleString()} {trip.currency} Budget
+                {formatCurrency(trip.budget || 0, trip.currency)} Target Budget
               </span>
             </div>
             <div className="flex items-center gap-2">

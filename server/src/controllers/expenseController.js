@@ -158,7 +158,7 @@ export const getExpenseBalances = async (req, res, next) => {
 
     res.json({
       success: true,
-      currency: trip.currency || 'USD',
+      currency: trip.currency || 'INR',
       budget: trip.budget || 0,
       balances,
     });
@@ -234,7 +234,7 @@ export const createExpense = async (req, res, next) => {
       trip: tripId,
       title: validatedData.title,
       amount: validatedData.amount,
-      currency: trip.currency || 'USD',
+      currency: trip.currency || 'INR',
       category: validatedData.category,
       type: validatedData.type,
       paidBy: validatedData.paidBy,
@@ -258,11 +258,11 @@ export const createExpense = async (req, res, next) => {
       action: 'expense_add',
       entityType: 'expense',
       entityId: expense._id,
-      summary: `Logged expense "${populatedExpense.title}" for ${(populatedExpense.amount / 100).toFixed(2)} ${trip.currency || 'USD'}`,
+      summary: `Logged expense "${populatedExpense.title}" for ${(populatedExpense.amount / 100).toFixed(2)} ${trip.currency || 'INR'}`,
       metadata: {
         title: populatedExpense.title,
         amountMajor: populatedExpense.amount / 100,
-        currency: trip.currency || 'USD',
+        currency: trip.currency || 'INR',
         category: populatedExpense.category,
       },
     });
@@ -273,12 +273,12 @@ export const createExpense = async (req, res, next) => {
       senderId: req.user._id,
       type: 'expense_created',
       title: 'New Expense Logged',
-      message: `${req.user.name || 'A traveler'} logged "${populatedExpense.title}" for ${(populatedExpense.amount / 100).toFixed(2)} ${trip.currency || 'USD'}.`,
+      message: `${req.user.name || 'A traveler'} logged "${populatedExpense.title}" for ${(populatedExpense.amount / 100).toFixed(2)} ${trip.currency || 'INR'}.`,
       link: `/trips/${tripId}`,
       metadata: {
         title: populatedExpense.title,
         amount: populatedExpense.amount,
-        currency: trip.currency || 'USD',
+        currency: trip.currency || 'INR',
       },
     });
 
@@ -573,7 +573,7 @@ export const createSettlement = async (req, res, next) => {
       payer: validatedData.payer,
       payee: validatedData.payee,
       amount: validatedData.amount,
-      currency: trip.currency || 'USD',
+      currency: trip.currency || 'INR',
       paymentMethod: validatedData.paymentMethod,
       date: validatedData.date ? new Date(validatedData.date) : new Date(),
       notes: validatedData.notes,
@@ -592,10 +592,10 @@ export const createSettlement = async (req, res, next) => {
       action: 'settlement_add',
       entityType: 'settlement',
       entityId: settlement._id,
-      summary: `Recorded settlement of ${(settlement.amount / 100).toFixed(2)} ${trip.currency || 'USD'} between ${populatedSettlement.payer?.name || 'Traveler'} and ${populatedSettlement.payee?.name || 'Traveler'}`,
+      summary: `Recorded settlement of ${(settlement.amount / 100).toFixed(2)} ${trip.currency || 'INR'} between ${populatedSettlement.payer?.name || 'Traveler'} and ${populatedSettlement.payee?.name || 'Traveler'}`,
       metadata: {
         amountMajor: settlement.amount / 100,
-        currency: trip.currency || 'USD',
+        currency: trip.currency || 'INR',
         payerName: populatedSettlement.payer?.name,
         payeeName: populatedSettlement.payee?.name,
       },
@@ -610,11 +610,11 @@ export const createSettlement = async (req, res, next) => {
         tripId,
         type: 'settlement_created',
         title: 'Settlement Payment Recorded',
-        message: `${populatedSettlement.payer?.name || 'A companion'} recorded a settlement of ${(settlement.amount / 100).toFixed(2)} ${trip.currency || 'USD'} to you.`,
+        message: `${populatedSettlement.payer?.name || 'A companion'} recorded a settlement of ${(settlement.amount / 100).toFixed(2)} ${trip.currency || 'INR'} to you.`,
         link: `/trips/${tripId}`,
         metadata: {
           amount: settlement.amount,
-          currency: trip.currency || 'USD',
+          currency: trip.currency || 'INR',
           payerName: populatedSettlement.payer?.name,
         },
       });

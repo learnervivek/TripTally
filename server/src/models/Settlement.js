@@ -29,7 +29,7 @@ const settlementSchema = new mongoose.Schema(
     },
     currency: {
       type: String,
-      default: 'USD',
+      default: 'INR',
       uppercase: true,
       trim: true,
     },
@@ -40,7 +40,7 @@ const settlementSchema = new mongoose.Schema(
     paymentMethod: {
       type: String,
       enum: ['cash', 'upi', 'venmo', 'paypal', 'bank_transfer', 'razorpay', 'other'],
-      default: 'cash',
+      default: 'upi',
     },
     status: {
       type: String,
