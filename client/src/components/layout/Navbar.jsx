@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Compass, Menu, X, ArrowRight, User, Sparkles, LogOut, Settings } from 'lucide-react';
+import { Compass, Menu, X, ArrowRight, User, Sparkles, LogOut, Settings, MapPin, Bell } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
@@ -16,6 +16,18 @@ export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Close menus on Escape key
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setUserMenuOpen(false);
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleNavClick = (e, targetId) => {
     e.preventDefault();
@@ -118,6 +130,9 @@ export function Navbar() {
                 <div className="relative">
                   <button
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    aria-expanded={userMenuOpen}
+                    aria-haspopup="menu"
+                    aria-label="User navigation menu"
                     className="flex items-center gap-2.5 p-1.5 pl-3 rounded-2xl bg-white border border-ivory-300 hover:border-forest-600 shadow-soft-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600"
                   >
                     <span className="text-xs font-bold text-charcoal-900 max-w-[120px] truncate">
@@ -135,7 +150,9 @@ export function Navbar() {
                   {/* Dropdown Menu */}
                   {userMenuOpen && (
                     <div
-                      className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-soft-xl border border-ivory-300 py-2 z-50 animate-fadeIn"
+                      role="menu"
+                      aria-orientation="vertical"
+                      className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-soft-xl border border-ivory-300 py-2 z-50 animate-fadeIn"
                       onMouseLeave={() => setUserMenuOpen(false)}
                     >
                       <div className="px-4 py-2 border-b border-ivory-200">
@@ -143,35 +160,61 @@ export function Navbar() {
                         <p className="text-[11px] text-charcoal-400 font-mono truncate">{user.email}</p>
                       </div>
 
-                      <Link
-                        to="/dashboard"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-charcoal-800 hover:bg-forest-50 hover:text-forest-800 transition-colors"
-                      >
-                        <Compass className="w-4 h-4 text-forest-600" />
-                        <span>Go to Dashboard</span>
-                      </Link>
+                      <div className="py-1">
+                        <Link
+                          to="/dashboard"
+                          role="menuitem"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-charcoal-800 hover:bg-forest-50 hover:text-forest-800 transition-colors"
+                        >
+                          <Compass className="w-4 h-4 text-forest-600" />
+                          <span>Dashboard Overview</span>
+                        </Link>
 
-                      <Link
-                        to="/profile"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium text-charcoal-700 hover:bg-ivory-100 hover:text-forest-800 transition-colors"
-                      >
-                        <User className="w-4 h-4 text-forest-600" />
-                        <span>Profile & Settings</span>
-                      </Link>
+                        <Link
+                          to="/trips"
+                          role="menuitem"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-ivory-100 hover:text-forest-800 transition-colors"
+                        >
+                          <MapPin className="w-4 h-4 text-charcoal-400" />
+                          <span>My Collaborative Trips</span>
+                        </Link>
 
-                      <Link
-                        to="/design-system"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium text-charcoal-700 hover:bg-ivory-100 hover:text-forest-800 transition-colors"
-                      >
-                        <Settings className="w-4 h-4 text-charcoal-400" />
-                        <span>Design System Tokens</span>
-                      </Link>
+                        <Link
+                          to="/notifications"
+                          role="menuitem"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-ivory-100 hover:text-forest-800 transition-colors"
+                        >
+                          <Bell className="w-4 h-4 text-charcoal-400" />
+                          <span>Activity & Notifications</span>
+                        </Link>
+
+                        <Link
+                          to="/profile"
+                          role="menuitem"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-ivory-100 hover:text-forest-800 transition-colors"
+                        >
+                          <User className="w-4 h-4 text-forest-600" />
+                          <span>Profile & Settings</span>
+                        </Link>
+
+                        <Link
+                          to="/design-system"
+                          role="menuitem"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-ivory-100 hover:text-forest-800 transition-colors"
+                        >
+                          <Settings className="w-4 h-4 text-charcoal-400" />
+                          <span>Design System Tokens</span>
+                        </Link>
+                      </div>
 
                       <div className="border-t border-ivory-200 mt-1 pt-1">
                         <button
+                          role="menuitem"
                           onClick={() => {
                             setUserMenuOpen(false);
                             logout();

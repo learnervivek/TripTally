@@ -287,15 +287,24 @@ export function TripDetailsPage() {
           <img
             src={trip.coverImage || 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80'}
             alt={trip.title}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80';
+            }}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950 via-charcoal-950/40 to-transparent" />
 
           {/* Badges on top */}
-          <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-            <Badge variant={statusVariants[trip.status] || 'forest'} size="md" withDot>
-              {trip.status.toUpperCase()}
-            </Badge>
+          <div className="absolute top-4 left-4 right-4 flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <Badge variant={statusVariants[trip.status] || 'forest'} size="md" withDot>
+                {trip.status.toUpperCase()}
+              </Badge>
+              <span className="text-xs font-mono font-bold text-white bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-xl border border-white/10 shadow-soft-sm">
+                ${trip.budget?.toLocaleString()} {trip.currency} Budget
+              </span>
+            </div>
             <div className="flex items-center gap-2">
               <Button
                 variant="secondary"

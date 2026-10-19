@@ -76,6 +76,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'signin', onAuthSucce
       await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           name: 'Alex Rivera',
           email: 'alex.traveler@example.com',
@@ -152,6 +153,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'signin', onAuthSucce
           )}
 
           <Input
+            id="modal-email"
             label="Email Address"
             type="email"
             placeholder="alex@example.com"
@@ -177,6 +179,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'signin', onAuthSucce
               )}
             </div>
             <Input
+              id="modal-password"
               type="password"
               placeholder="••••••••"
               required
@@ -189,6 +192,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'signin', onAuthSucce
 
           {!isSignIn && (
             <Input
+              id="modal-confirm-password"
               label="Confirm Password"
               type="password"
               placeholder="••••••••"
@@ -201,6 +205,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'signin', onAuthSucce
 
           <div className="pt-2">
             <Button
+              id="modal-submit-btn"
               type="submit"
               variant="primary"
               size="lg"
@@ -224,6 +229,7 @@ export function AuthModal({ isOpen, onClose, initialMode = 'signin', onAuthSucce
         {/* Demo Traveler Button */}
         <div className="space-y-2">
           <Button
+            id="modal-demo-btn"
             type="button"
             variant="secondary"
             size="md"

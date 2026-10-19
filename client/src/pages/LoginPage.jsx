@@ -55,6 +55,7 @@ export function LoginPage() {
       await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           name: 'Alex Rivera',
           email: 'alex.traveler@example.com',
@@ -95,6 +96,7 @@ export function LoginPage() {
             
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <Input
+                id="login-email"
                 label="Email Address"
                 type="email"
                 placeholder="you@example.com"
@@ -117,6 +119,7 @@ export function LoginPage() {
                   </Link>
                 </div>
                 <Input
+                  id="login-password"
                   type="password"
                   placeholder="••••••••"
                   required
@@ -128,6 +131,7 @@ export function LoginPage() {
 
               <div className="pt-2">
                 <Button
+                  id="login-submit-btn"
                   type="submit"
                   variant="primary"
                   size="lg"
@@ -149,6 +153,7 @@ export function LoginPage() {
             </div>
 
             <Button
+              id="demo-login-btn"
               type="button"
               variant="secondary"
               size="md"

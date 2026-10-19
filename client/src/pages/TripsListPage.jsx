@@ -169,23 +169,27 @@ export function TripsListPage() {
                 <Card
                   key={trip._id}
                   variant="interactive"
-                  className="flex flex-col justify-between group"
+                  className="flex flex-col justify-between group overflow-hidden border border-ivory-300 hover:border-forest-400"
                   onClick={() => navigate(`/trips/${trip._id}`)}
                 >
                   <div>
-                    <div className="relative h-44 w-full bg-charcoal-900 overflow-hidden">
+                    <div className="relative h-48 w-full bg-charcoal-900 overflow-hidden">
                       <img
                         src={trip.coverImage || 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80'}
                         alt={trip.title}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80';
+                        }}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/80 via-transparent to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/85 via-charcoal-950/25 to-transparent" />
                       
                       <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
                         <Badge variant={statusVariants[trip.status] || 'forest'} size="sm" withDot>
                           {trip.status.toUpperCase()}
                         </Badge>
-                        <span className="text-xs font-mono font-bold text-white bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                        <span className="text-xs font-mono font-bold text-white bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/10 shadow-soft-sm">
                           ${trip.budget?.toLocaleString()} {trip.currency}
                         </span>
                       </div>
@@ -204,7 +208,13 @@ export function TripsListPage() {
                     <CardContent className="pt-4 space-y-2">
                       <p className="text-xs text-charcoal-500 flex items-center gap-1.5 font-medium">
                         <Calendar className="w-3.5 h-3.5 text-forest-600" />
-                        {trip.startDate ? new Date(trip.startDate).toLocaleDateString() : 'Dates flexible'}
+                        {trip.startDate
+                          ? `${new Date(trip.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}${
+                              trip.endDate
+                                ? ` - ${new Date(trip.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+                                : ' onwards'
+                            }`
+                          : 'Dates flexible'}
                       </p>
                       {trip.description && (
                         <p className="text-xs text-charcoal-600 line-clamp-2 leading-relaxed">
@@ -214,14 +224,35 @@ export function TripsListPage() {
                     </CardContent>
                   </div>
 
-                  <CardFooter className="bg-ivory-50/40">
+                  <CardFooter className="bg-ivory-50/50 border-t border-ivory-200">
                     <div className="flex items-center gap-2">
+                      <div className="flex -space-x-2 overflow-hidden">
+                        {memberList.slice(0, 3).map((m, idx) => {
+                          const memUser = m.user || {};
+                          const initials = memUser.name
+                            ? memUser.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
+                            : 'C';
+                          return (
+                            <div
+                              key={idx}
+                              title={memUser.name || 'Companion'}
+                              className="w-6 h-6 rounded-full bg-forest-600 text-white text-[9px] font-bold flex items-center justify-center border-2 border-white overflow-hidden shadow-soft-sm"
+                            >
+                              {memUser.avatar ? (
+                                <img src={memUser.avatar} alt={memUser.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <span>{initials}</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                       <span className="text-[11px] text-charcoal-500 font-medium">
-                        {memberList.length} companions
+                        {memberList.length} {memberList.length === 1 ? 'companion' : 'companions'}
                       </span>
                     </div>
                     <span className="text-xs font-semibold text-forest-700 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                      View Trip <ArrowRight className="w-3.5 h-3.5" />
+                      View Board <ArrowRight className="w-3.5 h-3.5" />
                     </span>
                   </CardFooter>
                 </Card>

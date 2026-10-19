@@ -567,7 +567,7 @@ export function BudgetAnalytics({ trip, members = [], canEdit = false }) {
                   role="region"
                   aria-label="Category spending donut chart"
                 >
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={240}>
                     <PieChart>
                       <Pie
                         data={categorySpending}
@@ -680,7 +680,7 @@ export function BudgetAnalytics({ trip, members = [], canEdit = false }) {
                 role="region"
                 aria-label="Planned versus actual spending bar chart"
               >
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={240}>
                   <BarChart
                     data={plannedVsActual}
                     margin={{ top: 20, right: 10, left: 0, bottom: 20 }}
@@ -753,7 +753,7 @@ export function BudgetAnalytics({ trip, members = [], canEdit = false }) {
               role="region"
               aria-label="Daily spending trend area chart"
             >
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={240}>
                 <AreaChart
                   data={dailySpendingTrend}
                   margin={{ top: 15, right: 15, left: 0, bottom: 15 }}

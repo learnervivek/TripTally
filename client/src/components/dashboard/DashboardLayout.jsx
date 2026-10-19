@@ -35,10 +35,30 @@ export function DashboardLayout({ children }) {
   const [invitationCount, setInvitationCount] = useState(0);
   const [unreadNotifCount, setUnreadNotifCount] = useState(0);
   const [recentNotifs, setRecentNotifs] = useState([]);
+  const searchInputRef = React.useRef(null);
 
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Keyboard shortcut listener for search (⌘K or /) and Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setNotificationsOpen(false);
+        setMobileSidebarOpen(false);
+      } else if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      } else if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     if (typeof tripService?.getMyInvitations === 'function') {
@@ -231,12 +251,16 @@ export function DashboardLayout({ children }) {
           <form onSubmit={handleSearchSubmit} className="hidden sm:flex items-center flex-1 max-w-md relative">
             <Search className="w-4 h-4 text-charcoal-400 absolute left-3.5 pointer-events-none" />
             <input
+              ref={searchInputRef}
               type="text"
               placeholder="Search destinations, trips, or companions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-ivory-100 text-charcoal-900 placeholder:text-charcoal-400 text-xs rounded-xl border border-ivory-300 hover:border-ivory-400 focus:border-forest-600 focus:bg-white focus:ring-2 focus:ring-forest-100/80 h-9 pl-9 pr-3.5 transition-all outline-none"
+              className="w-full bg-ivory-100 text-charcoal-900 placeholder:text-charcoal-400 text-xs rounded-xl border border-ivory-300 hover:border-ivory-400 focus:border-forest-600 focus:bg-white focus:ring-2 focus:ring-forest-100/80 h-9 pl-9 pr-12 transition-all outline-none"
             />
+            <kbd className="absolute right-2.5 px-1.5 py-0.5 rounded bg-ivory-200 border border-ivory-300 text-[10px] font-mono text-charcoal-400 pointer-events-none shadow-soft-sm">
+              ⌘K
+            </kbd>
           </form>
 
           {/* Right Header Actions */}
