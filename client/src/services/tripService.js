@@ -203,6 +203,92 @@ export const tripService = {
     const response = await api.get('/trips/geocode', { params: { q: query } });
     return response.data;
   },
+
+  /**
+   * Get all expenses for a trip with optional filters (category, paidBy, startDate, endDate, search)
+   */
+  async getExpenses(tripId, params = {}) {
+    const response = await api.get(`/trips/${tripId}/expenses`, { params });
+    return response.data;
+  },
+
+  /**
+   * Get authoritative balance breakdown, net balances, and suggested settlements
+   */
+  async getExpenseBalances(tripId) {
+    const response = await api.get(`/trips/${tripId}/expenses/balances`);
+    return response.data;
+  },
+
+  /**
+   * Record a new expense with equal or custom split
+   */
+  async createExpense(tripId, expenseData) {
+    const response = await api.post(`/trips/${tripId}/expenses`, expenseData);
+    return response.data;
+  },
+
+  /**
+   * Get single expense details
+   */
+  async getExpenseById(tripId, expenseId) {
+    const response = await api.get(`/trips/${tripId}/expenses/${expenseId}`);
+    return response.data;
+  },
+
+  /**
+   * Update an existing expense
+   */
+  async updateExpense(tripId, expenseId, updateData) {
+    const response = await api.put(`/trips/${tripId}/expenses/${expenseId}`, updateData);
+    return response.data;
+  },
+
+  /**
+   * Delete an expense
+   */
+  async deleteExpense(tripId, expenseId) {
+    const response = await api.delete(`/trips/${tripId}/expenses/${expenseId}`);
+    return response.data;
+  },
+
+  /**
+   * Get all recorded settlements for a trip
+   */
+  async getSettlements(tripId) {
+    const response = await api.get(`/trips/${tripId}/settlements`);
+    return response.data;
+  },
+
+  /**
+   * Record a new settlement between members
+   */
+  async createSettlement(tripId, settlementData) {
+    const response = await api.post(`/trips/${tripId}/settlements`, settlementData);
+    return response.data;
+  },
+
+  /**
+   * Delete a recorded settlement (reverses balance impact)
+   */
+  async deleteSettlement(tripId, settlementId) {
+    const response = await api.delete(`/trips/${tripId}/settlements/${settlementId}`);
+    return response.data;
+  },
+
+  /**
+   * Upload an expense receipt image or PDF
+   */
+  async uploadReceipt(tripId, file) {
+    const formData = new FormData();
+    formData.append('receipt', file);
+    const response = await api.post(`/trips/${tripId}/expenses/upload-receipt`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
 };
 
 export default tripService;

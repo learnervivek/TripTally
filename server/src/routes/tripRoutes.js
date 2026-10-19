@@ -24,6 +24,19 @@ import {
   reorderItineraryItems,
   geocodeQuery,
 } from '../controllers/itineraryController.js';
+import {
+  getTripExpenses,
+  getExpenseBalances,
+  createExpense,
+  getExpenseById,
+  updateExpense,
+  deleteExpense,
+  getTripSettlements,
+  createSettlement,
+  deleteSettlement,
+  uploadReceipt,
+} from '../controllers/expenseController.js';
+import { receiptUpload } from '../middleware/upload.js';
 import { protect } from '../middleware/auth.js';
 
 const router = Router();
@@ -54,5 +67,19 @@ router.post('/:tripId/itinerary', createItineraryItem);
 router.patch('/:tripId/itinerary/reorder', reorderItineraryItems);
 router.put('/:tripId/itinerary/:itemId', updateItineraryItem);
 router.delete('/:tripId/itinerary/:itemId', deleteItineraryItem);
+
+// Group Expenses & Budget Endpoints
+router.get('/:tripId/expenses', getTripExpenses);
+router.get('/:tripId/expenses/balances', getExpenseBalances);
+router.post('/:tripId/expenses', createExpense);
+router.post('/:tripId/expenses/upload-receipt', receiptUpload.single('receipt'), uploadReceipt);
+router.get('/:tripId/expenses/:expenseId', getExpenseById);
+router.put('/:tripId/expenses/:expenseId', updateExpense);
+router.delete('/:tripId/expenses/:expenseId', deleteExpense);
+
+// Debt Settlements Endpoints
+router.get('/:tripId/settlements', getTripSettlements);
+router.post('/:tripId/settlements', createSettlement);
+router.delete('/:tripId/settlements/:settlementId', deleteSettlement);
 
 export default router;

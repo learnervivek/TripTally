@@ -8,9 +8,14 @@ import tripRoutes from './routes/tripRoutes.js';
 import invitationRoutes from './routes/invitationRoutes.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 
+import path from 'path';
+
 dotenv.config();
 
 const app = express();
+
+// Serve uploaded receipts and files
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // CORS configuration
 const allowedOrigins = [

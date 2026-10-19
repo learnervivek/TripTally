@@ -31,6 +31,7 @@ import EditTripModal from '../components/trips/EditTripModal';
 import InviteMemberModal from '../components/trips/InviteMemberModal';
 import ItineraryPlanner from '../components/itinerary/ItineraryPlanner';
 import TripMapView from '../components/map/TripMapView';
+import ExpenseManager from '../components/expenses/ExpenseManager';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import tripService from '../services/tripService';
 import { useToast } from '../context/ToastContext';
@@ -401,56 +402,13 @@ export function TripDetailsPage() {
             />
           )}
 
-          {/* Tab 2: Expenses Breakdown */}
+          {/* Tab 3: Group Expenses & Debt Tally */}
           {activeTab === 'expenses' && (
-            <Card variant="default" className="shadow-soft">
-              <CardHeader className="border-b border-ivory-200 flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle className="text-lg font-display">Trip Expenses & Tally</CardTitle>
-                  <CardDescription>Track receipts and calculate equal per-person shares.</CardDescription>
-                </div>
-                <Button variant="accent" size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => toast.info('Log Expense', 'Expense logger ready.')}>
-                  Log Expense
-                </Button>
-              </CardHeader>
-
-              <CardContent className="p-6 space-y-4">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  <div className="p-4 rounded-xl bg-ivory-100 border border-ivory-200">
-                    <span className="text-xs text-charcoal-500">Target Budget</span>
-                    <p className="text-lg font-bold text-charcoal-900 font-mono mt-1">${trip.budget?.toLocaleString()}</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-ivory-100 border border-ivory-200">
-                    <span className="text-xs text-charcoal-500">Total Spent</span>
-                    <p className="text-lg font-bold text-forest-700 font-mono mt-1">${totalSpent.toFixed(2)}</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-ivory-100 border border-ivory-200 col-span-2 sm:col-span-1">
-                    <span className="text-xs text-charcoal-500">Per Person Share</span>
-                    <p className="text-lg font-bold text-terracotta-600 font-mono mt-1">
-                      ${members.length > 0 ? (totalSpent / members.length).toFixed(2) : '0.00'}
-                    </p>
-                  </div>
-                </div>
-
-                {expenses.length === 0 ? (
-                  <div className="p-8 text-center rounded-2xl bg-ivory-50 border border-dashed border-ivory-300 text-xs text-charcoal-500">
-                    No receipts added to this trip yet. Click "Log Expense" above to add flights, villas, or dinner bills.
-                  </div>
-                ) : (
-                  <div className="divide-y divide-ivory-200 border border-ivory-200 rounded-xl overflow-hidden">
-                    {expenses.map((exp) => (
-                      <div key={exp._id} className="p-3.5 flex items-center justify-between text-xs">
-                        <div>
-                          <p className="font-bold text-charcoal-900">{exp.title}</p>
-                          <p className="text-[11px] text-charcoal-400">Paid by {exp.paidBy?.name}</p>
-                        </div>
-                        <span className="font-mono font-bold text-charcoal-900">${exp.amount.toFixed(2)}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <ExpenseManager
+              trip={trip}
+              members={members}
+              canEdit={canEdit}
+            />
           )}
 
         </div>
