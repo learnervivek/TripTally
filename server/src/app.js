@@ -2,22 +2,43 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
+import path from 'path';
+
 import healthRoutes from './routes/healthRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import tripRoutes from './routes/tripRoutes.js';
 import invitationRoutes from './routes/invitationRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import { paymentPublicRouter } from './routes/paymentRoutes.js';
-import { errorHandler, notFound } from './middleware/errorHandler.js';
 
-import path from 'path';
+import { errorHandler, notFound } from './middleware/errorHandler.js';
+import { requestLogger } from './middleware/requestLogger.js';
+import { apiRateLimiter, authRateLimiter } from './middleware/rateLimiter.js';
 
 dotenv.config();
 
 const app = express();
 
-// Serve uploaded receipts and files
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+// Trust reverse proxy (for secure cookies, rate limiting, and correct IP resolution in production)
+app.set('trust proxy', 1);
+
+// Serve uploaded receipts and files with security headers and prevent directory browsing
+app.use(
+  '/uploads',
+  (req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
+    next();
+  },
+  express.static(path.join(process.cwd(), 'uploads'), {
+    dotfiles: 'ignore',
+    index: false,
+    maxAge: '1d',
+  })
+);
+
+// Structured request logging
+app.use(requestLogger);
 
 // CORS configuration
 const allowedOrigins = [
@@ -29,7 +50,7 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // allow requests with no origin (like mobile apps or curl requests)
+      // Allow requests with no origin (mobile clients, curl, testing tools)
       if (!origin) return callback(null, true);
       if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
         return callback(null, true);
@@ -72,6 +93,14 @@ app.get('/', (req, res) => {
     },
   });
 });
+
+// General API Rate Limiting
+app.use('/api', apiRateLimiter);
+
+// Stricter Rate Limiting on Authentication Endpoints
+app.use('/api/auth/login', authRateLimiter);
+app.use('/api/auth/register', authRateLimiter);
+app.use('/api/auth/forgot-password', authRateLimiter);
 
 // API Routes
 app.use('/api', healthRoutes);
