@@ -44,7 +44,6 @@ export function Footer() {
               Platform
             </h4>
             <ul className="space-y-2 text-xs text-forest-300">
-              <li><Link to="/design-system" className="hover:text-ivory-100 transition-colors">Design System Tokens</Link></li>
               <li><Link to="/login" className="hover:text-ivory-100 transition-colors">Sign In</Link></li>
               <li><Link to="/register" className="hover:text-ivory-100 transition-colors">Create Account</Link></li>
               <li><a href="/#faq" className="hover:text-ivory-100 transition-colors">FAQ & Support</a></li>
@@ -70,7 +69,6 @@ export function Footer() {
           <div className="flex items-center gap-6">
             <span className="hover:text-forest-200 transition-colors">Privacy Policy</span>
             <span className="hover:text-forest-200 transition-colors">Terms of Service</span>
-            <Link to="/design-system" className="hover:text-forest-200 transition-colors">Tokens</Link>
           </div>
         </div>
 

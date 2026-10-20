@@ -30,8 +30,8 @@ const SAMPLE_CIRCUITS = [
     weather: '-2°C • Fresh Snowfall',
     dates: '14 Nov – 19 Nov (5 Days)',
     image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=1200&q=80',
-    totalBudget: 36000,
-    perPerson: 9000,
+    totalBudget: 40000,
+    perPerson: 10000,
     members: [
       { name: 'Arjun S.', role: 'Organizer', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80', paid: true },
       { name: 'Priya M.', role: 'Editor', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80', paid: true },

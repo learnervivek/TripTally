@@ -29,7 +29,10 @@ import {
   Clock,
   Car,
   Compass as CompassIcon,
-  Tent
+  Tent,
+  Luggage,
+  Bell,
+  CreditCard
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card, { CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
@@ -227,47 +230,145 @@ const readyTripPlans = [
   },
 ];
 
-// C. How TripTally Works: The 5-Step Workflow
+// C. Integrated Platform Capabilities & Core Features
+const integratedFeatures = [
+  {
+    id: 'ai-itinerary',
+    title: 'Personalised AI Itinerary Generator',
+    category: 'AI Assistant',
+    tag: 'Gemini 2.5 Flash',
+    tagVariant: 'forest',
+    description:
+      'Generate day-by-day travel plans customized to your destination, dates, budget in INR, companions, and travel style with activities and cost estimates.',
+    icon: Sparkles,
+    link: '/ai-trip-planner',
+    actionText: 'Try AI Planner',
+  },
+  {
+    id: 'collaborative-workspace',
+    title: 'Collaborative Group Workspaces',
+    category: 'Co-Planning',
+    tag: 'Role Permissions',
+    tagVariant: 'terracotta',
+    description:
+      'Invite travel companions via email or a 1-click WhatsApp link. Assign Organizer, Editor, or Viewer roles so everyone stays on the exact same page.',
+    icon: Users,
+    link: '/trips',
+    actionText: 'Start Group Trip',
+  },
+  {
+    id: 'itinerary-management',
+    title: 'Day-by-Day Schedule & Routes',
+    category: 'Organization',
+    tag: 'Interactive Maps',
+    tagVariant: 'forest',
+    description:
+      'Structure daily schedules, transit timing, hotel stays, and attractions. Explore pin drops and geographic routes with interactive OpenStreetMap views.',
+    icon: Calendar,
+    link: '/trips',
+    actionText: 'View Timeline',
+  },
+  {
+    id: 'expense-splitting',
+    title: 'Rupee Expense Splitting & Ledgers',
+    category: 'Finances',
+    tag: '100% in INR',
+    tagVariant: 'terracotta',
+    description:
+      'Log group expenses in Indian Rupees with equal or custom splits. Our debt minimization algorithm calculates net balances with minimal direct transfers.',
+    icon: Split,
+    link: '/trips',
+    actionText: 'Split Expenses',
+  },
+  {
+    id: 'budget-analytics',
+    title: 'Budget Tracking & Spending Alerts',
+    category: 'Analytics',
+    tag: 'Real-Time Insights',
+    tagVariant: 'forest',
+    description:
+      'Monitor group targets against actual spend across Lodging, Food, Transport, and Activities. Configure alert thresholds to keep group savings on track.',
+    icon: PieChart,
+    link: '/trips',
+    actionText: 'Track Budget',
+  },
+  {
+    id: 'packing-checklist',
+    title: 'Smart Packing Checklist',
+    category: 'Preparedness',
+    tag: 'Zero Forgotten Gear',
+    tagVariant: 'terracotta',
+    description:
+      'Coordinate shared and personal packing lists categorized by Clothing, Documents, Electronics, and Medical supplies with companion assignment.',
+    icon: Luggage,
+    link: '/trips',
+    actionText: 'Organize Packing',
+  },
+  {
+    id: 'upi-settlements',
+    title: 'UPI & Razorpay Settlements',
+    category: 'Payments',
+    tag: 'Instant Settle',
+    tagVariant: 'forest',
+    description:
+      'Record offline UPI settlements (GPay, PhonePe, Paytm, BHIM) or complete secure test-mode online payments with verified transaction receipts.',
+    icon: IndianRupee,
+    link: '/trips',
+    actionText: 'Settle Debts',
+  },
+  {
+    id: 'notifications-stream',
+    title: 'Activity Stream & Reminders',
+    category: 'Updates',
+    tag: 'Instant Alerts',
+    tagVariant: 'neutral',
+    description:
+      'Stay in sync with real-time in-app activity feeds and automated balance reminders so no companion is left wondering about trip updates.',
+    icon: Bell,
+    link: '/notifications',
+    actionText: 'Stay Updated',
+  },
+];
+
+// D. How TripTally Works: The 4-Step Workflow
 const howItWorksSteps = [
   {
     step: '01',
-    title: 'Create Your Trip Board',
-    description: 'Set destination, dates, and budget in Indian Rupees (₹). Pick authentic cover photography.',
+    title: 'Create Your Trip',
+    description: 'Select your destination, travel dates, and budget in Indian Rupees (₹). Pick authentic cover photography or upload your own.',
     icon: Compass,
     color: 'forest',
   },
   {
     step: '02',
-    title: 'Invite Friends & Family',
-    description: 'Share a 1-click WhatsApp or email link. Set roles as Organizers, Editors, or Viewers.',
-    icon: Users,
+    title: 'Plan Your Itinerary',
+    description: 'Generate a personalised day-by-day plan with Gemini AI, or schedule activities, transit, and stays manually on an interactive map.',
+    icon: Sparkles,
     color: 'terracotta',
   },
   {
     step: '03',
-    title: 'Build Shared Itinerary',
-    description: 'Schedule activities, hotel stays, Volvo buses, flights, and scenic spots day-by-day.',
-    icon: MapPin,
+    title: 'Collaborate with Your Group',
+    description: 'Invite travel companions via WhatsApp or email. Assign Editor or Viewer roles, coordinate packing lists, and vote on activities.',
+    icon: Users,
     color: 'forest',
   },
   {
     step: '04',
-    title: 'Track Expenses & Splits',
-    description: 'Record who paid in ₹, attach bill photos, and split costs equally or custom per friend.',
+    title: 'Manage Your Budget',
+    description: 'Log receipts in ₹, split costs equitably, track category analytics, and settle outstanding balances easily with minimal transfers.',
     icon: Split,
     color: 'terracotta',
-  },
-  {
-    step: '05',
-    title: 'Settle Up & Enjoy',
-    description: 'Minimise debt transfers and settle instantly via UPI or Razorpay without awkward math.',
-    icon: IndianRupee,
-    color: 'forest',
   },
 ];
 
 // FAQs
 const faqs = [
+  {
+    question: 'How does the Gemini AI Itinerary Generator work?',
+    answer:
+      'Our AI trip planner uses the Google Gemini API to craft customized day-by-day itineraries based on your destination, travel dates, budget in INR, group size, and travel style. You can review activities, timings, and estimated costs, and convert any AI plan into a collaborative trip board with a single click.',
+  },
   {
     question: 'Is TripTally completely free to use for Indian travellers?',
     answer:
@@ -284,9 +385,9 @@ const faqs = [
       'Yes! TripTally natively supports Indian Rupees (₹). You can record settlements via UPI (Google Pay, PhonePe, Paytm, BHIM) or initiate secure test-mode online payments through Razorpay integration.',
   },
   {
-    question: 'Are all sample budgets on this page live prices?',
+    question: 'How does the Smart Packing Checklist work for group trips?',
     answer:
-      'All sample budgets shown are realistic estimated planning benchmarks for popular Indian group circuits. They serve as reliable guidelines to help your group set target savings and distribute expenses equitably.',
+      'The packing checklist lets you organize essentials by category—Documents, Clothing, Electronics, and Medical supplies. You can assign items to specific companions so group essentials like first-aid kits or cameras are never duplicated or forgotten.',
   },
   {
     question: 'Can I track trips on mobile while traveling on the road?',
@@ -342,22 +443,21 @@ export default function HomePage() {
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               className="lg:col-span-5 flex flex-col items-start z-10 text-left"
             >
-              {/* Trust Badge */}
+              {/* Small Subtle Badge */}
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-forest-50 border border-forest-200/80 text-forest-800 text-xs font-semibold mb-3.5 shadow-soft-sm">
                 <Sparkles className="w-3.5 h-3.5 text-terracotta-500 animate-spin-slow" />
-                <span>India's Collaborative Group Travel Platform</span>
+                <span>AI-Powered Travel Planner</span>
               </div>
 
               {/* Required Exact Headline */}
               <h1 className="font-serif text-3xl sm:text-4xl lg:text-[44px] font-bold text-charcoal-900 leading-[1.12] tracking-tight mb-3">
-                Your India. <br />
-                <span className="italic font-normal text-forest-700">Your Journey.</span> <br />
-                Your Story.
+                Plan Better Trips. <br />
+                <span className="italic font-normal text-forest-700">Travel Together.</span>
               </h1>
 
               {/* Required Exact Supporting Text */}
               <p className="text-sm sm:text-base text-charcoal-600 leading-relaxed max-w-xl mb-5">
-                Plan unforgettable trips across India, explore destinations together, and manage every rupee with one collaborative travel planner.
+                Your AI-powered travel companion to create personalised itineraries, plan adventures with friends, and manage every rupee in one place.
               </p>
 
               {/* Primary & Secondary CTAs */}
@@ -367,7 +467,7 @@ export default function HomePage() {
                   size="md"
                   onClick={() => {
                     if (isAuthenticated) {
-                      navigate('/trips');
+                      navigate('/ai-trip-planner');
                     } else {
                       handleOpenAuth('register');
                     }
@@ -375,14 +475,14 @@ export default function HomePage() {
                   rightIcon={<ArrowRight className="w-4 h-4" />}
                   className="w-full sm:w-auto shadow-soft-lg"
                 >
-                  Plan a Trip
+                  Plan Your Trip
                 </Button>
                 <a
-                  href="#destinations"
+                  href="#features"
                   className="w-full sm:w-auto inline-flex items-center justify-center font-medium rounded-xl border border-ivory-300 hover:border-forest-600 bg-white hover:bg-ivory-100/70 text-charcoal-800 text-xs sm:text-sm px-4 py-2.5 transition-all duration-200 shadow-soft-sm gap-2"
                 >
-                  <MapPin className="w-3.5 h-3.5 text-terracotta-500" />
-                  Explore Destinations
+                  <Sparkles className="w-3.5 h-3.5 text-forest-600" />
+                  Explore Features
                 </a>
               </div>
 
@@ -390,15 +490,15 @@ export default function HomePage() {
               <div className="grid grid-cols-3 gap-3 pt-4 border-t border-ivory-200 w-full text-xs text-charcoal-600">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-forest-600 shrink-0" />
-                  <span>100% in Rupees (₹)</span>
+                  <span>Gemini AI Itinerary</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-forest-600 shrink-0" />
-                  <span>UPI Settlements</span>
+                  <span>Fair Split Ledger (₹)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-forest-600 shrink-0" />
-                  <span>Fair Split Ledger</span>
+                  <span>UPI & Settle Up</span>
                 </div>
               </div>
             </motion.div>
@@ -437,14 +537,10 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {popularDestinations.map((dest, idx) => (
-              <motion.div
+            {popularDestinations.map((dest) => (
+              <div
                 key={dest.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.05 }}
-                className="group bg-white rounded-2xl border border-ivory-200 overflow-hidden shadow-soft hover:shadow-soft-xl transition-all duration-300 flex flex-col"
+                className="group bg-white rounded-2xl border border-ivory-200 overflow-hidden shadow-soft hover:shadow-soft-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
               >
                 <div className="relative h-48 overflow-hidden">
                   <img
@@ -502,12 +598,88 @@ export default function HomePage() {
                     Plan this Trip
                   </Button>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
 
           <div className="mt-8 text-center text-xs text-charcoal-500">
             * Budgets shown are estimated planning guidelines for groups of 2-5 travellers and subject to seasonal variability.
+          </div>
+
+        </div>
+      </section>
+
+      {/* ---------------- Section: Integrated Capabilities & Features ---------------- */}
+      <section id="features" className="py-20 bg-ivory-50 border-b border-ivory-200/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-forest-50 border border-forest-200 text-forest-800 text-xs font-semibold uppercase tracking-wider mb-3">
+              <Sparkles className="w-3.5 h-3.5 text-terracotta-500" />
+              <span>Integrated Platform Capabilities</span>
+            </div>
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-[40px] font-bold text-charcoal-900 mb-4 leading-tight">
+              Built for How Indian Groups Actually Travel
+            </h2>
+            <p className="text-sm sm:text-base text-charcoal-600 leading-relaxed">
+              From Gemini AI-generated day-by-day itineraries to fair rupee split ledgers, interactive maps, and smart packing, TripTally brings your entire journey under one collaborative roof.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {integratedFeatures.map((feat) => {
+              const Icon = feat.icon;
+              return (
+                <div
+                  key={feat.id}
+                  className="bg-white rounded-2xl p-5 sm:p-6 border border-ivory-200/90 shadow-soft hover:shadow-soft-lg hover:border-forest-600/30 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+                  onClick={() => {
+                    if (feat.link === '/ai-trip-planner') {
+                      if (isAuthenticated) {
+                        navigate('/ai-trip-planner');
+                      } else {
+                        handleOpenAuth('register');
+                      }
+                    } else {
+                      if (isAuthenticated) {
+                        navigate(feat.link);
+                      } else {
+                        handleOpenAuth('register');
+                      }
+                    }
+                  }}
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-4">
+                      <div className="w-11 h-11 rounded-xl bg-forest-50 border border-forest-100 flex items-center justify-center text-forest-700 group-hover:scale-105 transition-transform">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <Badge variant={feat.tagVariant} size="sm">
+                        {feat.tag}
+                      </Badge>
+                    </div>
+
+                    <h3 className="font-serif text-lg font-bold text-charcoal-900 mb-2 leading-snug">
+                      {feat.title}
+                    </h3>
+                    
+                    <p className="text-xs text-charcoal-600 leading-relaxed mb-4">
+                      {feat.description}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-ivory-200/70 flex items-center justify-between text-xs">
+                    <span className="font-semibold text-forest-700 group-hover:text-forest-900 transition-colors flex items-center gap-1">
+                      {feat.actionText}
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                    <span className="text-[10px] text-charcoal-400 font-medium">
+                      {feat.category}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
         </div>
@@ -531,14 +703,10 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {readyTripPlans.map((trip, idx) => (
-              <motion.div
+            {readyTripPlans.map((trip) => (
+              <div
                 key={trip.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.08 }}
-                className="bg-white rounded-2xl p-6 border border-ivory-200 shadow-soft hover:shadow-soft-lg transition-all flex flex-col justify-between"
+                className="bg-white rounded-2xl p-6 border border-ivory-200 shadow-soft hover:shadow-soft-lg hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-3">
@@ -597,7 +765,7 @@ export default function HomePage() {
                 >
                   Customize This Itinerary
                 </Button>
-              </motion.div>
+              </div>
             ))}
           </div>
 
@@ -611,7 +779,7 @@ export default function HomePage() {
           <div className="text-center max-w-2xl mx-auto mb-16">
             <div className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-forest-700 mb-2">
               <Layers className="w-3.5 h-3.5" />
-              <span>Simple 5-Step Workflow</span>
+              <span>Simple 4-Step Workflow</span>
             </div>
             <h2 className="font-serif text-3xl sm:text-4xl font-bold text-charcoal-900 mb-4">
               How TripTally Works for Indian Groups
@@ -621,17 +789,13 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
-            {howItWorksSteps.map((item, idx) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {howItWorksSteps.map((item) => {
               const Icon = item.icon;
               return (
-                <motion.div
+                <div
                   key={item.step}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: idx * 0.08 }}
-                  className="bg-white rounded-2xl p-5 border border-ivory-200 shadow-soft hover:shadow-soft-lg transition-all relative flex flex-col justify-between"
+                  className="bg-white rounded-2xl p-6 border border-ivory-200 shadow-soft hover:shadow-soft-lg hover:-translate-y-1 transition-all duration-300 relative flex flex-col justify-between"
                 >
                   <div>
                     <span className="font-mono text-xs font-bold text-terracotta-600 mb-3 block">
@@ -647,7 +811,7 @@ export default function HomePage() {
                       {item.description}
                     </p>
                   </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>
@@ -743,30 +907,42 @@ export default function HomePage() {
               </span>
 
               <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-ivory-100 mb-6 leading-tight">
-                Start Planning Your Indian Adventure Today
+                Your Next Trip Starts Here.
               </h2>
 
               <p className="text-sm sm:text-base text-forest-100/90 mb-8 leading-relaxed max-w-xl mx-auto">
-                No subscription fees. No confusing spreadsheets. Just clean, collaborative trip planning and rupee management for you and your friends.
+                Plan smarter, travel together, and keep every part of your journey organised.
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-4">
                 <Button
                   variant="accent"
                   size="lg"
-                  onClick={() => handleOpenAuth('register')}
+                  onClick={() => {
+                    if (isAuthenticated) {
+                      navigate('/ai-trip-planner');
+                    } else {
+                      handleOpenAuth('register');
+                    }
+                  }}
                   rightIcon={<ArrowRight className="w-4 h-4" />}
                   className="shadow-soft"
                 >
-                  Plan a Trip Free
+                  Start Planning
                 </Button>
                 <Button
                   variant="outline"
                   size="lg"
-                  onClick={() => handleOpenAuth('login')}
+                  onClick={() => {
+                    if (isAuthenticated) {
+                      navigate('/ai-trip-planner');
+                    } else {
+                      handleOpenAuth('login');
+                    }
+                  }}
                   className="bg-forest-800/60 hover:bg-forest-800 text-ivory-100 border-forest-700 hover:border-forest-600"
                 >
-                  Sign In with Demo Account
+                  Explore AI Planner
                 </Button>
               </div>
             </div>

@@ -12,7 +12,10 @@ import {
   Receipt,
   Share2,
   Plus,
-  IndianRupee
+  IndianRupee,
+  CheckSquare,
+  Square,
+  Luggage
 } from 'lucide-react';
 import { ResponsiveContainer, PieChart as RechartsPie, Pie, Cell, Tooltip } from 'recharts';
 import Card, { CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card';
@@ -25,6 +28,14 @@ export function ProductPreview() {
   const [activeTab, setActiveTab] = useState('itinerary');
   const [activeDay, setActiveDay] = useState(1);
   const [votes, setVotes] = useState({ 1: 4, 2: 4, 3: 3, 4: 4, 5: 3, 6: 4 });
+  const [packingItems, setPackingItems] = useState([
+    { id: 'p1', text: 'Down Jacket & Thermal Layering', category: 'Clothing', packed: true, assignedTo: 'All 4 Friends' },
+    { id: 'p2', text: 'Govt Aadhaar IDs & Hotel Vouchers', category: 'Documents', packed: true, assignedTo: 'Arjun S.' },
+    { id: 'p3', text: 'Waterproof Solang Snow Boots & Wool Socks', category: 'Gear', packed: false, assignedTo: 'Rohan P.' },
+    { id: 'p4', text: 'High Altitude First-Aid & Motion Sickness Meds', category: 'Medical', packed: true, assignedTo: 'Sneha K.' },
+    { id: 'p5', text: 'GoPro, Powerbanks & Cold-Weather Batteries', category: 'Electronics', packed: true, assignedTo: 'Priya M.' },
+    { id: 'p6', text: 'Stainless Steel Insulated Warm Water Flask', category: 'Essentials', packed: false, assignedTo: 'Arjun S.' },
+  ]);
   const { toast } = useToast();
 
   const handleVote = (id) => {
@@ -152,12 +163,16 @@ export function ProductPreview() {
       {/* Dashboard Top Header Bar */}
       <div className="bg-forest-900 text-ivory-50 p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-forest-800">
         <div>
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-xs uppercase font-bold tracking-wider text-forest-200">
               Live Collaborative Board
             </span>
             <Badge variant="terracotta" size="sm">4 Friends Active</Badge>
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-forest-800/90 border border-emerald-400/30 text-[11px] font-medium text-emerald-300">
+              <Sparkles className="w-3 h-3 text-amber-300" />
+              Gemini AI Planned
+            </span>
           </div>
           <h3 className="text-2xl sm:text-3xl font-extrabold text-white font-display">
             Manali Adventure with Friends
@@ -169,10 +184,10 @@ export function ProductPreview() {
         </div>
 
         {/* Tab Selection */}
-        <div className="flex p-1.5 rounded-2xl bg-forest-950/70 border border-forest-800">
+        <div className="flex p-1.5 rounded-2xl bg-forest-950/70 border border-forest-800 overflow-x-auto">
           <button
             onClick={() => setActiveTab('itinerary')}
-            className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all ${
+            className={`px-3 sm:px-4 py-2 text-xs font-semibold rounded-xl transition-all shrink-0 ${
               activeTab === 'itinerary'
                 ? 'bg-forest-600 text-white shadow-soft-sm'
                 : 'text-forest-200 hover:text-white'
@@ -182,7 +197,7 @@ export function ProductPreview() {
           </button>
           <button
             onClick={() => setActiveTab('tally')}
-            className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all ${
+            className={`px-3 sm:px-4 py-2 text-xs font-semibold rounded-xl transition-all shrink-0 ${
               activeTab === 'tally'
                 ? 'bg-forest-600 text-white shadow-soft-sm'
                 : 'text-forest-200 hover:text-white'
@@ -192,13 +207,23 @@ export function ProductPreview() {
           </button>
           <button
             onClick={() => setActiveTab('analytics')}
-            className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all ${
+            className={`px-3 sm:px-4 py-2 text-xs font-semibold rounded-xl transition-all shrink-0 ${
               activeTab === 'analytics'
                 ? 'bg-forest-600 text-white shadow-soft-sm'
                 : 'text-forest-200 hover:text-white'
             }`}
           >
             Budget Analytics
+          </button>
+          <button
+            onClick={() => setActiveTab('packing')}
+            className={`px-3 sm:px-4 py-2 text-xs font-semibold rounded-xl transition-all shrink-0 ${
+              activeTab === 'packing'
+                ? 'bg-forest-600 text-white shadow-soft-sm'
+                : 'text-forest-200 hover:text-white'
+            }`}
+          >
+            Packing Checklist
           </button>
         </div>
       </div>
@@ -457,6 +482,79 @@ export function ProductPreview() {
               </div>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Tab 4: Smart Packing & Destination Essentials */}
+      {activeTab === 'packing' && (
+        <div className="p-6 sm:p-8 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-ivory-200">
+            <div>
+              <h4 className="text-base font-bold text-charcoal-900 font-display flex items-center gap-2">
+                <Luggage className="w-5 h-5 text-forest-600" />
+                Manali High-Altitude Packing Checklist
+              </h4>
+              <p className="text-xs text-charcoal-500 mt-0.5">
+                Collaborative checklist synced across all 4 companions. Tap any item to toggle packed status.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="forest">
+                {packingItems.filter((i) => i.packed).length} / {packingItems.length} Packed
+              </Badge>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {packingItems.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => {
+                  setPackingItems((prev) =>
+                    prev.map((i) =>
+                      i.id === item.id ? { ...i, packed: !i.packed } : i
+                    )
+                  );
+                  toast.info(
+                    item.packed ? 'Item Unchecked' : 'Item Packed',
+                    `"${item.text}" updated for the group.`
+                  );
+                }}
+                className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                  item.packed
+                    ? 'bg-emerald-50/50 border-emerald-200/80 text-charcoal-800'
+                    : 'bg-white border-ivory-300 hover:border-forest-600/40 text-charcoal-900 shadow-soft-sm'
+                }`}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${
+                    item.packed ? 'text-forest-600' : 'text-charcoal-400'
+                  }`}>
+                    {item.packed ? <CheckSquare className="w-5 h-5 text-forest-600" /> : <Square className="w-5 h-5" />}
+                  </div>
+                  <div className="min-w-0">
+                    <p className={`text-xs font-semibold truncate ${item.packed ? 'line-through text-charcoal-500' : 'text-charcoal-900'}`}>
+                      {item.text}
+                    </p>
+                    <p className="text-[10px] text-charcoal-400">
+                      Assigned to: <strong className="text-charcoal-600">{item.assignedTo}</strong>
+                    </p>
+                  </div>
+                </div>
+
+                <Badge variant={item.category === 'Medical' ? 'terracotta' : item.category === 'Documents' ? 'forest' : 'neutral'} size="sm">
+                  {item.category}
+                </Badge>
+              </div>
+            ))}
+          </div>
+
+          <div className="p-4 rounded-2xl bg-forest-50/60 border border-forest-100 flex items-center justify-between flex-wrap gap-3">
+            <span className="text-xs text-forest-800 font-medium flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-forest-600" />
+              Shared packing prevents duplicates and guarantees snow gear, IDs, and meds aren't forgotten.
+            </span>
           </div>
         </div>
       )}

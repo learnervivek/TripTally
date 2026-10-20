@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Compass, Menu, X, ArrowRight, User, Sparkles, LogOut, Settings, MapPin, Bell } from 'lucide-react';
+import { Compass, Menu, X, ArrowRight, User, Sparkles, LogOut, MapPin, Bell } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
@@ -122,13 +122,6 @@ export function Navbar() {
               >
                 FAQ
               </a>
-              <Link
-                to="/design-system"
-                className="px-3.5 py-2 rounded-xl text-sm font-medium text-charcoal-600 hover:text-forest-800 hover:bg-ivory-200/60 transition-colors flex items-center gap-1.5"
-              >
-                <span>Design System</span>
-                <Badge variant="forest" size="sm">UI</Badge>
-              </Link>
             </nav>
 
             {/* Desktop Action Buttons */}
@@ -206,16 +199,6 @@ export function Navbar() {
                         >
                           <User className="w-4 h-4 text-forest-600" />
                           <span>Profile & Settings</span>
-                        </Link>
-
-                        <Link
-                          to="/design-system"
-                          role="menuitem"
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-charcoal-700 hover:bg-ivory-100 hover:text-forest-800 transition-colors"
-                        >
-                          <Settings className="w-4 h-4 text-charcoal-400" />
-                          <span>Design System Tokens</span>
                         </Link>
                       </div>
 
@@ -333,14 +316,6 @@ export function Navbar() {
               >
                 FAQ
               </a>
-              <Link
-                to="/design-system"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-charcoal-700 hover:bg-ivory-100 flex items-center justify-between"
-              >
-                <span>Design System Showcase</span>
-                <Badge variant="forest" size="sm">Tokens</Badge>
-              </Link>
             </div>
 
             <div className="pt-3 border-t border-ivory-200 flex flex-col gap-2">

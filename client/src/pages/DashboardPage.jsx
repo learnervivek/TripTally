@@ -463,7 +463,7 @@ export function DashboardPage() {
 
                 <div className="text-right shrink-0">
                   <span className="text-xs font-mono font-bold text-charcoal-900 block">
-                    {formatCurrency(exp.amount)}
+                    {formatCurrency((exp.amount || 0) / 100, exp.trip?.currency || 'INR')}
                   </span>
                   <span className="text-[10px] text-charcoal-400">
                     {new Date(exp.date || exp.createdAt).toLocaleDateString()}

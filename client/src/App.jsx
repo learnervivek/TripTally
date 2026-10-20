@@ -2,7 +2,6 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
-import DesignSystemPage from './pages/DesignSystemPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
@@ -28,7 +27,6 @@ export function App() {
           {/* Public Website Shell */}
           <Route path="/" element={<Layout />}>
             <Route index element={<HomePage />} />
-            <Route path="design-system" element={<DesignSystemPage />} />
             <Route path="login" element={<LoginPage />} />
             <Route path="register" element={<RegisterPage />} />
             <Route path="forgot-password" element={<ForgotPasswordPage />} />
