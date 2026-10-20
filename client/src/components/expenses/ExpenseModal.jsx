@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   X,
-  DollarSign,
+  IndianRupee,
   Calendar,
   Tag,
   User,
@@ -315,7 +315,7 @@ export function ExpenseModal({
               <label className="font-bold text-charcoal-700">Total Amount ({currency}) *</label>
               <div className="relative">
                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono font-bold text-charcoal-400">
-                  {currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency === 'INR' ? '₹' : currency}
+                  ₹
                 </span>
                 <input
                   type="number"
@@ -471,7 +471,7 @@ export function ExpenseModal({
                     <div key={m._id} className="flex items-center justify-between gap-3 bg-white p-2 rounded-xl border border-ivory-300">
                       <span className="text-xs font-medium text-charcoal-900 truncate">{m.name}</span>
                       <div className="relative w-28 shrink-0">
-                        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-mono text-charcoal-400 text-xs">$</span>
+                        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 font-mono text-charcoal-400 text-xs">₹</span>
                         <input
                           type="number"
                           step="0.01"

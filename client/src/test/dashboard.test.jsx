@@ -110,7 +110,7 @@ describe('Dashboard Component & Analytics UI Tests', () => {
 
     await waitFor(() => {
       // Check summary card metrics
-      expect(screen.getByText('$4,500')).toBeInTheDocument();
+      expect(screen.getByText(/₹\s*4,500/)).toBeInTheDocument();
       expect(screen.getByText('Amalfi Coast Villa & Sailing')).toBeInTheDocument();
       expect(screen.getByText('Villa Deposit')).toBeInTheDocument();
     });

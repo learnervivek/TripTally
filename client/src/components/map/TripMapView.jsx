@@ -6,7 +6,6 @@ import {
   Navigation,
   Calendar,
   Clock,
-  DollarSign,
   Maximize2,
   RotateCcw,
   Layers,

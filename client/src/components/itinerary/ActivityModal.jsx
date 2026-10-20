@@ -7,7 +7,6 @@ import {
   Calendar,
   Clock,
   MapPin,
-  DollarSign,
   FileText,
   Utensils,
   Camera,
@@ -307,7 +306,7 @@ export function ActivityModal({
             min="0"
             step="any"
             placeholder="0.00"
-            leftIcon={(trip?.currency || 'INR') === 'INR' ? <IndianRupee className="w-4 h-4" /> : <DollarSign className="w-4 h-4" />}
+            leftIcon={<IndianRupee className="w-4 h-4" />}
             error={errors.estimatedCost?.message}
             {...register('estimatedCost')}
           />

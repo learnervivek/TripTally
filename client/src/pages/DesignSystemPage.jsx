@@ -13,7 +13,6 @@ import {
   Calendar,
   MapPin,
   Users,
-  DollarSign,
   Globe,
   Sliders,
   BellRing,
@@ -370,8 +369,8 @@ export function DesignSystemPage() {
                     Jul 14 - Jul 22
                   </span>
                   <span className="flex items-center gap-1.5 font-semibold text-charcoal-800">
-                    <DollarSign className="w-3.5 h-3.5 text-terracotta-500" />
-                    $3,420 Tallied
+                    <IndianRupee className="w-3.5 h-3.5 text-terracotta-500" />
+                    ₹2,80,000 Tallied
                   </span>
                 </div>
                 <p className="text-xs text-charcoal-500 leading-relaxed">
@@ -389,7 +388,7 @@ export function DesignSystemPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <Badge variant="dark" size="sm">Tally Summary</Badge>
-                  <DollarSign className="w-4 h-4 text-terracotta-400" />
+                  <IndianRupee className="w-4 h-4 text-terracotta-400" />
                 </div>
                 <CardTitle className="text-ivory-50 text-xl mt-3 font-display">
                   Group Expense Pool
@@ -401,7 +400,7 @@ export function DesignSystemPage() {
               <CardContent className="space-y-4">
                 <div className="p-4 rounded-xl bg-forest-950/60 border border-forest-800">
                   <span className="text-xs text-forest-300">Total Group Spend</span>
-                  <p className="text-2xl font-bold text-ivory-50 mt-1 font-mono">$8,740.00</p>
+                  <p className="text-2xl font-bold text-ivory-50 mt-1 font-mono">₹4,20,000</p>
                 </div>
                 <p className="text-xs text-forest-200/70">
                   Optimized settlements reduced 18 payments down to just 4 simple direct transfers.
@@ -418,21 +417,21 @@ export function DesignSystemPage() {
               <CardHeader>
                 <Badge variant="terracotta" size="sm" withDot>Pending Review</Badge>
                 <CardTitle className="text-charcoal-900 mt-2 font-display">
-                  Kyoto Autumn Tour
+                  Manali Autumn Tour
                 </CardTitle>
                 <CardDescription>
-                  Higashiyama District & Arashiyama
+                  Solang Valley & Rohtang Pass
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs">
-                    <span className="text-charcoal-500">Ryokan Deposit</span>
-                    <span className="font-semibold text-charcoal-800">$640.00</span>
+                    <span className="text-charcoal-500">Resort Deposit</span>
+                    <span className="font-semibold text-charcoal-800">₹35,000</span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span className="text-charcoal-500">Bullet Train Passes</span>
-                    <span className="font-semibold text-charcoal-800">$480.00</span>
+                    <span className="text-charcoal-500">Volvo Bus Passes</span>
+                    <span className="font-semibold text-charcoal-800">₹12,500</span>
                   </div>
                 </div>
               </CardContent>
@@ -486,7 +485,7 @@ export function DesignSystemPage() {
           <Button
             variant="secondary"
             size="md"
-            onClick={() => toast.success('Expense Added', 'Dinner in Trastevere ($140.00) split equally among 4 friends.')}
+            onClick={() => toast.success('Expense Added', 'Dinner in Old Delhi (₹4,800) split equally among 4 friends.')}
           >
             Trigger Success Toast
           </Button>
@@ -502,7 +501,7 @@ export function DesignSystemPage() {
           <Button
             variant="secondary"
             size="md"
-            onClick={() => toast.warning('Unbalanced Split', 'Total split sum does not match receipt total ($24.50 difference).')}
+            onClick={() => toast.warning('Unbalanced Split', 'Total split sum does not match receipt total (₹450 difference).')}
           >
             Trigger Warning Toast
           </Button>
@@ -539,7 +538,7 @@ export function DesignSystemPage() {
           />
 
           <EmptyState
-            icon={DollarSign}
+            icon={IndianRupee}
             title="No expenses logged yet"
             description="Add flights, airbnb, or car rental receipts to calculate equal group tallies."
             actionLabel="Add Expense"

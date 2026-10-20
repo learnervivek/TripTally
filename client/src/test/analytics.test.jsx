@@ -217,15 +217,15 @@ describe('BudgetAnalytics Component UI Tests', () => {
 
     // Check Total Budget card
     expect(screen.getByText('Total Budget')).toBeInTheDocument();
-    expect(screen.getByText('$4,000.00')).toBeInTheDocument();
+    expect(screen.getAllByText(/₹\s*4,000/).length).toBeGreaterThanOrEqual(1);
 
     // Check Total Spent card (appears in KPI and Donut center)
     expect(screen.getAllByText('Total Spent').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText('$2,600.00').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/₹\s*2,600/).length).toBeGreaterThanOrEqual(1);
 
     // Check Remaining Budget card
     expect(screen.getByText('Remaining Budget')).toBeInTheDocument();
-    expect(screen.getByText('$1,400.00')).toBeInTheDocument();
+    expect(screen.getByText(/₹\s*1,400/)).toBeInTheDocument();
 
     // Check Budget Used %
     expect(screen.getByText('65%')).toBeInTheDocument();

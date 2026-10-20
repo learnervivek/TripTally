@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
   Calendar,
   Clock,
-  DollarSign,
+  IndianRupee,
   Plus,
   ChevronLeft,
   ChevronRight,
@@ -425,8 +425,8 @@ export function ItineraryPlanner({
               </span>
             )}
             <span className="flex items-center gap-1 font-mono font-bold text-forest-800">
-              <DollarSign className="w-3.5 h-3.5 text-forest-600" />
-              ${dailyStats.totalCost.toLocaleString()} est.
+              <IndianRupee className="w-3.5 h-3.5 text-forest-600" />
+              {formatCurrency(dailyStats.totalCost)} est.
             </span>
           </div>
         </div>

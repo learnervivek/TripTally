@@ -138,16 +138,16 @@ describe('ExpenseManager Component UI Tests', () => {
 
     // Wait for data load
     await waitFor(() => {
-      expect(screen.getByText('$1700.00')).toBeInTheDocument(); // total spent
+      expect(screen.getByText(/₹\s*1,700/)).toBeInTheDocument(); // total spent
     });
 
     // Check user net balance
-    expect(screen.getAllByText('+$650.00')[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/\+₹\s*650/)[0]).toBeInTheDocument();
     expect(screen.getByText(/Companions owe you money/i)).toBeInTheDocument();
 
     // Check suggested settlement
     expect(screen.getAllByText('Luca Romano')[0]).toBeInTheDocument();
-    expect(screen.getByText('$650.00')).toBeInTheDocument();
+    expect(screen.getAllByText(/₹\s*650/).length).toBeGreaterThanOrEqual(1);
   });
 
   it('displays expense items with category badges and payer info', async () => {

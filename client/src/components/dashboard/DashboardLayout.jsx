@@ -16,7 +16,6 @@ import {
   Settings,
   Sparkles,
   CheckCircle2,
-  DollarSign,
   Calendar,
   AlertCircle,
   Check

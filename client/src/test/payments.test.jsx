@@ -211,7 +211,7 @@ describe('Razorpay Online Payments & Settlement UI Integration Tests', () => {
       expect(screen.getByText('Test Mode')).toBeInTheDocument();
     });
 
-    const submitBtn = screen.getByRole('button', { name: /Pay with Razorpay \(\$50\.00\)/i });
+    const submitBtn = screen.getByRole('button', { name: /Pay with Razorpay \(₹50\.00\)/i });
     fireEvent.click(submitBtn);
 
     await waitFor(() => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  DollarSign,
+  IndianRupee,
   Plus,
   Receipt,
   Handshake,
@@ -29,6 +29,7 @@ import SettlementModal from './SettlementModal';
 import tripService from '../../services/tripService';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
+import { formatCurrency } from '../../lib/utils';
 
 const CATEGORY_MAP = {
   lodging: { label: 'Lodging', color: 'bg-amber-100 text-amber-800 border-amber-300' },
@@ -239,10 +240,10 @@ export function ExpenseManager({ trip, members = [], canEdit = false }) {
             <span className="text-xs font-semibold text-charcoal-500">Total Spent</span>
             <div className="flex items-baseline justify-between">
               <span className="text-2xl font-bold text-forest-800 font-mono">
-                ${totalSpentMajor}
+                {formatCurrency(totalSpentMajor)}
               </span>
               <span className="text-xs text-charcoal-500 font-mono">
-                Budget: ${targetBudget.toLocaleString()}
+                Budget: {formatCurrency(targetBudget)}
               </span>
             </div>
             {targetBudget > 0 && (
@@ -261,7 +262,7 @@ export function ExpenseManager({ trip, members = [], canEdit = false }) {
           <div className="p-4 rounded-2xl bg-ivory-100/80 border border-ivory-200 space-y-1">
             <span className="text-xs font-semibold text-charcoal-500">Total Settled Up</span>
             <p className="text-2xl font-bold text-charcoal-900 font-mono">
-              ${totalSettledMajor}
+              {formatCurrency(totalSettledMajor)}
             </p>
             <p className="text-[11px] text-charcoal-500">
               {settlements.length} {settlements.length === 1 ? 'settlement recorded' : 'settlements recorded'}
@@ -283,10 +284,10 @@ export function ExpenseManager({ trip, members = [], canEdit = false }) {
                   }`}
                 >
                   {currentUserLedger.netBalance > 0
-                    ? `+$${(currentUserLedger.netBalance / 100).toFixed(2)}`
+                    ? `+${formatCurrency(currentUserLedger.netBalance / 100)}`
                     : currentUserLedger.netBalance < 0
-                    ? `-$${(Math.abs(currentUserLedger.netBalance) / 100).toFixed(2)}`
-                    : '$0.00'}
+                    ? `-${formatCurrency(Math.abs(currentUserLedger.netBalance) / 100)}`
+                    : '₹0'}
                 </p>
                 <p className="text-[11px] text-charcoal-500 font-medium">
                   {currentUserLedger.netBalance > 0
@@ -297,7 +298,7 @@ export function ExpenseManager({ trip, members = [], canEdit = false }) {
                 </p>
               </div>
             ) : (
-              <p className="text-sm font-bold text-charcoal-600">$0.00</p>
+              <p className="text-sm font-bold text-charcoal-600">₹0</p>
             )}
           </div>
         </div>
@@ -339,7 +340,7 @@ export function ExpenseManager({ trip, members = [], canEdit = false }) {
                           {ledger.user.name} {currentUser?._id === ledger.user._id && <span className="text-forest-700 font-semibold">(You)</span>}
                         </p>
                         <p className="text-[11px] text-charcoal-400">
-                          Paid: ${(ledger.totalPaid / 100).toFixed(2)} • Share: ${(ledger.totalShare / 100).toFixed(2)}
+                          Paid: {formatCurrency(ledger.totalPaid / 100)} • Share: {formatCurrency(ledger.totalShare / 100)}
                         </p>
                       </div>
                     </div>
@@ -354,7 +355,7 @@ export function ExpenseManager({ trip, members = [], canEdit = false }) {
                             : 'text-charcoal-500'
                         }`}
                       >
-                        {isPositive ? `+` : isNegative ? `-` : ''}${Math.abs(net / 100).toFixed(2)}
+                        {isPositive ? `+` : isNegative ? `-` : ''}{formatCurrency(Math.abs(net / 100))}
                       </span>
                       <p className="text-[10px] text-charcoal-400 font-medium capitalize">
                         {isPositive ? 'Receives' : isNegative ? 'Owes' : 'Settled'}
@@ -396,7 +397,7 @@ export function ExpenseManager({ trip, members = [], canEdit = false }) {
                         <span className="truncate">{s.to.name}</span>
                       </div>
                       <span className="font-mono font-bold text-terracotta-600 text-xs">
-                        ${(s.amount / 100).toFixed(2)}
+                        {formatCurrency(s.amount / 100)}
                       </span>
                     </div>
 
@@ -599,7 +600,7 @@ export function ExpenseManager({ trip, members = [], canEdit = false }) {
                         )}
 
                         <span className="font-mono font-bold text-base text-charcoal-900">
-                          ${(exp.amount / 100).toFixed(2)}
+                          {formatCurrency(exp.amount / 100)}
                         </span>
 
                         {canModify && (
@@ -719,7 +720,7 @@ export function ExpenseManager({ trip, members = [], canEdit = false }) {
 
                         <div className="flex items-center gap-3 shrink-0">
                           <span className={`font-mono font-bold text-sm ${isPending ? 'text-charcoal-600' : 'text-emerald-700'}`}>
-                            ${(set.amount / 100).toFixed(2)}
+                            {formatCurrency(set.amount / 100)}
                           </span>
 
                           {isPending && isPayer && (
@@ -796,7 +797,7 @@ export function ExpenseManager({ trip, members = [], canEdit = false }) {
 
                         <div className="text-right shrink-0">
                           <p className="font-mono font-bold text-sm text-charcoal-900">
-                            ${(p.amount / 100).toFixed(2)} {p.currency}
+                            {formatCurrency(p.amount / 100)}
                           </p>
                           <span className="text-[10px] text-charcoal-400">
                             {new Date(p.createdAt).toLocaleString()}

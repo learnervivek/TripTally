@@ -7,7 +7,6 @@ import {
   Sparkles,
   MapPin,
   Clock,
-  DollarSign,
   Edit2,
   Trash2,
   ChevronUp,

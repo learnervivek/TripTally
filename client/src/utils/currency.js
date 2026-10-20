@@ -12,9 +12,10 @@
  */
 export const formatINR = (amount, options = {}) => {
   const numericAmount = Number(amount) || 0;
+  const hasDecimals = numericAmount % 1 !== 0;
   const {
-    maximumFractionDigits = 0, // In travel budgets/estimates, round rupees look cleaner unless cents/paise are explicitly needed
-    minimumFractionDigits = 0,
+    maximumFractionDigits = options.maximumFractionDigits ?? (hasDecimals ? 2 : 0),
+    minimumFractionDigits = options.minimumFractionDigits ?? (hasDecimals ? 2 : 0),
     showSymbol = true,
   } = options;
 
@@ -51,23 +52,8 @@ export const formatPaiseToINR = (paise, options = {}) => {
 };
 
 /**
- * Universal currency formatter defaulting to INR with en-IN locale
+ * Universal currency formatter standardized to Indian Rupees (₹) across the platform
  */
 export const formatCurrency = (amount, currency = 'INR', options = {}) => {
-  const numericAmount = Number(amount) || 0;
-  const curr = (currency || 'INR').toUpperCase();
-  const locale = curr === 'INR' ? 'en-IN' : undefined;
-
-  try {
-    return new Intl.NumberFormat(locale, {
-      style: 'currency',
-      currency: curr,
-      maximumFractionDigits: options.maximumFractionDigits ?? (curr === 'INR' ? 0 : 2),
-      minimumFractionDigits: options.minimumFractionDigits ?? (curr === 'INR' ? 0 : 2),
-    }).format(numericAmount);
-  } catch {
-    return curr === 'INR' 
-      ? `₹${numericAmount.toLocaleString('en-IN')}` 
-      : `${numericAmount.toLocaleString()} ${curr}`;
-  }
+  return formatINR(amount, options);
 };

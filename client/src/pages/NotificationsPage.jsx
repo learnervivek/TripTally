@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Bell,
   CheckCircle2,
-  DollarSign,
+  IndianRupee,
   Calendar,
   Mail,
   Trash2,
@@ -66,7 +66,7 @@ function getNotificationMeta(type) {
     case 'expense_updated':
     case 'expense_deleted':
       return {
-        icon: DollarSign,
+        icon: IndianRupee,
         color: 'text-emerald-600 bg-emerald-50 border-emerald-200',
         badge: 'Expense',
         badgeVariant: 'success'

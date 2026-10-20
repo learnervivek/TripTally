@@ -6,7 +6,6 @@ import {
   Calendar,
   MapPin,
   Users,
-  DollarSign,
   Copy,
   Check,
   Share2,

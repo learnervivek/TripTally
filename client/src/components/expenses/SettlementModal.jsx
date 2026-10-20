@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Handshake, ArrowRight, DollarSign, Calendar, CreditCard, ShieldCheck, AlertCircle, Sparkles } from 'lucide-react';
+import { X, Handshake, ArrowRight, IndianRupee, Calendar, CreditCard, ShieldCheck, AlertCircle, Sparkles } from 'lucide-react';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 import tripService from '../../services/tripService';
@@ -211,7 +211,7 @@ export function SettlementModal({
         });
 
         if (res.success) {
-          toast.success('Settlement Recorded', `Payment of $${amountInput} has been logged.`);
+          toast.success('Settlement Recorded', `Payment of ₹${amountInput} has been logged.`);
           onSaved?.(res.settlement);
           onClose();
         }
@@ -296,7 +296,7 @@ export function SettlementModal({
             <label className="font-bold text-charcoal-700">Settlement Amount ({currency}) *</label>
             <div className="relative">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono font-bold text-charcoal-400">
-                {currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency === 'INR' ? '₹' : currency}
+                ₹
               </span>
               <input
                 type="number"
@@ -386,7 +386,7 @@ export function SettlementModal({
               disabled={paymentMethod === 'razorpay' && !paymentConfig.enabled}
             >
               {paymentMethod === 'razorpay'
-                ? `Pay with Razorpay ($${amountInput || '0.00'})`
+                ? `Pay with Razorpay (₹${amountInput || '0.00'})`
                 : 'Confirm Settlement'}
             </Button>
           </div>

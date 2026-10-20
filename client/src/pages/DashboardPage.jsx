@@ -5,7 +5,7 @@ import {
   Compass,
   MapPin,
   Users,
-  DollarSign,
+  IndianRupee,
   Receipt,
   Plus,
   ArrowRight,
@@ -221,11 +221,11 @@ export function DashboardPage() {
             <div className="flex items-center justify-between text-charcoal-500 mb-2">
               <span className="text-xs font-semibold uppercase tracking-wider">Planned Budget</span>
               <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
-                <DollarSign className="w-4 h-4" />
+                <IndianRupee className="w-4 h-4" />
               </div>
             </div>
             <p className="text-2xl sm:text-3xl font-extrabold text-forest-800 font-display font-mono">
-              ${summary.totalBudget.toLocaleString()}
+              {formatCurrency(summary.totalBudget)}
             </p>
             <p className="text-[11px] text-charcoal-400 mt-1">
               Combined group targets
@@ -449,7 +449,7 @@ export function DashboardPage() {
               <div key={exp._id} className="p-4 flex items-center justify-between gap-4 hover:bg-ivory-50/50 transition-colors">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-9 h-9 rounded-xl bg-forest-50 text-forest-700 flex items-center justify-center shrink-0 border border-forest-100">
-                    <DollarSign className="w-4 h-4" />
+                    <IndianRupee className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-charcoal-900 truncate">
@@ -463,7 +463,7 @@ export function DashboardPage() {
 
                 <div className="text-right shrink-0">
                   <span className="text-xs font-mono font-bold text-charcoal-900 block">
-                    ${exp.amount.toFixed(2)} {exp.currency}
+                    {formatCurrency(exp.amount)}
                   </span>
                   <span className="text-[10px] text-charcoal-400">
                     {new Date(exp.date || exp.createdAt).toLocaleDateString()}
