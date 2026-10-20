@@ -4,8 +4,9 @@
  * Ensures consistent JSON error responses without leaking sensitive stack traces in production.
  */
 export function errorHandler(err, req, res, next) {
-  let statusCode = err.statusCode || (res.statusCode === 200 ? 500 : res.statusCode);
+  let statusCode = err.statusCode || err.status || (res.statusCode === 200 ? 500 : res.statusCode);
   let message = err.message || 'Internal Server Error';
+
   let errors = err.errors || undefined;
 
   // 1. Mongoose Bad ObjectId / CastError (e.g. invalid tripId or itemId)

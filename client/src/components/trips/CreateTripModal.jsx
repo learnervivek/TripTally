@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -57,9 +59,11 @@ const coverPresets = [
 ];
 
 export function CreateTripModal({ isOpen, onClose, onTripCreated }) {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [selectedCover, setSelectedCover] = useState(coverPresets[0].url);
   const { toast } = useToast();
+
 
   const {
     register,
@@ -117,8 +121,36 @@ export function CreateTripModal({ isOpen, onClose, onTripCreated }) {
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         
+        {/* Gemini AI Trip Planner Banner */}
+        <div className="p-3.5 rounded-xl bg-gradient-to-r from-forest-50 via-forest-100/60 to-ivory-100 border border-forest-300/70 flex items-center justify-between gap-3 shadow-soft-sm">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-forest-600 text-white flex items-center justify-center shrink-0 shadow-soft-sm">
+              <Sparkles className="w-4 h-4 text-terracotta-300 animate-spin-slow" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-forest-900">
+                Want a personalized day-by-day plan in seconds?
+              </p>
+              <p className="text-[11px] text-forest-700">
+                Let Gemini AI calculate schedules, activity times, and INR budget splits automatically.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              navigate('/ai-trip-planner');
+            }}
+            className="text-xs font-semibold text-forest-800 hover:text-forest-900 bg-white hover:bg-forest-50 px-3 py-1.5 rounded-lg border border-forest-300 shrink-0 shadow-soft-sm transition-all"
+          >
+            Try AI Planner →
+          </button>
+        </div>
+
         <Input
           label="Trip Title"
+
           placeholder="e.g. Manali Adventure with Friends"
           error={errors.title?.message}
           {...register('title')}

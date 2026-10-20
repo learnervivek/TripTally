@@ -86,10 +86,12 @@ export function DashboardLayout({ children }) {
   const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'My Trips', href: '/trips', icon: MapPin },
+    { name: 'AI Trip Planner', href: '/ai-trip-planner', icon: Sparkles, badge: 'AI' },
     { name: 'Invitations', href: '/invitations', icon: Mail, badge: invitationCount > 0 ? String(invitationCount) : null },
     { name: 'Notifications', href: '/notifications', icon: Bell, badge: unreadNotifCount > 0 ? String(unreadNotifCount) : null },
     { name: 'Profile', href: '/profile', icon: User },
   ];
+
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();

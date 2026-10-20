@@ -10,6 +10,7 @@ import tripRoutes from './routes/tripRoutes.js';
 import invitationRoutes from './routes/invitationRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import { paymentPublicRouter } from './routes/paymentRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
 
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 import { requestLogger } from './middleware/requestLogger.js';
@@ -109,6 +110,8 @@ app.use('/api/trips', tripRoutes);
 app.use('/api/invitations', invitationRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/payments', paymentPublicRouter);
+app.use('/api/ai', aiRoutes);
+
 
 // Error Handling Middleware
 app.use(notFound);

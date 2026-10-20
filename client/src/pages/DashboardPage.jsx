@@ -139,15 +139,25 @@ export function DashboardPage() {
           >
             Refresh
           </Button>
+          <Link to="/ai-trip-planner">
+            <Button
+              variant="accent"
+              size="sm"
+              leftIcon={<Sparkles className="w-3.5 h-3.5" />}
+            >
+              Plan with AI
+            </Button>
+          </Link>
           <Button
             variant="primary"
             size="sm"
             onClick={triggerCreateTrip}
             leftIcon={<Plus className="w-4 h-4" />}
           >
-            Plan New Trip
+            New Trip
           </Button>
         </div>
+
       </div>
 
       {/* 2. Error Recovery State */}

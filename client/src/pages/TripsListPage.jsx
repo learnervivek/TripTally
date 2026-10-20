@@ -11,8 +11,10 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
-  Archive
+  Archive,
+  Sparkles
 } from 'lucide-react';
+
 import Button from '../components/ui/Button';
 import Card, { CardContent, CardFooter } from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
@@ -96,15 +98,26 @@ export function TripsListPage() {
           </p>
         </div>
 
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={() => outletContext?.openCreateTrip?.()}
-          leftIcon={<Plus className="w-4 h-4" />}
-        >
-          Create New Trip
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="accent"
+            size="sm"
+            onClick={() => navigate('/ai-trip-planner')}
+            leftIcon={<Sparkles className="w-4 h-4" />}
+          >
+            Plan with AI
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => outletContext?.openCreateTrip?.()}
+            leftIcon={<Plus className="w-4 h-4" />}
+          >
+            Create New Trip
+          </Button>
+        </div>
       </div>
+
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">

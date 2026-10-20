@@ -15,7 +15,9 @@ import TripsListPage from './pages/TripsListPage';
 import TripDetailsPage from './pages/TripDetailsPage';
 import InvitationsPage from './pages/InvitationsPage';
 import NotificationsPage from './pages/NotificationsPage';
+import AiTripPlannerPage from './pages/AiTripPlannerPage';
 import ToastProvider from './context/ToastContext';
+
 import { AuthProvider } from './context/AuthContext';
 
 export function App() {
@@ -44,9 +46,11 @@ export function App() {
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="trips" element={<TripsListPage />} />
             <Route path="trips/:id" element={<TripDetailsPage />} />
+            <Route path="ai-trip-planner" element={<AiTripPlannerPage />} />
             <Route path="invitations" element={<InvitationsPage />} />
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="profile" element={<ProfilePage />} />
+
           </Route>
 
           {/* Fallback */}

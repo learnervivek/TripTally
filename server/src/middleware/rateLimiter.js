@@ -85,8 +85,17 @@ export const authRateLimiter = createRateLimiter({
   message: 'Too many authentication attempts. Please wait 15 minutes before trying again.',
 });
 
+// Dedicated Rate Limiter for Gemini AI Itinerary Generation (20 calls per 15 min per IP)
+export const aiRateLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: 'Too many AI itinerary generation requests. Please wait a few minutes before trying again.',
+});
+
 export default {
   createRateLimiter,
   apiRateLimiter,
   authRateLimiter,
+  aiRateLimiter,
 };
+

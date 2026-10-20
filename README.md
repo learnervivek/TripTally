@@ -1,6 +1,7 @@
 # TripTally — Collaborative Group Travel Planning & Expense Management
 
-[![Tests](https://img.shields.io/badge/tests-164%20passed%20(100%25)-1B4332.svg)](https://github.com)
+[![Tests](https://img.shields.io/badge/tests-185%20passed%20(100%25)-1B4332.svg)](https://github.com)
+
 [![License](https://img.shields.io/badge/license-MIT-E07A5F.svg)](LICENSE)
 [![React](https://img.shields.io/badge/frontend-React%2018%20%2B%20Vite%206-61DAFB.svg)](https://vitejs.dev)
 [![Node](https://img.shields.io/badge/backend-Express%20%2B%20Node.js-339933.svg)](https://nodejs.org)
@@ -133,7 +134,17 @@ flowchart TB
 - `@media (prefers-reduced-motion: reduce)` support.
 - Fully responsive across Desktop (1440px), Tablet (768px), and Mobile (390px).
 
+### 11. Google Gemini AI Itinerary Generator (`/ai-trip-planner`)
+- **Official Google GenAI SDK**: Powered by `@google/genai` utilizing modern `gemini-2.5-flash` for structured JSON output.
+- **Tailored for Indian Travellers**: Supports domestic circuits (Manali, Goa, Jaipur, Udaipur, Kashmir, Ladakh, Kerala, Rishikesh, Varanasi, Meghalaya, etc.) and international travel.
+- **Realistic INR Budget Splits**: Allocates transport, stays, food, activities, and miscellaneous costs in Indian Rupees (`₹`) for groups or per person.
+- **Geographic & Chronological Sequencing**: Sequences start and end times logically by neighborhood to eliminate wasted transit hours.
+- **Dynamic Customization**: Interactive day tabs, inline activity editor, single-day regeneration, Recharts donut budget charts, and interactive packing checklists.
+- **1-Click Persistence**: Saves plans directly to MongoDB as collaborative `Trip`, `ItineraryItem`, and `PackingItem` documents with duplicate submission protection.
+- **Production Resilience**: Server-only API key isolation, rate limiting (20 req/15 min), 50-second timeouts, and comprehensive error mapping (quotas, rate limits, timeouts).
+
 ---
+
 
 ## 🛠️ Tech Stack & Dependencies
 
@@ -223,6 +234,9 @@ npm run dev
 | `SMTP_USER` | Optional | `username` | SMTP username |
 | `SMTP_PASS` | Optional | `password` | SMTP password |
 | `EMAIL_FROM` | Optional | `"TripTally" <noreply@...>` | Outgoing sender header |
+| `GEMINI_API_KEY` | Optional | `AIzaSy...` | Google Gemini API Key ([Get free at Google AI Studio](https://aistudio.google.com)) |
+| `GEMINI_MODEL` | Optional | `gemini-2.5-flash` | Gemini model identifier (e.g. `gemini-2.5-flash`, `gemini-1.5-flash`) |
+
 
 ### Client Environment Variables (`client/.env`)
 
@@ -276,6 +290,13 @@ All protected endpoints require an authenticated HTTP-only `token` cookie or `Au
 | `POST` | `/api/trips/:tripId/expenses/upload-receipt` | Editor+ | Upload receipt image/PDF (max 5MB) |
 | `POST` | `/api/trips/:tripId/settlements` | Editor+ | Record debt settlement |
 
+### Gemini AI Itinerary Planner (`/api/ai`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :---: | :--- |
+| `POST` | `/api/ai/itinerary/generate` | Private (Rate limited) | Generate structured day-by-day plan with Google Gemini AI |
+| `POST` | `/api/ai/itinerary/regenerate-day` | Private (Rate limited) | Regenerate an individual day's activities with fresh recommendations |
+| `POST` | `/api/ai/itinerary/save` | Private | Save AI plan directly into MongoDB as Trip, ItineraryItems, and PackingItems |
+
 ### Budget Analytics & Checklist
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :---: | :--- |
@@ -290,7 +311,7 @@ All protected endpoints require an authenticated HTTP-only `token` cookie or `Au
 
 ## 🧪 Testing Suite & Quality Assurance
 
-TripTally includes comprehensive automated test suites covering UI workflows, backend API integration, deterministic mathematical models, rate limiting, and permission matrices.
+TripTally includes comprehensive automated test suites covering UI workflows, backend API integration, deterministic mathematical models, rate limiting, and permission matrices. Automated tests run with 100% mocked AI responses—never incurring Google AI Studio charges.
 
 ```bash
 # Run all tests (Server + Client)
@@ -308,7 +329,8 @@ npm run build:client
 
 ### Test Coverage Results
 
-- **Backend API Integration Tests**: **12 passed (12 files), 118 passed (118 tests)**
+- **Backend API Integration Tests**: **13 passed (13 files), 133 passed (133 tests)**
+  - `server/src/test/aiItinerary.test.js` (Gemini API generation, input validations, quota/timeout handling, save to MongoDB, duplicate prevention)
   - `server/src/test/securityAndEdgeCases.test.js` (Expired tokens, forged signatures, RBAC denials, rate limiting, log sanitization)
   - `server/src/test/paymentApi.test.js` (Razorpay orders, HMAC signatures, webhooks, idempotency)
   - `server/src/test/expenseCalculation.test.js` (Deterministic minor currency units, custom splits, debt simplification)
@@ -321,7 +343,8 @@ npm run build:client
   - `server/src/test/auth.test.js` (Registration, login, password reset tokens, cookie security)
   - `server/src/test/health.test.js` (API health check and 404 responses)
   - `server/src/test/analyticsApi.test.js` (Aggregation pipelines, threshold limits)
-- **Frontend Component & Workflow Tests**: **10 passed (10 files), 46 passed (46 tests)**
+- **Frontend Component & Workflow Tests**: **11 passed (11 files), 52 passed (52 tests)**
+  - `client/src/test/aiTripPlanner.test.jsx` (AI planner form inputs, Gemini generation, packing checklist toggles, saving to My Trips, error states)
   - `client/src/test/tripWorkflow.test.jsx` (`CreateTripModal`, date range validation, `InviteMemberModal`)
   - `client/src/test/payments.test.jsx` (Razorpay checkout modal, disabled fallbacks, transaction history)
   - `client/src/test/notifications.test.jsx` (Filter tabs, mark all read, reminder preferences)
@@ -332,7 +355,8 @@ npm run build:client
   - `client/src/test/map.test.jsx` (Leaflet container mounting, geocoding coordinates)
   - `client/src/test/packingAndActivity.test.jsx` (Checklist assignments, progress bars, activity logs)
   - `client/src/test/components.test.jsx` (Button variants, Dialogs, Badges, Skeletons)
-- **Overall Total**: **164 / 164 Tests Passing (100% Green)**.
+- **Overall Total**: **185 / 185 Tests Passing (100% Green)**.
+
 
 ---
 
