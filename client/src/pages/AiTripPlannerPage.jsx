@@ -445,8 +445,9 @@ export function AiTripPlannerPage() {
   }, [generatedItinerary]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
+    <div className="space-y-8 animate-fadeIn">
       {/* Top Banner / Breadcrumb */}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-ivory-300">
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-forest-700">
@@ -528,18 +529,37 @@ export function AiTripPlannerPage() {
                     className={`p-4 rounded-xl border flex items-start gap-3 ${
                       errorState.isQuota
                         ? 'bg-amber-50 border-amber-300 text-amber-900'
+                        : errorState.message?.includes('GEMINI_API_KEY') || errorState.message?.includes('key is not configured')
+                        ? 'bg-blue-50 border-blue-300 text-blue-900'
                         : 'bg-rose-50 border-rose-300 text-rose-900'
                     }`}
                   >
                     <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-current" />
-                    <div className="text-xs space-y-1">
-                      <p className="font-semibold">
-                        {errorState.isQuota ? 'Gemini API Limit' : 'Generation Notice'}
+                    <div className="text-xs space-y-1.5 flex-1">
+                      <p className="font-semibold text-sm">
+                        {errorState.isQuota
+                          ? 'Gemini API Limit'
+                          : errorState.message?.includes('GEMINI_API_KEY') || errorState.message?.includes('key is not configured')
+                          ? 'Gemini API Key Required'
+                          : 'Generation Notice'}
                       </p>
-                      <p>{errorState.message}</p>
+                      <p className="leading-relaxed">{errorState.message}</p>
+                      {(errorState.message?.includes('GEMINI_API_KEY') || errorState.message?.includes('key is not configured')) && (
+                        <div className="mt-2 pt-2 border-t border-blue-200 text-[11px] text-blue-800 space-y-1">
+                          <p>
+                            <strong>How to configure:</strong>
+                          </p>
+                          <ol className="list-decimal list-inside space-y-0.5 text-blue-700">
+                            <li>Get your free API key at <a href="https://aistudio.google.com" target="_blank" rel="noreferrer" className="underline font-semibold text-blue-900">Google AI Studio (aistudio.google.com)</a></li>
+                            <li>Add <code className="bg-blue-100 px-1 py-0.5 rounded text-blue-900 font-mono">GEMINI_API_KEY=your_key</code> in <code className="bg-blue-100 px-1 py-0.5 rounded text-blue-900 font-mono">server/.env</code></li>
+                            <li>Restart the backend server and click <strong>Generate AI Itinerary</strong></li>
+                          </ol>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
+
 
                 <form onSubmit={handleGenerate} className="space-y-6">
                   {/* Destination Field & Quick Chips */}
@@ -877,58 +897,67 @@ export function AiTripPlannerPage() {
             </Card>
           </div>
 
+
           {/* Right Column: Benefits & Highlights */}
           <div className="lg:col-span-4 space-y-6">
-            <Card className="bg-forest-900 text-ivory-100 border-forest-800 shadow-soft-lg p-6">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-terracotta-400">
-                <Sparkles className="w-4 h-4" />
-                Why Gemini AI Planning?
+            {/* Why Gemini AI Planning Highlight Card */}
+            <div className="rounded-2xl bg-forest-900 text-white border border-forest-800 shadow-soft-lg p-6 overflow-hidden relative">
+              <div className="relative z-10 space-y-4">
+
+                <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-terracotta-400 bg-terracotta-900/40 border border-terracotta-700/50 px-2.5 py-1 rounded-full">
+                  <Sparkles className="w-3.5 h-3.5 text-terracotta-400" />
+                  <span>Why Gemini AI Planning?</span>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-display font-bold text-white leading-tight">
+                    Designed for Indian Travellers
+                  </h3>
+                  <p className="text-xs text-ivory-200/90 mt-2 leading-relaxed">
+                    Unlike generic AI tools, TripTally understands authentic Indian circuits—from Vashisht hot springs to Dawki crystal waters—with accurate budgets in Indian Rupees (₹).
+                  </p>
+                </div>
+
+                <div className="space-y-3 pt-2 text-xs">
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-forest-800/80 border border-forest-700/60 shadow-soft-sm">
+                    <div className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold shrink-0 mt-0.5">
+                      ✓
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-white">Chronological Sequencing</h4>
+                      <p className="text-ivory-300 text-[11px] mt-0.5 leading-relaxed">
+                        Activities grouped by neighborhood so you never waste hours trapped in local traffic.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-forest-800/80 border border-forest-700/60 shadow-soft-sm">
+                    <div className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold shrink-0 mt-0.5">
+                      ✓
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-white">Realistic INR Budgets</h4>
+                      <p className="text-ivory-300 text-[11px] mt-0.5 leading-relaxed">
+                        Transparent cost estimates for stays, food, transport, and permit fees in ₹.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-forest-800/80 border border-forest-700/60 shadow-soft-sm">
+                    <div className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold shrink-0 mt-0.5">
+                      ✓
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-white">Collaborate & Split</h4>
+                      <p className="text-ivory-300 text-[11px] mt-0.5 leading-relaxed">
+                        Save directly into TripTally to invite your friends and log shared expenses automatically.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-xl font-display font-bold mt-2">
-                Designed for Indian Travellers
-              </h3>
-              <p className="text-xs text-ivory-300 mt-2 leading-relaxed">
-                Unlike generic AI tools, TripTally understands authentic Indian circuits—from Vashisht hot springs to Dawki boating—with accurate budgets in Indian Rupees.
-              </p>
+            </div>
 
-              <div className="mt-6 space-y-4 text-xs">
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-forest-800 text-emerald-400 flex items-center justify-center shrink-0">
-                    ✓
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-ivory-100">Chronological Sequencing</h4>
-                    <p className="text-ivory-300 mt-0.5">
-                      Activities grouped by neighborhood so you never waste hours trapped in local traffic.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-forest-800 text-emerald-400 flex items-center justify-center shrink-0">
-                    ✓
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-ivory-100">Realistic INR Budgets</h4>
-                    <p className="text-ivory-300 mt-0.5">
-                      Transparent cost estimates for stay, food, transport, and permit fees.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-forest-800 text-emerald-400 flex items-center justify-center shrink-0">
-                    ✓
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-ivory-100">Collaborate & Split</h4>
-                    <p className="text-ivory-300 mt-0.5">
-                      Save directly into TripTally to invite your friends and log shared expenses automatically.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Card>
 
             {/* Quick Summary Card */}
             <Card className="p-5 bg-ivory-100/60 border-ivory-200">

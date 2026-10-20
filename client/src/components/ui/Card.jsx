@@ -13,7 +13,9 @@ export function Card({
     glass: 'glass-card shadow-soft',
     forest: 'bg-forest-900 text-ivory-100 border border-forest-800 shadow-soft-lg',
     subtle: 'bg-ivory-100/60 border border-ivory-200 shadow-soft-sm',
+    none: '',
   };
+
 
   return (
     <div
