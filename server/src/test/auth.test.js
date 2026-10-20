@@ -140,6 +140,19 @@ describe('TripTally Backend Authentication & Session APIs', () => {
     expect(res.body.user.bio).toBe('Explorer of European coastlines & mountain peaks');
   });
 
+  it('POST /api/auth/profile/avatar - uploads avatar image successfully', async () => {
+    const imageBuffer = Buffer.from('fake-image-png-content');
+    const res = await request(app)
+      .post('/api/auth/profile/avatar')
+      .set('Cookie', authCookie)
+      .attach('avatar', imageBuffer, 'profile.png');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.avatarUrl).toBeDefined();
+    expect(res.body.user.avatar).toBe(res.body.avatarUrl);
+  });
+
   it('POST /api/auth/forgot-password and PUT /api/auth/reset-password - resets password flow', async () => {
     const forgotRes = await request(app)
       .post('/api/auth/forgot-password')

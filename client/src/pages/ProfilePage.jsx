@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -14,7 +14,10 @@ import {
   ShieldCheck,
   FileText,
   MapPin,
-  Sparkles
+  Sparkles,
+  UploadCloud,
+  Loader2,
+  Image as ImageIcon,
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -36,9 +39,11 @@ const defaultAvatars = [
 ];
 
 export function ProfilePage() {
-  const { user, updateProfile, logout } = useAuth();
+  const { user, updateProfile, uploadAvatar, logout } = useAuth();
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState(user?.avatar || '');
+  const fileInputRef = useRef(null);
 
   const {
     register,
@@ -69,6 +74,31 @@ export function ProfilePage() {
   const onSelectPresetAvatar = (url) => {
     setSelectedAvatar(url);
     setValue('avatar', url, { shouldDirty: true });
+  };
+
+  const handleAvatarFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file (PNG, JPG, WEBP).');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image file size must be less than 5MB.');
+      return;
+    }
+
+    setUploadingAvatar(true);
+    const res = await uploadAvatar(file);
+    if (res?.success && res.avatarUrl) {
+      setSelectedAvatar(res.avatarUrl);
+      setValue('avatar', res.avatarUrl, { shouldDirty: true });
+    }
+    setUploadingAvatar(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const onSubmit = async (data) => {
@@ -102,9 +132,9 @@ export function ProfilePage() {
 
         <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-6">
           
-          {/* Avatar display */}
+          {/* Avatar display with quick upload */}
           <div className="relative group shrink-0">
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl overflow-hidden border-2 border-ivory-100/40 bg-forest-800 shadow-soft-lg flex items-center justify-center text-3xl font-bold font-display text-ivory-50">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl overflow-hidden border-2 border-ivory-100/40 bg-forest-800 shadow-soft-lg flex items-center justify-center text-3xl font-bold font-display text-ivory-50 relative">
               {selectedAvatar ? (
                 <img
                   src={selectedAvatar}
@@ -114,7 +144,22 @@ export function ProfilePage() {
               ) : (
                 <span>{initials}</span>
               )}
+              {uploadingAvatar && (
+                <div className="absolute inset-0 bg-forest-950/75 backdrop-blur-xs flex flex-col items-center justify-center text-white text-xs gap-1 z-10">
+                  <Loader2 className="w-6 h-6 animate-spin text-terracotta-400" />
+                  <span className="text-[10px] font-medium tracking-wide">Uploading...</span>
+                </div>
+              )}
             </div>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingAvatar}
+              title="Upload profile photo"
+              className="absolute -bottom-1 -right-1 p-2 rounded-xl bg-terracotta-500 hover:bg-terracotta-600 active:scale-95 text-white shadow-soft-md transition-all group-hover:scale-110 disabled:opacity-50 flex items-center justify-center cursor-pointer"
+            >
+              <Camera className="w-4 h-4" />
+            </button>
           </div>
 
           {/* User Bio & Meta */}
@@ -179,10 +224,54 @@ export function ProfilePage() {
                   {...register('name')}
                 />
 
+                {/* Direct Upload Profile Photo Option */}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-charcoal-700 flex items-center justify-between">
+                    <span>Profile Photo</span>
+                    <span className="text-[10px] text-charcoal-400 font-normal">PNG, JPG, WEBP (Max 5MB)</span>
+                  </label>
+
+                  {/* Hidden file input */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    className="hidden"
+                    onChange={handleAvatarFileChange}
+                  />
+
+                  <div className="p-4 rounded-2xl border-2 border-dashed border-ivory-300 hover:border-forest-500 bg-ivory-50/60 transition-colors flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-12 h-12 rounded-2xl overflow-hidden bg-forest-100 border border-forest-200 text-forest-700 flex items-center justify-center shrink-0">
+                        {selectedAvatar ? (
+                          <img src={selectedAvatar} alt="Current Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          <UploadCloud className="w-6 h-6 text-forest-600" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-charcoal-900">Upload from Device</p>
+                        <p className="text-xs text-charcoal-500">Choose a high-res photo for your traveler passport</p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="primary"
+                      size="sm"
+                      disabled={uploadingAvatar}
+                      isLoading={uploadingAvatar}
+                      leftIcon={<UploadCloud className="w-4 h-4" />}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      {uploadingAvatar ? 'Uploading...' : 'Upload Photo'}
+                    </Button>
+                  </div>
+                </div>
+
                 {/* Avatar Presets */}
                 <div className="space-y-2">
                   <label className="text-xs font-semibold uppercase tracking-wider text-charcoal-700 flex items-center justify-between">
-                    <span>Choose Avatar Preset</span>
+                    <span>Or Choose Avatar Preset</span>
                     <span className="text-[10px] text-charcoal-400 font-normal">Click to apply</span>
                   </label>
                   <div className="flex items-center gap-3">
@@ -191,10 +280,10 @@ export function ProfilePage() {
                         key={i}
                         type="button"
                         onClick={() => onSelectPresetAvatar(url)}
-                        className={`w-12 h-12 rounded-2xl overflow-hidden border-2 transition-all p-0.5 ${
+                        className={`w-12 h-12 rounded-2xl overflow-hidden border-2 transition-all p-0.5 cursor-pointer ${
                           selectedAvatar === url
-                            ? 'border-forest-600 ring-2 ring-forest-200'
-                            : 'border-ivory-300 hover:border-forest-500'
+                            ? 'border-forest-600 ring-2 ring-forest-200 scale-105'
+                            : 'border-ivory-300 hover:border-forest-500 opacity-80 hover:opacity-100'
                         }`}
                       >
                         <img src={url} alt={`Avatar preset ${i + 1}`} className="w-full h-full object-cover rounded-xl" />
@@ -204,14 +293,14 @@ export function ProfilePage() {
                 </div>
 
                 <Input
-                  label="Custom Avatar URL"
+                  label="Or Image URL"
                   placeholder="https://example.com/avatar.jpg"
-                  leftIcon={<Camera className="w-4 h-4" />}
+                  leftIcon={<ImageIcon className="w-4 h-4" />}
                   error={errors.avatar?.message}
                   {...register('avatar', {
                     onChange: (e) => setSelectedAvatar(e.target.value),
                   })}
-                  helperText="Paste any public image link or select one of the presets above"
+                  helperText="You can also paste any public image link"
                 />
 
                 <div className="space-y-1.5">

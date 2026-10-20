@@ -28,9 +28,10 @@ app.use(
   '/uploads',
   (req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     next();
   },
+
   express.static(path.join(process.cwd(), 'uploads'), {
     dotfiles: 'ignore',
     index: false,

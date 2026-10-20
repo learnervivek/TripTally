@@ -30,3 +30,7 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Uploaded media
+server/uploads/*
+!server/uploads/.gitkeep

@@ -59,6 +59,19 @@ describe('TripTally Complete Trip Management & Permissions APIs', () => {
     expect(res.body.message).toMatch(/end date must be on or after start date/i);
   });
 
+  it('POST /api/trips/upload-banner - uploads custom trip banner successfully', async () => {
+    const bannerBuffer = Buffer.from('fake-banner-jpg-content');
+    const res = await request(app)
+      .post('/api/trips/upload-banner')
+      .set('Cookie', user1Cookie)
+      .attach('banner', bannerBuffer, 'banner.jpg');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.bannerUrl).toBeDefined();
+    expect(res.body.bannerUrl).toMatch(/^\/uploads\/banners\//);
+  });
+
   it('POST /api/trips - creates trip successfully', async () => {
     const res = await request(app)
       .post('/api/trips')

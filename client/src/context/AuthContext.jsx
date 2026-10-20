@@ -104,6 +104,25 @@ export function AuthProvider({ children }) {
   };
 
   /**
+   * Upload user avatar photo
+   */
+  const uploadAvatar = async (file) => {
+    try {
+      const data = await authService.uploadAvatar(file);
+      if (data.success && data.user) {
+        setUser(data.user);
+        toast.success('Photo Uploaded', data.message || 'Profile photo updated successfully.');
+        return { success: true, user: data.user, avatarUrl: data.avatarUrl };
+      }
+      return { success: false, message: data.message };
+    } catch (err) {
+      const message = err.message || 'Failed to upload photo.';
+      toast.error('Upload Failed', message);
+      return { success: false, message };
+    }
+  };
+
+  /**
    * Request password reset token
    */
   const forgotPassword = async (email) => {
@@ -145,6 +164,7 @@ export function AuthProvider({ children }) {
     register,
     logout,
     updateProfile,
+    uploadAvatar,
     forgotPassword,
     resetPassword,
     checkSession,

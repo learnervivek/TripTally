@@ -58,6 +58,20 @@ export const authService = {
   },
 
   /**
+   * Upload profile avatar image file
+   */
+  async uploadAvatar(file) {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    const response = await api.post('/auth/profile/avatar', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  /**
    * Request password reset token
    */
   async forgotPassword(email) {

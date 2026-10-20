@@ -3,6 +3,7 @@ import * as z from 'zod';
 import Trip from '../models/Trip.js';
 import Expense from '../models/Expense.js';
 import Invitation from '../models/Invitation.js';
+import { cloudinary, isCloudinaryConfigured } from '../config/cloudinary.js';
 
 // Validation Schemas
 export const createTripSchema = z.object({
@@ -540,6 +541,43 @@ export async function joinTrip(req, res, next) {
       success: true,
       message: `You successfully joined "${trip.title}"!`,
       trip: populatedTrip,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * @route   POST /api/trips/upload-banner
+ * @desc    Upload a custom banner image for a trip
+ * @access  Private (protect middleware)
+ */
+export async function uploadTripBanner(req, res, next) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Please select an image file to upload' });
+    }
+
+    let bannerUrl = `/uploads/banners/${req.file.filename}`;
+
+    if (isCloudinaryConfigured) {
+      try {
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          folder: 'triptally/banners',
+          transformation: [{ width: 1600, height: 900, crop: 'limit' }],
+        });
+        if (result?.secure_url) {
+          bannerUrl = result.secure_url;
+        }
+      } catch (cloudErr) {
+        console.warn('[Cloudinary] Banner upload fallback to local storage:', cloudErr.message);
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Trip banner uploaded successfully',
+      bannerUrl,
     });
   } catch (err) {
     next(err);

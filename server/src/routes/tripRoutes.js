@@ -8,6 +8,7 @@ import {
   archiveTrip,
   deleteTrip,
   joinTrip,
+  uploadTripBanner,
 } from '../controllers/tripController.js';
 import {
   inviteMember,
@@ -48,7 +49,7 @@ import {
   deletePackingItem,
 } from '../controllers/packingController.js';
 import { getTripActivities } from '../controllers/activityController.js';
-import { receiptUpload } from '../middleware/upload.js';
+import { receiptUpload, bannerUpload } from '../middleware/upload.js';
 import { protect } from '../middleware/auth.js';
 import { tripPaymentRouter } from './paymentRoutes.js';
 
@@ -59,6 +60,7 @@ router.use(protect);
 
 router.get('/dashboard', getDashboardData);
 router.get('/geocode', geocodeQuery);
+router.post('/upload-banner', bannerUpload.single('banner'), uploadTripBanner);
 router.get('/', getTrips);
 router.post('/', createTrip);
 router.get('/:id', getTripById);

@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import * as z from 'zod';
 import User from '../models/User.js';
 import { sendTokenResponse, clearTokenResponse } from '../middleware/auth.js';
+import { cloudinary, isCloudinaryConfigured } from '../config/cloudinary.js';
 
 // Zod Validation Schemas
 export const registerSchema = z.object({
@@ -170,6 +171,59 @@ export async function updateProfile(req, res, next) {
     return res.status(200).json({
       success: true,
       message: 'Profile updated successfully',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar || '',
+        bio: user.bio || '',
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * @route   POST /api/auth/profile/avatar
+ * @desc    Upload profile photo / avatar
+ * @access  Private (protect middleware)
+ */
+export async function uploadAvatar(req, res, next) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Please select an image file to upload' });
+    }
+
+    let avatarUrl = `/uploads/avatars/${req.file.filename}`;
+
+    if (isCloudinaryConfigured) {
+      try {
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          folder: 'triptally/avatars',
+          transformation: [{ width: 400, height: 400, crop: 'fill', gravity: 'face' }],
+        });
+        if (result?.secure_url) {
+          avatarUrl = result.secure_url;
+        }
+      } catch (cloudErr) {
+        console.warn('[Cloudinary] Avatar upload fallback to local storage:', cloudErr.message);
+      }
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    user.avatar = avatarUrl;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile photo updated successfully',
+      avatarUrl,
       user: {
         id: user._id,
         name: user.name,

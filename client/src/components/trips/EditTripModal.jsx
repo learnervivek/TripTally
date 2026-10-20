@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,7 +9,10 @@ import {
   Image as ImageIcon,
   Check,
   IndianRupee,
-  AlertTriangle
+  AlertTriangle,
+  UploadCloud,
+  Loader2,
+  Sparkles,
 } from 'lucide-react';
 import Dialog from '../ui/Dialog';
 import Input from '../ui/Input';
@@ -47,7 +50,9 @@ const coverPresets = [
 
 export function EditTripModal({ isOpen, onClose, trip, onTripUpdated }) {
   const [loading, setLoading] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
   const [selectedCover, setSelectedCover] = useState(trip?.coverImage || '');
+  const bannerInputRef = useRef(null);
   const { toast } = useToast();
 
   const toInputDate = (d) => {
@@ -97,6 +102,39 @@ export function EditTripModal({ isOpen, onClose, trip, onTripUpdated }) {
   const onSelectCover = (url) => {
     setSelectedCover(url);
     setValue('coverImage', url);
+  };
+
+  const handleBannerFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Invalid File', 'Please select an image file (JPG, PNG, WEBP).');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File Too Large', 'Banner image size must be less than 10MB.');
+      return;
+    }
+
+    setUploadingBanner(true);
+    try {
+      const res = await tripService.uploadBanner(file);
+      if (res?.success && res.bannerUrl) {
+        setSelectedCover(res.bannerUrl);
+        setValue('coverImage', res.bannerUrl, { shouldValidate: true, shouldDirty: true });
+        toast.success('Banner Uploaded!', 'Custom trip banner updated successfully.');
+      } else {
+        toast.error('Upload Failed', res?.message || 'Could not upload banner.');
+      }
+    } catch (err) {
+      toast.error('Upload Error', err.response?.data?.message || err.message || 'Error uploading banner.');
+    } finally {
+      setUploadingBanner(false);
+      if (bannerInputRef.current) {
+        bannerInputRef.current.value = '';
+      }
+    }
   };
 
   const onSubmit = async (data) => {
@@ -206,42 +244,84 @@ export function EditTripModal({ isOpen, onClose, trip, onTripUpdated }) {
           </select>
         </div>
 
-        {/* Cover selector */}
-        <div className="space-y-2">
+        {/* Cover Photo Banner & Upload */}
+        <div className="space-y-3">
           <label className="text-xs font-semibold uppercase tracking-wider text-charcoal-700 flex items-center justify-between">
-            <span>Change Cover Photo</span>
-            <span className="text-[10px] text-charcoal-400 font-normal">Select preset</span>
+            <span>Change Cover Banner</span>
+            <span className="text-[10px] text-charcoal-400 font-normal">Upload or select preset</span>
           </label>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-            {coverPresets.map((preset) => (
-              <button
-                key={preset.name}
-                type="button"
-                onClick={() => onSelectCover(preset.url)}
-                className={`relative h-14 rounded-xl overflow-hidden border-2 transition-all ${
-                  selectedCover === preset.url
-                    ? 'border-forest-600 ring-2 ring-forest-200'
-                    : 'border-ivory-300 opacity-70 hover:opacity-100 hover:border-forest-500'
-                }`}
-              >
-                <img src={preset.url} alt={preset.name} className="w-full h-full object-cover" />
-                <span className="absolute bottom-1 left-1 right-1 text-[9px] font-bold text-white bg-black/60 px-1 py-0.5 rounded backdrop-blur-sm truncate block text-left">
-                  {preset.name}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
 
-        <Input
-          label="Custom Cover Image URL"
-          placeholder="https://images.unsplash.com/..."
-          leftIcon={<ImageIcon className="w-4 h-4" />}
-          error={errors.coverImage?.message}
-          {...register('coverImage', {
-            onChange: (e) => setSelectedCover(e.target.value),
-          })}
-        />
+          {/* Hidden banner file input */}
+          <input
+            ref={bannerInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            className="hidden"
+            onChange={handleBannerFileChange}
+          />
+
+          {/* Current Banner Preview with Instant Upload Overlay */}
+          <div className="relative h-28 rounded-2xl overflow-hidden border-2 border-forest-600/30 bg-forest-950 group shadow-soft">
+            {selectedCover ? (
+              <img src={selectedCover} alt="Trip banner preview" className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300" />
+            ) : (
+              <div className="w-full h-full bg-forest-900 flex items-center justify-center text-ivory-300 text-xs">
+                No banner set
+              </div>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex items-end justify-between p-3">
+              <span className="text-xs font-medium text-white truncate max-w-[200px] flex items-center gap-1.5 drop-shadow">
+                <Sparkles className="w-3.5 h-3.5 text-terracotta-400" /> Current Trip Banner
+              </span>
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                disabled={uploadingBanner}
+                isLoading={uploadingBanner}
+                leftIcon={<UploadCloud className="w-4 h-4" />}
+                onClick={() => bannerInputRef.current?.click()}
+                className="shadow-soft-md"
+              >
+                {uploadingBanner ? 'Uploading...' : 'Upload New Banner'}
+              </Button>
+            </div>
+          </div>
+
+          {/* Preset Inspirations */}
+          <div className="space-y-1.5 pt-1">
+            <span className="text-[11px] font-medium text-charcoal-500">Or choose from destinations:</span>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              {coverPresets.map((preset) => (
+                <button
+                  key={preset.name}
+                  type="button"
+                  onClick={() => onSelectCover(preset.url)}
+                  className={`relative h-14 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                    selectedCover === preset.url
+                      ? 'border-forest-600 ring-2 ring-forest-200 scale-[1.02]'
+                      : 'border-ivory-300 opacity-70 hover:opacity-100 hover:border-forest-500'
+                  }`}
+                >
+                  <img src={preset.url} alt={preset.name} className="w-full h-full object-cover" />
+                  <span className="absolute bottom-1 left-1 right-1 text-[9px] font-bold text-white bg-black/60 px-1 py-0.5 rounded backdrop-blur-sm truncate block text-left">
+                    {preset.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <Input
+            label="Or Custom Cover Image URL"
+            placeholder="https://images.unsplash.com/..."
+            leftIcon={<ImageIcon className="w-4 h-4" />}
+            error={errors.coverImage?.message}
+            {...register('coverImage', {
+              onChange: (e) => setSelectedCover(e.target.value),
+            })}
+          />
+        </div>
 
         <div className="space-y-1.5">
           <label className="text-xs font-semibold uppercase tracking-wider text-charcoal-700">

@@ -291,6 +291,20 @@ export const tripService = {
   },
 
   /**
+   * Upload custom trip banner image
+   */
+  async uploadBanner(file) {
+    const formData = new FormData();
+    formData.append('banner', file);
+    const response = await api.post('/trips/upload-banner', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  /**
    * Get comprehensive budget analytics for a trip
    */
   async getTripAnalytics(tripId) {
