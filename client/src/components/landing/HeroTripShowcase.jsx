@@ -52,25 +52,23 @@ const SAMPLE_CIRCUITS = [
     days: [
       {
         dayNum: 1,
-        title: 'Arrival & Old Manali Vibe',
+        title: 'Arrival & Old Manali',
         items: [
           { id: 'm1', time: '11:30 AM', title: 'Beas Riverfront Cabin Check-in', cost: 16000, category: 'Stay', votes: 4 },
           { id: 'm2', time: '02:00 PM', title: 'Himalayan Trout & Woodfired Pizza at Cafe 1947', cost: 2400, category: 'Food', votes: 4 },
-          { id: 'm3', time: '06:00 PM', title: 'Old Manali Cobblestone Market & Pine Stroll', cost: 0, category: 'Activity', votes: 3 },
         ]
       },
       {
         dayNum: 2,
-        title: 'Solang Snow & Paragliding',
+        title: 'Solang Snow & Sports',
         items: [
           { id: 'm4', time: '09:00 AM', title: 'Solang Valley High Altitude Paragliding', cost: 3500, category: 'Adventure', votes: 5 },
           { id: 'm5', time: '01:30 PM', title: 'Snow Scooter Trails & Steaming Thukpa', cost: 1800, category: 'Food', votes: 4 },
-          { id: 'm6', time: '07:30 PM', title: 'Cabin Firepit & Acoustic Sitar Evening', cost: 0, category: 'Chill', votes: 4 },
         ]
       },
       {
         dayNum: 3,
-        title: 'Atal Tunnel & Sissu Falls',
+        title: 'Atal Tunnel & Sissu',
         items: [
           { id: 'm7', time: '08:30 AM', title: 'Atal Tunnel Crossing to Lahaul Valley', cost: 4500, category: 'Transit', votes: 4 },
           { id: 'm8', time: '12:00 PM', title: 'Sissu Frozen Waterfall & River Walk', cost: 0, category: 'Sightseeing', votes: 4 },
@@ -113,7 +111,6 @@ const SAMPLE_CIRCUITS = [
         items: [
           { id: 'g1', time: '11:00 AM', title: 'Heritage Fontainhas Walk & Pastel Houses', cost: 0, category: 'Culture', votes: 4 },
           { id: 'g2', time: '02:00 PM', title: 'Bebinca & Goan Fish Curry at Viva Panjim', cost: 2200, category: 'Food', votes: 4 },
-          { id: 'g3', time: '05:30 PM', title: 'Miramar Sunset & Coconut Water', cost: 400, category: 'Relax', votes: 3 },
         ]
       },
       {
@@ -165,7 +162,7 @@ const SAMPLE_CIRCUITS = [
     days: [
       {
         dayNum: 1,
-        title: 'Dal Lake Houseboat Check-in',
+        title: 'Dal Lake Houseboat',
         items: [
           { id: 'k1', time: '02:00 PM', title: 'Traditional Cedar Carved Houseboat Check-in', cost: 22000, category: 'Stay', votes: 4 },
           { id: 'k2', time: '04:30 PM', title: 'Sunset Shikara Ride & Saffron Kehwa', cost: 1600, category: 'Cruise', votes: 5 },
@@ -236,7 +233,7 @@ const SAMPLE_CIRCUITS = [
       },
       {
         dayNum: 3,
-        title: 'Nahargarh Sunset & Chokhi Dhani',
+        title: 'Nahargarh Sunset & Feasts',
         items: [
           { id: 'j5', time: '04:30 PM', title: 'Nahargarh Fort Panoramic City Sunset', cost: 600, category: 'Sightseeing', votes: 5 },
           { id: 'j6', time: '08:00 PM', title: 'Chokhi Dhani Folk Dance & Feast', cost: 3600, category: 'Experience', votes: 4 },
@@ -268,13 +265,13 @@ export function HeroTripShowcase({ onPlanTripClick }) {
   };
 
   return (
-    <div className="w-full relative rounded-3xl bg-white border border-ivory-300/80 shadow-soft-2xl overflow-hidden text-charcoal-900">
+    <div className="w-full relative rounded-2xl sm:rounded-3xl bg-white border border-ivory-300/80 shadow-soft-2xl overflow-hidden text-charcoal-900">
       
       {/* ---------------- Top Quick-Pick Destination Switcher ---------------- */}
-      <div className="bg-ivory-100/90 border-b border-ivory-200 p-2.5 sm:p-3 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+      <div className="bg-ivory-100/90 border-b border-ivory-200 px-3 py-2 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
         <div className="flex items-center gap-1.5 shrink-0">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-          <span className="text-[11px] font-bold uppercase tracking-wider text-forest-800 shrink-0">
+          <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-forest-800 shrink-0">
             Live Workspace:
           </span>
         </div>
@@ -289,9 +286,9 @@ export function HeroTripShowcase({ onPlanTripClick }) {
                   setSelectedCircuitId(item.id);
                   setActiveDayIndex(0);
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 shrink-0 ${
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all duration-200 shrink-0 ${
                   isSelected
-                    ? 'bg-forest-900 text-ivory-50 shadow-soft font-semibold scale-[1.02]'
+                    ? 'bg-forest-900 text-ivory-50 shadow-soft font-semibold'
                     : 'bg-white hover:bg-ivory-200/80 text-charcoal-700 border border-ivory-300/60'
                 }`}
               >
@@ -302,86 +299,86 @@ export function HeroTripShowcase({ onPlanTripClick }) {
         </div>
       </div>
 
-      {/* ---------------- Hero Photography Banner with Live Badges ---------------- */}
-      <div className="relative h-48 sm:h-56 lg:h-64 w-full overflow-hidden group">
+      {/* ---------------- Hero Photography Banner (Sleek Compact Panoramic Height) ---------------- */}
+      <div className="relative h-32 sm:h-36 lg:h-40 w-full overflow-hidden group">
         <AnimatePresence mode="wait">
           <motion.img
             key={circuit.id}
             src={circuit.image}
             alt={circuit.name}
-            initial={{ opacity: 0, scale: 1.05 }}
+            initial={{ opacity: 0, scale: 1.04 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             className="w-full h-full object-cover object-center"
           />
         </AnimatePresence>
 
         {/* Gradient Scrim */}
-        <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/90 via-charcoal-950/35 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/90 via-charcoal-950/30 to-transparent pointer-events-none" />
 
         {/* Floating Top Badges */}
-        <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-none">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-charcoal-950/70 backdrop-blur-md border border-white/20 text-white text-xs font-medium shadow-soft">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin-slow" />
+        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2 pointer-events-none">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-charcoal-950/70 backdrop-blur-md border border-white/20 text-white text-[10px] sm:text-[11px] font-medium shadow-soft">
+            <Sparkles className="w-3 h-3 text-amber-300 animate-spin-slow" />
             <span>{circuit.weather}</span>
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-forest-950/80 backdrop-blur-md border border-emerald-400/30 text-emerald-300 text-xs font-semibold shadow-soft">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>4 Friends Editing Live</span>
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-forest-950/80 backdrop-blur-md border border-emerald-400/30 text-emerald-300 text-[10px] sm:text-[11px] font-semibold shadow-soft">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>4 Friends In Workspace</span>
           </div>
         </div>
 
         {/* Bottom Banner Content */}
-        <div className="absolute bottom-3 left-4 right-4 text-white">
-          <div className="flex items-center gap-2 text-xs text-emerald-300 font-medium mb-1">
-            <MapPin className="w-3.5 h-3.5 text-terracotta-400 shrink-0" />
+        <div className="absolute bottom-2.5 left-3 right-3 text-white">
+          <div className="flex items-center gap-1.5 text-[11px] text-emerald-300 font-medium mb-0.5">
+            <MapPin className="w-3 h-3 text-terracotta-400 shrink-0" />
             <span>{circuit.region}</span>
             <span>•</span>
             <span className="text-ivory-200">{circuit.dates}</span>
           </div>
-          <h3 className="font-serif text-lg sm:text-xl font-bold leading-snug drop-shadow-md truncate">
+          <h3 className="font-serif text-sm sm:text-base lg:text-lg font-bold leading-tight drop-shadow-md truncate">
             {circuit.name}
           </h3>
         </div>
       </div>
 
       {/* ---------------- Collaborative Members & Interactive Tabs ---------------- */}
-      <div className="px-4 py-3 bg-ivory-50/80 border-b border-ivory-200/80 flex flex-wrap items-center justify-between gap-3">
+      <div className="px-3.5 py-2 bg-ivory-50/90 border-b border-ivory-200/80 flex flex-wrap items-center justify-between gap-2">
         {/* Member Avatars */}
-        <div className="flex items-center gap-2">
-          <div className="flex -space-x-2 overflow-hidden">
+        <div className="flex items-center gap-1.5">
+          <div className="flex -space-x-1.5 overflow-hidden">
             {circuit.members.map((m, idx) => (
               <img
                 key={idx}
                 src={m.avatar}
                 alt={m.name}
                 title={`${m.name} (${m.role})`}
-                className="w-8 h-8 rounded-full border-2 border-white object-cover ring-1 ring-ivory-300"
+                className="w-6 h-6 rounded-full border border-white object-cover ring-1 ring-ivory-300"
               />
             ))}
           </div>
-          <span className="text-xs font-medium text-charcoal-600">
-            <strong className="text-charcoal-800">4 Members</strong> on this trip
+          <span className="text-[11px] font-medium text-charcoal-600">
+            <strong className="text-charcoal-800">4 Active</strong> planners
           </span>
         </div>
 
         {/* Mode Selector Tabs */}
-        <div className="inline-flex p-1 rounded-xl bg-ivory-200/70 border border-ivory-300/80 text-xs font-medium">
+        <div className="inline-flex p-0.5 rounded-lg bg-ivory-200/70 border border-ivory-300/80 text-[11px] font-medium">
           <button
             onClick={() => setActiveTab('itinerary')}
-            className={`px-3 py-1 rounded-lg transition-all ${
+            className={`px-2.5 py-0.5 rounded-md transition-all ${
               activeTab === 'itinerary'
                 ? 'bg-white text-forest-900 font-semibold shadow-soft-sm'
                 : 'text-charcoal-600 hover:text-charcoal-900'
             }`}
           >
-            🗺️ Timeline Itinerary
+            🗺️ Timeline
           </button>
           <button
             onClick={() => setActiveTab('ledger')}
-            className={`px-3 py-1 rounded-lg transition-all ${
+            className={`px-2.5 py-0.5 rounded-md transition-all ${
               activeTab === 'ledger'
                 ? 'bg-white text-forest-900 font-semibold shadow-soft-sm'
                 : 'text-charcoal-600 hover:text-charcoal-900'
@@ -393,16 +390,16 @@ export function HeroTripShowcase({ onPlanTripClick }) {
       </div>
 
       {/* ---------------- Interactive Body (Timeline or Ledger) ---------------- */}
-      <div className="p-4 sm:p-5 min-h-[220px]">
+      <div className="p-3 sm:p-3.5 min-h-[160px]">
         {activeTab === 'itinerary' ? (
           <div>
             {/* Day Pills */}
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-1.5 mb-2.5">
               {circuit.days.map((d, index) => (
                 <button
                   key={d.dayNum}
                   onClick={() => setActiveDayIndex(index)}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  className={`px-2.5 py-0.5 rounded-md text-[11px] font-semibold transition-all ${
                     activeDayIndex === index
                       ? 'bg-forest-900 text-white shadow-soft-sm'
                       : 'bg-ivory-100 hover:bg-ivory-200 text-charcoal-600'
@@ -413,30 +410,30 @@ export function HeroTripShowcase({ onPlanTripClick }) {
               ))}
             </div>
 
-            {/* Activities List */}
-            <div className="space-y-2.5">
+            {/* Activities List (2 Curated Highlights Per Day) */}
+            <div className="space-y-2">
               {circuit.days[activeDayIndex]?.items.map((item) => {
                 const currentVotes = votes[item.id] || item.votes;
                 return (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between gap-3 p-3 rounded-xl bg-ivory-100/60 hover:bg-white border border-ivory-200/90 hover:border-forest-600/30 shadow-soft-sm transition-all"
+                    className="flex items-center justify-between gap-2.5 px-3 py-2 rounded-xl bg-ivory-100/70 hover:bg-white border border-ivory-200/90 hover:border-forest-600/30 shadow-soft-sm transition-all"
                   >
-                    <div className="flex items-start gap-3 min-w-0">
-                      <div className="w-16 shrink-0 text-left">
-                        <span className="text-[11px] font-mono font-bold text-forest-700 block">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-14 shrink-0 text-left">
+                        <span className="text-[10px] font-mono font-bold text-forest-700 block leading-tight">
                           {item.time}
                         </span>
-                        <span className="text-[10px] uppercase font-semibold text-charcoal-500">
+                        <span className="text-[9px] uppercase font-semibold text-charcoal-500">
                           {item.category}
                         </span>
                       </div>
 
                       <div className="min-w-0">
-                        <h5 className="text-xs sm:text-sm font-semibold text-charcoal-900 truncate">
+                        <h5 className="text-xs font-semibold text-charcoal-900 truncate">
                           {item.title}
                         </h5>
-                        <p className="text-[11px] font-mono font-medium text-terracotta-600">
+                        <p className="text-[10px] font-mono font-medium text-terracotta-600">
                           {item.cost > 0 ? formatINR(item.cost) : 'Free • Included'}
                         </p>
                       </div>
@@ -445,10 +442,10 @@ export function HeroTripShowcase({ onPlanTripClick }) {
                     {/* Interactive Upvote Button */}
                     <button
                       onClick={() => handleVote(item.id, item.title)}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white hover:bg-forest-50 border border-ivory-300 hover:border-forest-600/40 text-charcoal-700 hover:text-forest-800 text-xs font-semibold shadow-soft-sm transition-all shrink-0 active:scale-95"
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white hover:bg-forest-50 border border-ivory-300 hover:border-forest-600/40 text-charcoal-700 hover:text-forest-800 text-[11px] font-semibold shadow-soft-sm transition-all shrink-0 active:scale-95"
                       title="Vote for this activity"
                     >
-                      <ThumbsUp className="w-3.5 h-3.5 text-forest-600" />
+                      <ThumbsUp className="w-3 h-3 text-forest-600" />
                       <span>{currentVotes}</span>
                     </button>
                   </div>
@@ -458,48 +455,48 @@ export function HeroTripShowcase({ onPlanTripClick }) {
           </div>
         ) : (
           /* Expense Split & UPI Settlements Tab */
-          <div className="space-y-4">
-            <div className="p-3.5 rounded-2xl bg-gradient-to-br from-forest-900 to-forest-950 text-white shadow-soft">
-              <div className="flex items-center justify-between mb-2">
+          <div className="space-y-2.5">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-forest-900 to-forest-950 text-white shadow-soft">
+              <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-300">
-                    <IndianRupee className="w-4 h-4" />
+                  <div className="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-300">
+                    <IndianRupee className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-ivory-100">
+                    <h4 className="text-xs font-bold text-ivory-100 truncate">
                       {circuit.expenseSplit.title}
                     </h4>
-                    <p className="text-[10px] text-emerald-300">
+                    <p className="text-[10px] text-emerald-300 truncate">
                       Paid by {circuit.expenseSplit.payer} • Equal 4-way split
                     </p>
                   </div>
                 </div>
 
-                <div className="text-right">
-                  <div className="font-mono text-sm sm:text-base font-bold text-terracotta-300">
+                <div className="text-right shrink-0">
+                  <div className="font-mono text-sm font-bold text-terracotta-300">
                     {formatINR(circuit.expenseSplit.totalCost)}
                   </div>
-                  <div className="text-[10px] text-ivory-300">
+                  <div className="text-[9px] text-ivory-300">
                     {formatINR(Math.round(circuit.expenseSplit.totalCost / 4))} / person
                   </div>
                 </div>
               </div>
 
               {/* Verified UPI Settlement Badge */}
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-forest-800/80 border border-emerald-500/30 text-xs text-emerald-200 mt-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-forest-800/80 border border-emerald-500/30 text-[11px] text-emerald-200">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 <span className="truncate">{circuit.expenseSplit.settlementNote}</span>
               </div>
             </div>
 
             {/* Category Breakdown Chips */}
-            <div className="grid grid-cols-3 gap-2 text-center text-xs">
+            <div className="grid grid-cols-3 gap-1.5 text-center text-xs">
               {circuit.expenseSplit.breakdown.map((item, idx) => (
-                <div key={idx} className="p-2.5 rounded-xl bg-ivory-100 border border-ivory-200">
-                  <p className="text-[10px] text-charcoal-500 font-medium truncate mb-0.5">
+                <div key={idx} className="p-1.5 rounded-lg bg-ivory-100 border border-ivory-200">
+                  <p className="text-[9px] text-charcoal-500 font-medium truncate">
                     {item.label}
                   </p>
-                  <p className="font-mono text-xs font-bold text-forest-900">
+                  <p className="font-mono text-[11px] font-bold text-forest-900">
                     {formatINR(item.amount)}
                   </p>
                 </div>
@@ -510,14 +507,14 @@ export function HeroTripShowcase({ onPlanTripClick }) {
       </div>
 
       {/* ---------------- Bottom Footer CTA Bar ---------------- */}
-      <div className="px-4 py-3.5 bg-ivory-100/90 border-t border-ivory-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="px-3.5 py-2.5 bg-ivory-100/90 border-t border-ivory-200 flex items-center justify-between gap-2">
         <div>
-          <span className="text-[11px] text-charcoal-500 block">
-            Estimated Budget (4 Members)
+          <span className="text-[10px] text-charcoal-500 block leading-tight">
+            Estimated Group Budget
           </span>
-          <span className="font-serif text-base sm:text-lg font-bold text-forest-900">
+          <span className="font-serif text-sm sm:text-base font-bold text-forest-900 leading-tight">
             {formatINR(circuit.totalBudget)}{' '}
-            <span className="text-xs font-normal text-charcoal-600 font-sans">
+            <span className="text-[11px] font-normal text-charcoal-600 font-sans">
               ({formatINR(circuit.perPerson)} / person)
             </span>
           </span>
@@ -529,10 +526,10 @@ export function HeroTripShowcase({ onPlanTripClick }) {
               onPlanTripClick(circuit);
             }
           }}
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-forest-900 hover:bg-forest-800 text-white font-semibold text-xs sm:text-sm shadow-soft transition-all duration-200 hover:shadow-soft-lg group"
+          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-forest-900 hover:bg-forest-800 text-white font-semibold text-xs shadow-soft transition-all duration-200 hover:shadow-soft-lg group shrink-0"
         >
           <span>Plan This Trip</span>
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
         </button>
       </div>
 

@@ -325,15 +325,15 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-ivory-50 text-charcoal-900 selection:bg-forest-100 selection:text-forest-900 overflow-x-hidden">
       
-      {/* ---------------- 1. Hero Section: 3D Travel Globe & Indian Hubs ---------------- */}
-      <section className="relative pt-6 pb-16 lg:pt-10 lg:pb-24 overflow-hidden border-b border-ivory-200/70">
+      {/* ---------------- 1. Hero Section: Collaborative India Trip Planner ---------------- */}
+      <section className="relative pt-4 pb-10 lg:pt-6 lg:pb-14 overflow-hidden border-b border-ivory-200/70">
         
         {/* Subtle Decorative Background Glows */}
-        <div className="absolute top-12 left-1/2 -translate-x-1/2 w-[850px] h-[450px] bg-gradient-to-tr from-forest-100/35 via-terracotta-100/20 to-transparent blur-3xl pointer-events-none rounded-full" />
+        <div className="absolute top-8 left-1/2 -translate-x-1/2 w-[850px] h-[450px] bg-gradient-to-tr from-forest-100/35 via-terracotta-100/20 to-transparent blur-3xl pointer-events-none rounded-full" />
         <div className="absolute -top-24 right-0 w-96 h-96 bg-forest-200/20 blur-3xl rounded-full pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-center">
             
             {/* Left Column: Required Headline & Copy */}
             <motion.div
@@ -343,28 +343,28 @@ export default function HomePage() {
               className="lg:col-span-5 flex flex-col items-start z-10 text-left"
             >
               {/* Trust Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-forest-50 border border-forest-200/80 text-forest-800 text-xs font-semibold mb-6 shadow-soft-sm">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-forest-50 border border-forest-200/80 text-forest-800 text-xs font-semibold mb-3.5 shadow-soft-sm">
                 <Sparkles className="w-3.5 h-3.5 text-terracotta-500 animate-spin-slow" />
                 <span>India's Collaborative Group Travel Platform</span>
               </div>
 
               {/* Required Exact Headline */}
-              <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-charcoal-900 leading-[1.12] tracking-tight mb-5">
+              <h1 className="font-serif text-3xl sm:text-4xl lg:text-[44px] font-bold text-charcoal-900 leading-[1.12] tracking-tight mb-3">
                 Your India. <br />
                 <span className="italic font-normal text-forest-700">Your Journey.</span> <br />
                 Your Story.
               </h1>
 
               {/* Required Exact Supporting Text */}
-              <p className="text-base sm:text-lg text-charcoal-600 leading-relaxed max-w-xl mb-8">
+              <p className="text-sm sm:text-base text-charcoal-600 leading-relaxed max-w-xl mb-5">
                 Plan unforgettable trips across India, explore destinations together, and manage every rupee with one collaborative travel planner.
               </p>
 
               {/* Primary & Secondary CTAs */}
-              <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto mb-10">
+              <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto mb-6">
                 <Button
                   variant="primary"
-                  size="lg"
+                  size="md"
                   onClick={() => {
                     if (isAuthenticated) {
                       navigate('/trips');
@@ -379,15 +379,15 @@ export default function HomePage() {
                 </Button>
                 <a
                   href="#destinations"
-                  className="w-full sm:w-auto inline-flex items-center justify-center font-medium rounded-xl border border-ivory-300 hover:border-forest-600 bg-white hover:bg-ivory-100/70 text-charcoal-800 text-sm px-5 py-3 transition-all duration-200 shadow-soft-sm gap-2"
+                  className="w-full sm:w-auto inline-flex items-center justify-center font-medium rounded-xl border border-ivory-300 hover:border-forest-600 bg-white hover:bg-ivory-100/70 text-charcoal-800 text-xs sm:text-sm px-4 py-2.5 transition-all duration-200 shadow-soft-sm gap-2"
                 >
-                  <MapPin className="w-4 h-4 text-terracotta-500" />
+                  <MapPin className="w-3.5 h-3.5 text-terracotta-500" />
                   Explore Destinations
                 </a>
               </div>
 
               {/* Trust Highlights */}
-              <div className="grid grid-cols-3 gap-4 pt-6 border-t border-ivory-200 w-full text-xs text-charcoal-600">
+              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-ivory-200 w-full text-xs text-charcoal-600">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-forest-600 shrink-0" />
                   <span>100% in Rupees (₹)</span>
