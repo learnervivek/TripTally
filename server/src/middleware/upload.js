@@ -1,17 +1,28 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 
-// Helper to ensure target upload directory exists
+// Helper to ensure target upload directory exists safely
 function ensureDirectory(dirPath) {
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true });
+  try {
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+  } catch (err) {
+    // Non-blocking in serverless environments where root filesystem is read-only
+    console.warn(`[Upload] Notice: Could not create upload directory ${dirPath} (${err.message}).`);
   }
 }
 
-const receiptsDir = path.join(process.cwd(), 'uploads', 'receipts');
-const avatarsDir = path.join(process.cwd(), 'uploads', 'avatars');
-const bannersDir = path.join(process.cwd(), 'uploads', 'banners');
+// In serverless environments (Vercel/Lambda), process.cwd() is read-only; use os.tmpdir()
+const baseUploadDir = process.env.VERCEL
+  ? path.join(os.tmpdir(), 'uploads')
+  : path.join(process.cwd(), 'uploads');
+
+const receiptsDir = path.join(baseUploadDir, 'receipts');
+const avatarsDir = path.join(baseUploadDir, 'avatars');
+const bannersDir = path.join(baseUploadDir, 'banners');
 
 ensureDirectory(receiptsDir);
 ensureDirectory(avatarsDir);

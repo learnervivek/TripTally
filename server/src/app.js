@@ -15,7 +15,7 @@ import aiRoutes from './routes/aiRoutes.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { apiRateLimiter, authRateLimiter } from './middleware/rateLimiter.js';
-import { connectDB } from './config/db.js';
+import { connectDB, getDBStatus } from './config/db.js';
 
 dotenv.config();
 
@@ -25,10 +25,24 @@ const app = express();
 app.use(async (req, res, next) => {
   try {
     await connectDB();
-    next();
   } catch (err) {
-    next(err);
+    console.error('[Database] Connection attempt failed:', err.message);
   }
+
+  // Health endpoint always responds even if DB is down
+  if (req.path === '/health' || req.path === '/api/health' || req.path === '/') {
+    return next();
+  }
+
+  // If DB failed to connect in production, return clear error immediately instead of timing out
+  if (!getDBStatus().isConnected && process.env.NODE_ENV === 'production') {
+    return res.status(503).json({
+      success: false,
+      message: 'Database is unavailable. Please verify MONGODB_URI in your Vercel Project Settings -> Environment Variables and ensure MongoDB Atlas Network Access allows 0.0.0.0/0.',
+    });
+  }
+
+  next();
 });
 
 // Trust reverse proxy (for secure cookies, rate limiting, and correct IP resolution in production)
@@ -43,11 +57,16 @@ app.use(
     next();
   },
 
-  express.static(path.join(process.cwd(), 'uploads'), {
-    dotfiles: 'ignore',
-    index: false,
-    maxAge: '1d',
-  })
+  express.static(
+    process.env.VERCEL
+      ? path.join(path.sep, 'tmp', 'uploads')
+      : path.join(process.cwd(), 'uploads'),
+    {
+      dotfiles: 'ignore',
+      index: false,
+      maxAge: '1d',
+    }
+  )
 );
 
 // Structured request logging
