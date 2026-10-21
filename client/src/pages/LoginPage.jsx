@@ -19,6 +19,7 @@ export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [loading, setLoading] = useState(false);
   const from = location.state?.from
     ? `${location.state.from.pathname || '/'}${location.state.from.search || ''}`
     : '/dashboard';
