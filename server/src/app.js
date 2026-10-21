@@ -15,10 +15,21 @@ import aiRoutes from './routes/aiRoutes.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { apiRateLimiter, authRateLimiter } from './middleware/rateLimiter.js';
+import { connectDB } from './config/db.js';
 
 dotenv.config();
 
 const app = express();
+
+// Ensure database connection is initialized for serverless environments
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 
 // Trust reverse proxy (for secure cookies, rate limiting, and correct IP resolution in production)
 app.set('trust proxy', 1);
