@@ -19,8 +19,9 @@ export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [loading, setLoading] = useState(false);
-  const from = location.state?.from?.pathname || '/dashboard';
+  const from = location.state?.from
+    ? `${location.state.from.pathname || '/'}${location.state.from.search || ''}`
+    : '/dashboard';
 
   const {
     register,
@@ -169,7 +170,7 @@ export function LoginPage() {
           <CardFooter className="bg-ivory-50/50 justify-center py-4 border-t border-ivory-200">
             <p className="text-xs text-charcoal-600">
               Don't have an account?{' '}
-              <Link to="/register" className="font-bold text-forest-700 hover:text-forest-900">
+              <Link to="/register" state={location.state} className="font-bold text-forest-700 hover:text-forest-900">
                 Create one free
               </Link>
             </p>

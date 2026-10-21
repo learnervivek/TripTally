@@ -22,7 +22,12 @@ const registerSchema = z.object({
 export function RegisterPage() {
   const { register: registerAuth } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
+
+  const from = location.state?.from
+    ? `${location.state.from.pathname || '/'}${location.state.from.search || ''}`
+    : '/dashboard';
 
   const {
     register,
@@ -43,7 +48,7 @@ export function RegisterPage() {
     const result = await registerAuth(data);
     setLoading(false);
     if (result.success) {
-      navigate('/dashboard', { replace: true });
+      navigate(from, { replace: true });
     }
   };
 
