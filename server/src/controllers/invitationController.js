@@ -6,6 +6,7 @@ import User from '../models/User.js';
 import emailService from '../utils/emailService.js';
 import { logTripActivity } from '../services/activityService.js';
 import { createNotification } from '../services/notificationService.js';
+import { getClientUrl } from '../utils/urlHelper.js';
 
 const inviteSchema = z.object({
   email: z.string().trim().email('Please provide a valid email address').toLowerCase(),
@@ -100,7 +101,7 @@ export async function inviteMember(req, res, next) {
     });
 
     // Construct accept URL for the email
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const clientUrl = getClientUrl(req);
     const inviteUrl = `${clientUrl}/invitations?token=${token}`;
 
     // Send invitation email via nodemailer / dev logger

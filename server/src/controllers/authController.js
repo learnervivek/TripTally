@@ -3,6 +3,7 @@ import * as z from 'zod';
 import User from '../models/User.js';
 import { sendTokenResponse, clearTokenResponse } from '../middleware/auth.js';
 import { cloudinary, isCloudinaryConfigured } from '../config/cloudinary.js';
+import { getClientUrl } from '../utils/urlHelper.js';
 
 // Zod Validation Schemas
 export const registerSchema = z.object({
@@ -265,7 +266,7 @@ export async function forgotPassword(req, res, next) {
     const resetToken = user.getResetPasswordToken();
     await user.save({ validateBeforeSave: false });
 
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const clientUrl = getClientUrl(req);
     const resetUrl = `${clientUrl}/reset-password/${resetToken}`;
 
     console.log(`[Auth] Password reset token generated for ${user.email}:`);

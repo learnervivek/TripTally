@@ -5,6 +5,7 @@ import Expense from '../models/Expense.js';
 import Settlement from '../models/Settlement.js';
 import { calculateTripBalances } from './expenseCalculationService.js';
 import emailService from '../utils/emailService.js';
+import { getClientUrl } from '../utils/urlHelper.js';
 
 /**
  * Create a single in-app notification with optional email dispatch
@@ -44,7 +45,7 @@ export async function createNotification({
     };
 
     if (sendEmailIfAllowed && prefs.emailNotifications) {
-      const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+      const clientUrl = getClientUrl();
       const targetUrl = link ? (link.startsWith('http') ? link : `${clientUrl}${link}`) : clientUrl;
 
       if (type === 'upcoming_trip_reminder' && prefs.tripReminders) {
