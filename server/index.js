@@ -1,6 +1,11 @@
 import app from './src/app.js';
 import { connectDB } from './src/config/db.js';
 
-connectDB().catch(console.error);
-
-export default app;
+export default async function handler(req, res) {
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error('[Serverless] Database connection error:', err);
+  }
+  return app(req, res);
+}

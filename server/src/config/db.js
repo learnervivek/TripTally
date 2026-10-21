@@ -8,28 +8,34 @@ export async function connectDB() {
   }
 
   if (cachedPromise) {
-    return cachedPromise;
+    try {
+      await cachedPromise;
+      if (mongoose.connection.readyState === 1) {
+        return mongoose.connection;
+      }
+    } catch {
+      cachedPromise = null;
+    }
   }
 
   const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/triptally';
 
-  cachedPromise = mongoose
-    .connect(uri, {
-      serverSelectionTimeoutMS: 5000,
-    })
-    .then((conn) => {
-      console.log(`[MongoDB] Connected: ${conn.connection.host}`);
-      return conn;
-    })
-    .catch((err) => {
-      cachedPromise = null;
-      console.warn(`[MongoDB] Warning: Could not connect to MongoDB at ${uri}.`);
-      console.warn(`[MongoDB] Detail: ${err.message}`);
-      console.warn('[MongoDB] Running in standalone development mode. Set MONGODB_URI to connect Atlas in production.');
-      return null;
-    });
+  cachedPromise = mongoose.connect(uri, {
+    serverSelectionTimeoutMS: 15000,
+    connectTimeoutMS: 15000,
+    socketTimeoutMS: 30000,
+  });
 
-  return cachedPromise;
+  try {
+    const conn = await cachedPromise;
+    console.log(`[MongoDB] Connected: ${conn.connection.host}`);
+    return conn;
+  } catch (err) {
+    cachedPromise = null;
+    console.warn(`[MongoDB] Warning: Could not connect to MongoDB at ${uri}.`);
+    console.warn(`[MongoDB] Detail: ${err.message}`);
+    throw err;
+  }
 }
 
 export function getDBStatus() {

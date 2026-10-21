@@ -23,23 +23,21 @@ const app = express();
 
 // Ensure database connection is initialized for serverless environments
 app.use(async (req, res, next) => {
-  try {
-    await connectDB();
-  } catch (err) {
-    console.error('[Database] Connection attempt failed:', err.message);
-  }
-
   // Health endpoint always responds even if DB is down
   if (req.path === '/health' || req.path === '/api/health' || req.path === '/') {
     return next();
   }
 
-  // If DB failed to connect in production, return clear error immediately instead of timing out
-  if (!getDBStatus().isConnected && process.env.NODE_ENV === 'production') {
-    return res.status(503).json({
-      success: false,
-      message: 'Database is unavailable. Please verify MONGODB_URI in your Vercel Project Settings -> Environment Variables and ensure MongoDB Atlas Network Access allows 0.0.0.0/0.',
-    });
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error('[Database] Connection attempt failed:', err.message);
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(503).json({
+        success: false,
+        message: `Database connection error: ${err.message}. Please verify MONGODB_URI in Vercel Project Settings -> Environment Variables and ensure MongoDB Atlas Network Access has 0.0.0.0/0 allowed.`,
+      });
+    }
   }
 
   next();
