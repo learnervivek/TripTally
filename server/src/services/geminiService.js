@@ -192,36 +192,81 @@ You MUST respond with pure JSON adhering strictly to this JSON schema without an
 }
 
 /**
+ * Helper to call Gemini models with fallback across active model identifiers
+ */
+async function callGeminiWithFallback(client, primaryModel, contents, config, timeoutMs = 60000) {
+  const modelsToTry = [
+    primaryModel,
+    'gemini-3.1-flash-lite',
+    'gemini-3.8-flash',
+    'gemini-flash-latest',
+  ].filter((m, i, arr) => m && arr.indexOf(m) === i);
+
+  let lastError = null;
+
+  for (const model of modelsToTry) {
+    try {
+      const timeoutPromise = new Promise((_, reject) => {
+        const timer = setTimeout(() => {
+          const err = new Error(`Gemini generation request with ${model} timed out after ${Math.round(timeoutMs / 1000)} seconds.`);
+          err.status = 504;
+          err.code = 'GEMINI_TIMEOUT';
+          reject(err);
+        }, timeoutMs);
+        if (timer.unref) timer.unref();
+      });
+
+      const apiCall = client.models.generateContent({
+        model,
+        contents,
+        config,
+      });
+
+      const response = await Promise.race([apiCall, timeoutPromise]);
+      return { response, usedModel: model };
+    } catch (err) {
+      lastError = err;
+      const errMsg = err.message || '';
+      const isRetryable =
+        errMsg.includes('NOT_FOUND') ||
+        errMsg.includes('not found') ||
+        errMsg.includes('not supported') ||
+        errMsg.includes('no longer available') ||
+        errMsg.includes('UNAVAILABLE') ||
+        errMsg.includes('high demand') ||
+        err.status === 503 ||
+        err.status === 404;
+
+      if (!isRetryable || model === modelsToTry[modelsToTry.length - 1]) {
+        throw err;
+      }
+      console.warn(`[GeminiService] Model "${model}" failed (${errMsg.slice(0, 100)}). Falling back to next available model...`);
+    }
+  }
+
+  throw lastError;
+}
+
+/**
  * Main function to generate itinerary using official @google/genai SDK
  */
-export async function generateItineraryWithGemini(inputParams, timeoutMs = 50000) {
+export async function generateItineraryWithGemini(inputParams, timeoutMs = 60000) {
   const client = getGeminiClient();
-  const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  const modelName = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
 
   const prompt = buildItineraryPrompt(inputParams);
 
-  // Set timeout protection
-  const timeoutPromise = new Promise((_, reject) => {
-    const timer = setTimeout(() => {
-      const err = new Error('Gemini generation request timed out after 50 seconds. Please try again.');
-      err.status = 504;
-      err.code = 'GEMINI_TIMEOUT';
-      reject(err);
-    }, timeoutMs);
-    if (timer.unref) timer.unref();
-  });
-
   try {
-    const apiCall = client.models.generateContent({
-      model: modelName,
-      contents: prompt,
-      config: {
+    const { response } = await callGeminiWithFallback(
+      client,
+      modelName,
+      prompt,
+      {
         responseMimeType: 'application/json',
         temperature: 0.7,
       },
-    });
-
-    const response = await Promise.race([apiCall, timeoutPromise]);
+      timeoutMs
+    );
 
     const rawText =
       response?.text ||
@@ -335,13 +380,26 @@ export async function generateItineraryWithGemini(inputParams, timeoutMs = 50000
     if (
       errMsg.includes('NOT_FOUND') ||
       errMsg.includes('model not found') ||
-      errMsg.includes('is not supported')
+      errMsg.includes('is not supported') ||
+      errMsg.includes('no longer available')
     ) {
       const err = new Error(
         `Gemini model "${modelName}" is unavailable or deprecated. Please configure GEMINI_MODEL in server environment.`
       );
       err.status = 503;
       err.code = 'GEMINI_MODEL_UNAVAILABLE';
+      throw err;
+    }
+
+    if (
+      errMsg.includes('UNAVAILABLE') ||
+      errMsg.includes('high demand')
+    ) {
+      const err = new Error(
+        'Gemini AI is temporarily experiencing high demand from Google. Please try again in a few moments.'
+      );
+      err.status = 503;
+      err.code = 'GEMINI_HIGH_DEMAND';
       throw err;
     }
 
@@ -365,7 +423,7 @@ export async function regenerateDayWithGemini({
   travellers,
 }) {
   const client = getGeminiClient();
-  const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  const modelName = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
 
   const prompt = `
 You are an expert Indian travel planner regenerating Day ${dayNumber} for a trip to ${destination}.
@@ -397,11 +455,13 @@ Output MUST be pure JSON with NO markdown formatting:
 }
 `.trim();
 
-  const response = await client.models.generateContent({
-    model: modelName,
-    contents: prompt,
-    config: { responseMimeType: 'application/json', temperature: 0.8 },
-  });
+  const { response } = await callGeminiWithFallback(
+    client,
+    modelName,
+    prompt,
+    { responseMimeType: 'application/json', temperature: 0.8 },
+    45000
+  );
 
   const rawText =
     response?.text ||

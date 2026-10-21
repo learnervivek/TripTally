@@ -1,20 +1,35 @@
 import mongoose from 'mongoose';
 
+let cachedPromise = null;
+
 export async function connectDB() {
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
+  }
+
+  if (cachedPromise) {
+    return cachedPromise;
+  }
+
   const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/triptally';
 
-  try {
-    const conn = await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 4000,
+  cachedPromise = mongoose
+    .connect(uri, {
+      serverSelectionTimeoutMS: 5000,
+    })
+    .then((conn) => {
+      console.log(`[MongoDB] Connected: ${conn.connection.host}`);
+      return conn;
+    })
+    .catch((err) => {
+      cachedPromise = null;
+      console.warn(`[MongoDB] Warning: Could not connect to MongoDB at ${uri}.`);
+      console.warn(`[MongoDB] Detail: ${err.message}`);
+      console.warn('[MongoDB] Running in standalone development mode. Set MONGODB_URI to connect Atlas in production.');
+      return null;
     });
-    console.log(`[MongoDB] Connected: ${conn.connection.host}`);
-    return conn;
-  } catch (err) {
-    console.warn(`[MongoDB] Warning: Could not connect to MongoDB at ${uri}.`);
-    console.warn(`[MongoDB] Detail: ${err.message}`);
-    console.warn('[MongoDB] Running in standalone development mode. Set MONGODB_URI in server/.env to connect Atlas.');
-    return null;
-  }
+
+  return cachedPromise;
 }
 
 export function getDBStatus() {

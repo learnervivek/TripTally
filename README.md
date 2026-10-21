@@ -79,7 +79,7 @@ flowchart TB
 ## ✨ Features Breakdown
 
 ### 1. Google Gemini AI Itinerary Generator (`/ai-trip-planner`)
-- **Official Google GenAI SDK**: Powered by `@google/genai` utilizing modern `gemini-2.5-flash` for deterministic, structured JSON output.
+- **Official Google GenAI SDK**: Powered by `@google/genai` utilizing modern `gemini-3.1-flash-lite` (with automatic fallback to `gemini-3.8-flash`) for deterministic, structured JSON output.
 - **Tailored for Indian Travellers**: Generates realistic plans for domestic circuits (Manali, Goa, Jaipur, Udaipur, Kashmir, Ladakh, Kerala, Rishikesh, Varanasi, Meghalaya, etc.) and international travel.
 - **Realistic INR Budget Splits**: Accurately allocates transport, stays, food, activities, and miscellaneous costs in Indian Rupees (`₹`) for groups and individuals.
 - **Geographic & Chronological Sequencing**: Sequences start and end times logically by neighborhood to eliminate transit fatigue.
@@ -238,7 +238,7 @@ npm run dev
 | `SMTP_PASS` | Optional | `password` | SMTP password |
 | `EMAIL_FROM` | Optional | `"TripTally" <noreply@...>` | Outgoing sender header |
 | `GEMINI_API_KEY` | Optional | `AIzaSy...` | Google Gemini API Key ([Get free at Google AI Studio](https://aistudio.google.com)) |
-| `GEMINI_MODEL` | Optional | `gemini-2.5-flash` | Gemini model identifier (e.g. `gemini-2.5-flash`, `gemini-1.5-flash`) |
+| `GEMINI_MODEL` | Optional | `gemini-3.1-flash-lite` | Gemini model identifier (e.g. `gemini-3.1-flash-lite`, `gemini-3.8-flash`) |
 | `CLOUDINARY_CLOUD_NAME` | Optional | `your_cloud_name` | Cloudinary cloud identifier for uploads |
 | `CLOUDINARY_API_KEY` | Optional | `your_api_key` | Cloudinary API key |
 | `CLOUDINARY_API_SECRET` | Optional | `your_api_secret` | Cloudinary API secret (safe dev fallback if unconfigured) |

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import crypto from 'crypto';
 
 const tripMemberSchema = new mongoose.Schema(
   {
@@ -92,6 +93,7 @@ const tripSchema = new mongoose.Schema(
       type: String,
       unique: true,
       sparse: true,
+      default: () => crypto.randomBytes(4).toString('hex').toUpperCase(),
     },
     status: {
       type: String,
@@ -103,6 +105,14 @@ const tripSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Ensure inviteCode is never empty
+tripSchema.pre('save', function (next) {
+  if (!this.inviteCode) {
+    this.inviteCode = crypto.randomBytes(4).toString('hex').toUpperCase();
+  }
+  next();
+});
 
 export const Trip = mongoose.model('Trip', tripSchema);
 export default Trip;

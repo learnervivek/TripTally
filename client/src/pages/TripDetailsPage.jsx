@@ -312,7 +312,7 @@ export function TripDetailsPage() {
                 onClick={copyInviteCode}
                 leftIcon={copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
               >
-                {copied ? 'Copied' : `Invite Code: ${trip.inviteCode}`}
+                {copied ? 'Copied' : `Invite Code: ${trip.inviteCode || '...'}`}
               </Button>
             </div>
           </div>
@@ -503,7 +503,7 @@ export function TripDetailsPage() {
             </p>
             <div className="p-3 rounded-xl bg-forest-950 border border-forest-800 flex items-center justify-between">
               <span className="font-mono font-bold text-sm tracking-widest text-ivory-50">
-                {trip.inviteCode}
+                {trip.inviteCode || '...'}
               </span>
               <Button variant="accent" size="sm" onClick={copyInviteCode}>
                 Copy

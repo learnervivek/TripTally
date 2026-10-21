@@ -6,6 +6,7 @@ import nodemailer from 'nodemailer';
 let transporter = null;
 
 function getTransporter() {
+  if (process.env.NODE_ENV === 'test') return null;
   if (transporter) return transporter;
 
   const host = process.env.SMTP_HOST || process.env.EMAIL_HOST;

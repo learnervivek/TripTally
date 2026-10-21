@@ -321,6 +321,12 @@ export async function getTripById(req, res, next) {
       });
     }
 
+    // Ensure inviteCode is generated if missing from legacy records
+    if (!trip.inviteCode) {
+      trip.inviteCode = crypto.randomBytes(4).toString('hex').toUpperCase();
+      await trip.save();
+    }
+
     // Fetch expenses for this trip
     const expenses = await Expense.find({ trip: id })
       .populate('paidBy', 'name email avatar')

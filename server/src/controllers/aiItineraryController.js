@@ -1,4 +1,5 @@
 import * as z from 'zod';
+import crypto from 'crypto';
 import Trip from '../models/Trip.js';
 import ItineraryItem from '../models/ItineraryItem.js';
 import PackingItem from '../models/PackingItem.js';
@@ -256,17 +257,29 @@ export async function saveAiItinerary(req, res, next) {
     const startDate = new Date(data.days[0].date);
     const endDate = new Date(data.days[data.days.length - 1].date);
 
+    const defaultCovers = [
+      'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1527004013197-933c4bb611b3?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
+    ];
+    const finalCover = defaultCovers[Math.floor(Math.random() * defaultCovers.length)];
+    const inviteCode = crypto.randomBytes(4).toString('hex').toUpperCase();
+
     // Create the Trip
     const newTrip = new Trip({
       title: data.tripTitle,
       destination: data.destination,
       description: data.travelTips?.length ? data.travelTips.join(' • ') : `AI-curated itinerary for ${data.destination}`,
+      coverImage: finalCover,
       startDate,
       endDate,
       currency: 'INR',
       budget: data.budget?.total || 0,
       coordinates,
       owner: userId,
+      inviteCode,
       members: [
         {
           user: userId,
