@@ -72,21 +72,36 @@ app.use(requestLogger);
 
 // CORS configuration
 const allowedOrigins = [
-  process.env.CLIENT_URL || 'http://localhost:5173',
+  process.env.CLIENT_URL,
+  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
+  'http://localhost:5173',
   'http://localhost:3000',
   'http://127.0.0.1:5173',
-];
+].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (mobile clients, curl, testing tools)
       if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+
+      // Allow all Vercel preview and production deployments (*.vercel.app)
+      if (origin.endsWith('.vercel.app') || /^https?:\/\/[a-zA-Z0-9_-]+\.vercel\.app$/.test(origin)) {
         return callback(null, true);
       }
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+
+      // Allow configured origins or local development
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.startsWith('http://localhost:') ||
+        origin.startsWith('http://127.0.0.1:') ||
+        process.env.NODE_ENV !== 'production'
+      ) {
+        return callback(null, true);
+      }
+
+      // Allow the origin for client web requests
+      return callback(null, true);
     },
     credentials: true,
   })
