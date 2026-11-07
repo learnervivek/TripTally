@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -8,6 +8,7 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Card, { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/Card';
 import { useAuth } from '../context/AuthContext';
+import SEO from '../components/common/SEO';
 
 const registerSchema = z.object({
   name: z.string().trim().min(2, 'Name must be at least 2 characters').max(60, 'Name cannot exceed 60 characters'),
@@ -54,6 +55,7 @@ export function RegisterPage() {
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+      <SEO title="Create Account | TripTally" noindex description="Create your free TripTally account to plan trips and split expenses with friends." />
       <div className="w-full max-w-md space-y-8">
         
         {/* Brand Header */}

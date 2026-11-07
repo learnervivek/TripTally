@@ -25,6 +25,7 @@ import Badge from '../ui/Badge';
 import { useAuth } from '../../context/AuthContext';
 import CreateTripModal from '../trips/CreateTripModal';
 import tripService from '../../services/tripService';
+import SEO from '../common/SEO';
 
 export function DashboardLayout({ children }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -141,6 +142,7 @@ export function DashboardLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-ivory-100 text-charcoal-900 flex flex-col md:flex-row">
+      <SEO title="Trip Workspace | TripTally" noindex description="Authenticated user workspace for managing trips, budgets, and itineraries." />
       
       {/* 1. Desktop Persistent Sidebar */}
       <aside className="hidden md:flex md:w-64 lg:w-72 flex-col justify-between border-r border-ivory-300 bg-white/90 backdrop-blur-md p-6 sticky top-0 h-screen shrink-0">

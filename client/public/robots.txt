@@ -1,0 +1,44 @@
+# ===================================================
+# TripTally Search Engine Robots Directives
+# https://triptally.vercel.app
+# ===================================================
+
+User-agent: *
+Allow: /
+Allow: /features
+Allow: /ai-itinerary-generator
+Allow: /group-trip-planner
+Allow: /travel-expense-splitter
+Allow: /travel-budget-planner
+Allow: /destinations
+Allow: /destinations/
+Allow: /about
+Allow: /contact
+
+# Protect Authenticated User Workspaces & Private Data
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /trips
+Disallow: /trips/
+Disallow: /invitations
+Disallow: /invitations/
+Disallow: /notifications
+Disallow: /notifications/
+Disallow: /profile
+Disallow: /profile/
+Disallow: /reset-password/
+Disallow: /api/
+
+# Crawler Resource Directives
+Allow: /assets/
+Allow: /*.js$
+Allow: /*.css$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.svg$
+Allow: /*.webp$
+
+# Official XML Sitemap
+Sitemap: https://triptally.vercel.app/sitemap.xml
+

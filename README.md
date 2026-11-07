@@ -2,12 +2,23 @@
 
 [![Tests](https://img.shields.io/badge/tests-187%20passed%20(100%25)-1B4332.svg)](https://github.com)
 [![Gemini AI](https://img.shields.io/badge/AI-Google%20Gemini%202.5%20Flash-4285F4.svg)](https://aistudio.google.com)
+
 [![License](https://img.shields.io/badge/license-MIT-E07A5F.svg)](LICENSE)
 [![React](https://img.shields.io/badge/frontend-React%2018%20%2B%20Vite%206-61DAFB.svg)](https://vitejs.dev)
 [![Node](https://img.shields.io/badge/backend-Express%20%2B%20Node.js-339933.svg)](https://nodejs.org)
 [![MongoDB](https://img.shields.io/badge/database-MongoDB%20Atlas-47A248.svg)](https://www.mongodb.com)
 
 TripTally is an AI-powered, collaborative group travel workspace and expense tallying platform tailored for Indian and global travellers. Built with an editorial travel aesthetic — featuring a warm ivory canvas, deep forest green accents, terracotta highlights, and Google Fonts (*Plus Jakarta Sans* and *Playfair Display*).
+
+> 🎓 **Preparing for Full-Stack Interviews?**  
+> Check out the exhaustive [**TripTally Interview Preparation & System Architecture Guide (`interview.md`)**](interview.md) covering:
+> - 30-sec, 1-min & 2-min elevator pitches
+> - End-to-end request lifecycles and Mermaid sequence diagrams
+> - Gemini AI structured JSON generation & fallback mechanisms
+> - Razorpay HMAC SHA-256 signature verification & idempotent webhooks
+> - Deterministic minor-unit (paise) ledger mathematics & debt simplification algorithms
+> - 160+ categorized technical interview questions and scenario walkthroughs
+
 
 ---
 
@@ -417,6 +428,43 @@ To test the application end-to-end as an evaluator:
    - Output Directory: `dist`
    - Environment Variable: `VITE_API_URL=https://your-api-domain.com/api`
 5. **CORS**: Set `CLIENT_URL=https://your-client-domain.com` in your backend environment variables.
+
+---
+
+## 🔍 Complete Technical SEO Architecture & Strategy
+
+TripTally includes a production-grade, end-to-end SEO implementation designed to attract organic search traffic from Indian travellers searching for AI trip planners, group expense trackers, travel budget calculators, and destination itineraries:
+
+### 1. Build-Time Static Prerendering (SSG for React + Vite)
+- Traditional client-side React SPAs render a blank `<div id="root"></div>` without meta tags or content, leading to delayed search indexing and broken social share previews on WhatsApp, Twitter, and LinkedIn.
+- TripTally uses a custom build-time prerendering engine (`client/scripts/prerender.js`) integrated into `npm run build`.
+- Generates 15 dedicated static HTML files in `dist/` with unique `<title>`, `<meta name="description">`, canonical tags, Open Graph cards, and Schema.org structured data baked directly into initial server responses, while hydrating seamlessly into React on client load.
+
+### 2. High-Performance Bundle Splitting (Core Web Vitals)
+- Configured Vite Rollup `manualChunks` in `client/vite.config.js` and `React.lazy` route code-splitting in `client/src/App.jsx`.
+- Reduced main client bundle from **1.44 MB down to 184 kB** (an 87% reduction in initial JavaScript execution weight).
+- Heavy charting (Leaflet, Recharts) and 3D globe assets are isolated to dynamic chunks, ensuring blazing-fast First Contentful Paint (FCP) and Largest Contentful Paint (LCP).
+
+### 3. Dedicated Keyword-Targeted Public Pages
+- **Homepage (`/`)**: `TripTally – AI Travel Planner & Group Trip Expense Manager`
+- **Features (`/features`)**: Complete suite overview with internal linking architecture.
+- **AI Itinerary Generator (`/ai-itinerary-generator`)**: Google Gemini AI planner deep dive and sample schedules.
+- **Group Trip Planner (`/group-trip-planner`)**: Collaborative co-planning tools and WhatsApp invites.
+- **Travel Expense Splitter (`/travel-expense-splitter`)**: Rupee debt minimization algorithm and UPI settlement walkthrough.
+- **Travel Budget Planner (`/travel-budget-planner`)**: Interactive Indian Trip Cost Calculator widget with category breakdowns.
+- **Destination Guides (`/destinations`)**: Curated domestic circuits with day-by-day itineraries and budgets for Manali, Goa, Kerala, Kashmir, Jaipur, and Rishikesh.
+- **Company Pages (`/about`, `/contact`)**: Brand story, engineering principles, and interactive support inquiry form.
+
+### 4. Structured Data & Schema.org (JSON-LD)
+- `Organization` & `WebSite` schema declaring official brand and domain identity.
+- `SoftwareApplication` schema detailing TripTally travel features, `INR 0.00` free pricing, and browser compatibility.
+- `BreadcrumbList` schema establishing navigation hierarchies.
+- `FAQPage` schema enabling Google Rich Results FAQ accordions in SERPs.
+- `TouristDestination` & `Trip` schema on destination guides.
+
+### 5. Crawler Directives & Privacy Protection
+- Public `robots.txt` and `sitemap.xml` automatically copied to build output and supported by Express backend fallbacks.
+- Authenticated user routes (`/dashboard`, `/trips/*`, `/profile`, `/notifications`, `/invitations`) explicitly enforce `<meta name="robots" content="noindex, nofollow" />` ensuring private user trips and personal data are never exposed or indexed.
 
 ---
 

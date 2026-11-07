@@ -2,14 +2,105 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231B4332'><circle cx='12' cy='12' r='10' stroke='%23FAF8F5' stroke-width='2'/><path d='M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z' fill='none' stroke='%23E07A5F' stroke-width='2'/><path d='M2 12h20' stroke='%23FAF8F5' stroke-width='2'/></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="TripTally - Seamless collaborative trip planning and group expense tallying for friends, adventures, and getaways." />
-    <title>TripTally — Collaborative Trip Planning</title>
-    <!-- Google Fonts: Plus Jakarta Sans & Playfair Display -->
+    
+    <!-- Primary Page Metadata -->
+    <title>TripTally – AI Travel Planner &amp; Group Trip Expense Manager</title>
+    <meta name="description" content="Plan trips with friends, generate personalised travel itineraries, track budgets, and split expenses easily with TripTally, your AI-powered travel planner." />
+    <meta name="keywords" content="travel planner, trip planner, AI travel planner, India travel planner, group travel planner, collaborative trip planner, expense splitting app for trips, travel budget planner, UPI trip expense settlement" />
+    <meta name="author" content="TripTally" />
+    <meta name="application-name" content="TripTally" />
+    <meta name="theme-color" content="#1B4332" />
+    
+    <!-- Search Engine Indexing Directives -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="canonical" href="https://triptally.vercel.app/" />
+
+    <!-- Favicon & App Icons -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231B4332'><circle cx='12' cy='12' r='10' stroke='%23FAF8F5' stroke-width='2'/><path d='M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z' fill='none' stroke='%23E07A5F' stroke-width='2'/><path d='M2 12h20' stroke='%23FAF8F5' stroke-width='2'/></svg>" />
+    <link rel="apple-touch-icon" href="/og-image.png" />
+
+    <!-- Open Graph / Facebook / WhatsApp Social Card -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="TripTally" />
+    <meta property="og:title" content="TripTally – AI Travel Planner &amp; Group Trip Expense Manager" />
+    <meta property="og:description" content="Plan trips with friends, generate personalised travel itineraries, track budgets, and split expenses easily with TripTally, your AI-powered travel planner." />
+    <meta property="og:url" content="https://triptally.vercel.app/" />
+    <meta property="og:image" content="https://triptally.vercel.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="TripTally AI Travel Planner and Collaborative Group Expense Manager" />
+    <meta property="og:locale" content="en_IN" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@TripTallyApp" />
+    <meta name="twitter:creator" content="@TripTallyApp" />
+    <meta name="twitter:title" content="TripTally – AI Travel Planner &amp; Group Trip Expense Manager" />
+    <meta name="twitter:description" content="Plan trips with friends, generate personalised travel itineraries, track budgets, and split expenses easily with TripTally, your AI-powered travel planner." />
+    <meta name="twitter:image" content="https://triptally.vercel.app/og-image.png" />
+    <meta name="twitter:image:alt" content="TripTally AI Travel Planner and Collaborative Group Expense Manager" />
+
+    <!-- High-Performance Font Preconnects -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://images.unsplash.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+    <!-- Schema.org Global JSON-LD Structured Data: Organization, WebSite & SoftwareApplication -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://triptally.vercel.app/#organization",
+          "name": "TripTally",
+          "legalName": "TripTally Travel Technologies",
+          "url": "https://triptally.vercel.app",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://triptally.vercel.app/og-image.png",
+            "width": 1200,
+            "height": 630
+          },
+          "description": "Collaborative travel planning platform with AI itinerary generation, budget management, and group expense splitting.",
+          "foundingDate": "2024",
+          "sameAs": [
+            "https://twitter.com/TripTallyApp",
+            "https://github.com/learnervivek/TripTally"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://triptally.vercel.app/#website",
+          "url": "https://triptally.vercel.app",
+          "name": "TripTally",
+          "description": "AI Travel Planner & Group Trip Expense Manager",
+          "publisher": {
+            "@id": "https://triptally.vercel.app/#organization"
+          },
+          "inLanguage": "en-IN"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://triptally.vercel.app/#software",
+          "name": "TripTally",
+          "applicationCategory": "TravelApplication",
+          "operatingSystem": "All modern web browsers",
+          "url": "https://triptally.vercel.app",
+          "description": "AI-powered collaborative travel planner and group expense tracker for trips across India.",
+          "offers": {
+            "@type": "Offer",
+            "price": "0.00",
+            "priceCurrency": "INR"
+          }
+        }
+      ]
+    }
+    </script>
   </head>
   <body class="bg-ivory-100 text-charcoal-900 font-sans antialiased selection:bg-forest-100 selection:text-forest-800">
     <div id="root"></div>

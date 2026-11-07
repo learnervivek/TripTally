@@ -9,6 +9,7 @@ import Input from '../components/ui/Input';
 import Card, { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import { useAuth } from '../context/AuthContext';
+import SEO from '../components/common/SEO';
 
 const loginSchema = z.object({
   email: z.string().trim().email('Please enter a valid email address'),
@@ -75,6 +76,7 @@ export function LoginPage() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+      <SEO title="Sign In | TripTally" noindex description="Sign in to your TripTally account to manage your trips and expenses." />
       <div className="w-full max-w-md space-y-8">
         
         {/* Brand Header */}

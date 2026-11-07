@@ -87,41 +87,36 @@ export function Navbar() {
 
             {/* Desktop Navigation Links */}
             <nav className="hidden md:flex items-center gap-1 lg:gap-2">
-              <a
-                href="#destinations"
-                onClick={(e) => handleNavClick(e, '#destinations')}
+              <Link
+                to="/destinations"
                 className="px-3.5 py-2 rounded-xl text-sm font-medium text-charcoal-600 hover:text-forest-800 hover:bg-ivory-200/60 transition-colors"
               >
                 Destinations
-              </a>
-              <a
-                href="#features"
-                onClick={(e) => handleNavClick(e, '#features')}
+              </Link>
+              <Link
+                to="/features"
                 className="px-3.5 py-2 rounded-xl text-sm font-medium text-charcoal-600 hover:text-forest-800 hover:bg-ivory-200/60 transition-colors"
               >
                 Features
-              </a>
-              <a
-                href="#how-it-works"
-                onClick={(e) => handleNavClick(e, '#how-it-works')}
+              </Link>
+              <Link
+                to="/ai-itinerary-generator"
                 className="px-3.5 py-2 rounded-xl text-sm font-medium text-charcoal-600 hover:text-forest-800 hover:bg-ivory-200/60 transition-colors"
               >
-                How It Works
-              </a>
-              <a
-                href="#preview"
-                onClick={(e) => handleNavClick(e, '#preview')}
+                AI Planner
+              </Link>
+              <Link
+                to="/about"
                 className="px-3.5 py-2 rounded-xl text-sm font-medium text-charcoal-600 hover:text-forest-800 hover:bg-ivory-200/60 transition-colors"
               >
-                Product Preview
-              </a>
-              <a
-                href="#faq"
-                onClick={(e) => handleNavClick(e, '#faq')}
+                About
+              </Link>
+              <Link
+                to="/contact"
                 className="px-3.5 py-2 rounded-xl text-sm font-medium text-charcoal-600 hover:text-forest-800 hover:bg-ivory-200/60 transition-colors"
               >
-                FAQ
-              </a>
+                Contact
+              </Link>
             </nav>
 
             {/* Desktop Action Buttons */}
@@ -281,41 +276,41 @@ export function Navbar() {
             )}
 
             <div className="flex flex-col space-y-1">
-              <a
-                href="#destinations"
-                onClick={(e) => handleNavClick(e, '#destinations')}
+              <Link
+                to="/destinations"
+                onClick={() => setMobileMenuOpen(false)}
                 className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-charcoal-700 hover:bg-ivory-100"
               >
                 Destinations
-              </a>
-              <a
-                href="#features"
-                onClick={(e) => handleNavClick(e, '#features')}
+              </Link>
+              <Link
+                to="/features"
+                onClick={() => setMobileMenuOpen(false)}
                 className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-charcoal-700 hover:bg-ivory-100"
               >
                 Features
-              </a>
-              <a
-                href="#how-it-works"
-                onClick={(e) => handleNavClick(e, '#how-it-works')}
+              </Link>
+              <Link
+                to="/ai-itinerary-generator"
+                onClick={() => setMobileMenuOpen(false)}
                 className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-charcoal-700 hover:bg-ivory-100"
               >
-                How It Works
-              </a>
-              <a
-                href="#preview"
-                onClick={(e) => handleNavClick(e, '#preview')}
+                AI Planner
+              </Link>
+              <Link
+                to="/about"
+                onClick={() => setMobileMenuOpen(false)}
                 className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-charcoal-700 hover:bg-ivory-100"
               >
-                Product Preview
-              </a>
-              <a
-                href="#faq"
-                onClick={(e) => handleNavClick(e, '#faq')}
+                About
+              </Link>
+              <Link
+                to="/contact"
+                onClick={() => setMobileMenuOpen(false)}
                 className="px-3.5 py-2.5 rounded-xl text-sm font-medium text-charcoal-700 hover:bg-ivory-100"
               >
-                FAQ
-              </a>
+                Contact
+              </Link>
             </div>
 
             <div className="pt-3 border-t border-ivory-200 flex flex-col gap-2">

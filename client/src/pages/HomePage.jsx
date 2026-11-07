@@ -42,6 +42,13 @@ import AuthModal from '../components/auth/AuthModal';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { formatINR } from '../utils/currency';
+import SEO from '../components/common/SEO';
+import {
+  PAGE_SEO,
+  getOrganizationSchema,
+  getSoftwareApplicationSchema,
+  getFAQSchema,
+} from '../data/seoData';
 
 // Interactive Dynamic Hero Trip Showcase component
 import HeroTripShowcase from '../components/landing/HeroTripShowcase';
@@ -241,7 +248,7 @@ const integratedFeatures = [
     description:
       'Generate day-by-day travel plans customized to your destination, dates, budget in INR, companions, and travel style with activities and cost estimates.',
     icon: Sparkles,
-    link: '/ai-trip-planner',
+    link: '/ai-itinerary-generator',
     actionText: 'Try AI Planner',
   },
   {
@@ -253,7 +260,7 @@ const integratedFeatures = [
     description:
       'Invite travel companions via email or a 1-click WhatsApp link. Assign Organizer, Editor, or Viewer roles so everyone stays on the exact same page.',
     icon: Users,
-    link: '/trips',
+    link: '/group-trip-planner',
     actionText: 'Start Group Trip',
   },
   {
@@ -265,7 +272,7 @@ const integratedFeatures = [
     description:
       'Structure daily schedules, transit timing, hotel stays, and attractions. Explore pin drops and geographic routes with interactive OpenStreetMap views.',
     icon: Calendar,
-    link: '/trips',
+    link: '/features#interactive-maps',
     actionText: 'View Timeline',
   },
   {
@@ -277,7 +284,7 @@ const integratedFeatures = [
     description:
       'Log group expenses in Indian Rupees with equal or custom splits. Our debt minimization algorithm calculates net balances with minimal direct transfers.',
     icon: Split,
-    link: '/trips',
+    link: '/travel-expense-splitter',
     actionText: 'Split Expenses',
   },
   {
@@ -289,7 +296,7 @@ const integratedFeatures = [
     description:
       'Monitor group targets against actual spend across Lodging, Food, Transport, and Activities. Configure alert thresholds to keep group savings on track.',
     icon: PieChart,
-    link: '/trips',
+    link: '/travel-budget-planner',
     actionText: 'Track Budget',
   },
   {
@@ -301,7 +308,7 @@ const integratedFeatures = [
     description:
       'Coordinate shared and personal packing lists categorized by Clothing, Documents, Electronics, and Medical supplies with companion assignment.',
     icon: Luggage,
-    link: '/trips',
+    link: '/features#packing-checklist',
     actionText: 'Organize Packing',
   },
   {
@@ -313,7 +320,7 @@ const integratedFeatures = [
     description:
       'Record offline UPI settlements (GPay, PhonePe, Paytm, BHIM) or complete secure test-mode online payments with verified transaction receipts.',
     icon: IndianRupee,
-    link: '/trips',
+    link: '/travel-expense-splitter',
     actionText: 'Settle Debts',
   },
   {
@@ -325,7 +332,7 @@ const integratedFeatures = [
     description:
       'Stay in sync with real-time in-app activity feeds and automated balance reminders so no companion is left wondering about trip updates.',
     icon: Bell,
-    link: '/notifications',
+    link: '/features#group-workspace',
     actionText: 'Stay Updated',
   },
 ];
@@ -424,7 +431,18 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-ivory-50 text-charcoal-900 selection:bg-forest-100 selection:text-forest-900 overflow-x-hidden">
+    <main className="min-h-screen bg-ivory-50 text-charcoal-900 selection:bg-forest-100 selection:text-forest-900 overflow-x-hidden">
+      <SEO
+        title={PAGE_SEO.home.title}
+        description={PAGE_SEO.home.description}
+        canonical={PAGE_SEO.home.canonical}
+        keywords={PAGE_SEO.home.keywords}
+        schema={[
+          getOrganizationSchema(),
+          getSoftwareApplicationSchema(),
+          getFAQSchema(faqs),
+        ]}
+      />
       
       {/* ---------------- 1. Hero Section: Collaborative India Trip Planner ---------------- */}
       <section className="relative pt-4 pb-10 lg:pt-6 lg:pb-14 overflow-hidden border-b border-ivory-200/70">
@@ -451,8 +469,8 @@ export default function HomePage() {
 
               {/* Required Exact Headline */}
               <h1 className="font-serif text-3xl sm:text-4xl lg:text-[44px] font-bold text-charcoal-900 leading-[1.12] tracking-tight mb-3">
-                Plan Better Trips. <br />
-                <span className="italic font-normal text-forest-700">Travel Together.</span>
+                Plan Better Trips with TripTally. <br />
+                <span className="italic font-normal text-forest-700">Travel Together Across India.</span>
               </h1>
 
               {/* Required Exact Supporting Text */}
@@ -531,9 +549,17 @@ export default function HomePage() {
                 Popular Destinations Across India
               </h2>
             </div>
-            <p className="text-sm text-charcoal-600 max-w-md mt-3 md:mt-0 leading-relaxed">
-              Explore handpicked domestic destinations with estimated budgets in ₹, ideal duration, and seamless trip planner integration.
-            </p>
+            <div className="mt-3 md:mt-0 text-left md:text-right">
+              <p className="text-sm text-charcoal-600 max-w-md leading-relaxed mb-2">
+                Explore handpicked domestic destinations with estimated budgets in ₹, ideal duration, and seamless trip planner integration.
+              </p>
+              <Link
+                to="/destinations"
+                className="text-xs font-bold text-forest-700 hover:text-forest-900 inline-flex items-center gap-1 transition-colors"
+              >
+                View All Itinerary Guides &amp; Budgets <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -546,6 +572,8 @@ export default function HomePage() {
                   <img
                     src={dest.image}
                     alt={dest.alt}
+                    width="800"
+                    height="480"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                     loading="lazy"
                     onError={(e) => {
@@ -624,6 +652,14 @@ export default function HomePage() {
             <p className="text-sm sm:text-base text-charcoal-600 leading-relaxed">
               From Gemini AI-generated day-by-day itineraries to fair rupee split ledgers, interactive maps, and smart packing, TripTally brings your entire journey under one collaborative roof.
             </p>
+            <div className="mt-3">
+              <Link
+                to="/features"
+                className="text-xs font-bold text-forest-700 hover:text-forest-900 inline-flex items-center gap-1 transition-colors"
+              >
+                Explore Full Platform Capabilities &amp; Tools <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -634,7 +670,9 @@ export default function HomePage() {
                   key={feat.id}
                   className="bg-white rounded-2xl p-5 sm:p-6 border border-ivory-200/90 shadow-soft hover:shadow-soft-lg hover:border-forest-600/30 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
                   onClick={() => {
-                    if (feat.link === '/ai-trip-planner') {
+                    if (feat.link.startsWith('/features') || feat.link.startsWith('/ai-itinerary-generator') || feat.link.startsWith('/group-trip-planner') || feat.link.startsWith('/travel-expense-splitter') || feat.link.startsWith('/travel-budget-planner')) {
+                      navigate(feat.link);
+                    } else if (feat.link === '/ai-trip-planner') {
                       if (isAuthenticated) {
                         navigate('/ai-trip-planner');
                       } else {
@@ -958,6 +996,6 @@ export default function HomePage() {
         initialMode={authModalMode}
       />
 
-    </div>
+    </main>
   );
 }

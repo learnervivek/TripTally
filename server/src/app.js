@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 
 import healthRoutes from './routes/healthRoutes.js';
 import authRoutes from './routes/authRoutes.js';
@@ -137,6 +138,38 @@ app.get('/', (req, res) => {
       },
     },
   });
+});
+
+// Search Engine Directives Fallback Handlers
+app.get('/robots.txt', (req, res) => {
+  const possiblePaths = [
+    path.resolve(process.cwd(), '..', 'client', 'public', 'robots.txt'),
+    path.resolve(process.cwd(), 'client', 'public', 'robots.txt'),
+    path.resolve(process.cwd(), '..', 'client', 'dist', 'robots.txt'),
+  ];
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      res.setHeader('Content-Type', 'text/plain');
+      return res.sendFile(p);
+    }
+  }
+  const clientUrl = process.env.CLIENT_URL || 'https://triptally.vercel.app';
+  res.type('text/plain').send(`User-agent: *\nAllow: /\nDisallow: /dashboard\nDisallow: /trips\nDisallow: /api/\nSitemap: ${clientUrl}/sitemap.xml\n`);
+});
+
+app.get('/sitemap.xml', (req, res) => {
+  const possiblePaths = [
+    path.resolve(process.cwd(), '..', 'client', 'public', 'sitemap.xml'),
+    path.resolve(process.cwd(), 'client', 'public', 'sitemap.xml'),
+    path.resolve(process.cwd(), '..', 'client', 'dist', 'sitemap.xml'),
+  ];
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      res.setHeader('Content-Type', 'application/xml');
+      return res.sendFile(p);
+    }
+  }
+  res.status(404).send('Sitemap not found');
 });
 
 // General API Rate Limiting
