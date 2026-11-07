@@ -107,7 +107,7 @@ const aiFaqs = [
   {
     question: 'How does the TripTally AI Itinerary Generator work?',
     answer:
-      'TripTally leverages the Google Gemini 2.5 Flash API trained on travel planning workflows. You supply your destination, dates, budget in Indian Rupees (₹), group composition, and travel pace. The AI returns a structured day-by-day itinerary complete with timings, locations, estimated activity costs, and transit tips.',
+      'TripTally leverages the Google Gemini 3.1 Flash API trained on travel planning workflows. You supply your destination, dates, budget in Indian Rupees (₹), group composition, and travel pace. The AI returns a structured day-by-day itinerary complete with timings, locations, estimated activity costs, and transit tips.',
   },
   {
     question: 'Can I customize the generated AI travel plan?',

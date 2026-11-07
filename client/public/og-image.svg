@@ -84,7 +84,7 @@
       <!-- Tag 1 -->
       <g transform="translate(0, 0)">
         <rect width="230" height="40" rx="12" fill="#143426" stroke="#2D6A4F" stroke-width="1.2"/>
-        <text x="20" y="25" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="600" fill="#E07A5F">✦ Gemini 2.5 AI Itinerary</text>
+        <text x="20" y="25" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="600" fill="#E07A5F">✦ Gemini 3.1 AI Itinerary</text>
       </g>
       <!-- Tag 2 -->
       <g transform="translate(250, 0)">

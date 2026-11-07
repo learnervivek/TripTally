@@ -106,7 +106,7 @@ const routes = [
       'AI itinerary generator, AI travel planner, India trip itinerary generator, free AI itinerary maker, custom travel itinerary generator',
     ogImage: `${SITE_URL}/og-image.png`,
     h1: 'AI Itinerary Generator – Free Personalised Travel Plans in Seconds',
-    h2: 'Google Gemini 2.5 Flash Travel Intelligence',
+    h2: 'Google Gemini 3.1 Flash Travel Intelligence',
     content:
       'Tell TripTally where you want to go and your budget in Indian Rupees (₹), and get a tailored day-by-day itinerary with timings, locations, estimated activity costs, and transit tips ready to share with friends. Easily customize and convert any AI plan into a collaborative group trip board.',
     schemas: [

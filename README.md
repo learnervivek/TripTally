@@ -1,7 +1,7 @@
 # TripTally — AI-Powered Collaborative Group Travel Planner & Expense Hub
 
 [![Tests](https://img.shields.io/badge/tests-187%20passed%20(100%25)-1B4332.svg)](https://github.com)
-[![Gemini AI](https://img.shields.io/badge/AI-Google%20Gemini%202.5%20Flash-4285F4.svg)](https://aistudio.google.com)
+[![Gemini AI](https://img.shields.io/badge/AI-Google%20Gemini%203.1%20Flash-4285F4.svg)](https://aistudio.google.com)
 
 [![License](https://img.shields.io/badge/license-MIT-E07A5F.svg)](LICENSE)
 [![React](https://img.shields.io/badge/frontend-React%2018%20%2B%20Vite%206-61DAFB.svg)](https://vitejs.dev)
@@ -9,15 +9,6 @@
 [![MongoDB](https://img.shields.io/badge/database-MongoDB%20Atlas-47A248.svg)](https://www.mongodb.com)
 
 TripTally is an AI-powered, collaborative group travel workspace and expense tallying platform tailored for Indian and global travellers. Built with an editorial travel aesthetic — featuring a warm ivory canvas, deep forest green accents, terracotta highlights, and Google Fonts (*Plus Jakarta Sans* and *Playfair Display*).
-
-> 🎓 **Preparing for Full-Stack Interviews?**  
-> Check out the exhaustive [**TripTally Interview Preparation & System Architecture Guide (`interview.md`)**](interview.md) covering:
-> - 30-sec, 1-min & 2-min elevator pitches
-> - End-to-end request lifecycles and Mermaid sequence diagrams
-> - Gemini AI structured JSON generation & fallback mechanisms
-> - Razorpay HMAC SHA-256 signature verification & idempotent webhooks
-> - Deterministic minor-unit (paise) ledger mathematics & debt simplification algorithms
-> - 160+ categorized technical interview questions and scenario walkthroughs
 
 
 ---
@@ -62,7 +53,7 @@ flowchart TB
 
     subgraph Data["Persistence & External Services"]
         Mongo[(MongoDB Atlas / Local DB)]
-        Gemini[Google Gemini 2.5 Flash AI]
+        Gemini[Google Gemini 3.1 Flash AI]
         CDN[Cloudinary CDN Media Storage]
         RZP[Razorpay / UPI Payment Gateway]
         OSM[OpenStreetMap / Nominatim]

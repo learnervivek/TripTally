@@ -118,7 +118,7 @@ export default function AboutPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-forest-600" />
-                  <span>Powered by Google Gemini 2.5 Flash AI</span>
+                  <span>Powered by Google Gemini 3.1 Flash AI</span>
                 </div>
               </div>
             </div>
@@ -196,7 +196,7 @@ export default function AboutPage() {
 
             <div className="bg-white p-6 rounded-2xl border border-ivory-200 shadow-soft">
               <span className="font-mono text-xs font-bold text-forest-700 block mb-1">AI ENGINE</span>
-              <h3 className="font-serif text-base font-bold text-charcoal-900 mb-2">Google Gemini 2.5</h3>
+              <h3 className="font-serif text-base font-bold text-charcoal-900 mb-2">Google Gemini 3.1</h3>
               <p className="text-xs text-charcoal-600 leading-relaxed">
                 Low-latency, high-accuracy structured JSON itinerary generation tailored to destination constraints and budget.
               </p>

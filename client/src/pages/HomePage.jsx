@@ -243,7 +243,7 @@ const integratedFeatures = [
     id: 'ai-itinerary',
     title: 'Personalised AI Itinerary Generator',
     category: 'AI Assistant',
-    tag: 'Gemini 2.5 Flash',
+    tag: 'Gemini 3.1 Flash',
     tagVariant: 'forest',
     description:
       'Generate day-by-day travel plans customized to your destination, dates, budget in INR, companions, and travel style with activities and cost estimates.',
